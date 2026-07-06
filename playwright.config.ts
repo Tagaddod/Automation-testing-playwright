@@ -27,6 +27,7 @@ export default defineConfig({
     {
       name: "setup",
       testMatch: /.*\.setup\.ts/,
+      timeout: 120_000,
     },
     {
       name: "b2b",
@@ -48,6 +49,8 @@ export default defineConfig({
       name: "b2x",
       dependencies: ["setup"],
       testMatch: "b2x/**/*.spec.ts",
+      fullyParallel: false,
+      timeout: 180_000,
       use: {
         storageState: "playwright/.auth/user.json",
       },

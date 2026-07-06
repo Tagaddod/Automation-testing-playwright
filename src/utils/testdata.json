@@ -47,5 +47,22 @@
     "b2bInvalidSubmission": {
       "phone": "012345",
       "address": "not-valid-coordinates"
+    },
+    "b2x": {
+      "traderNamePrefix": "test-trader",
+      "existingTraderName": "meko",
+      "nonExistingTraderName": "non-existent-trader-000000",
+      "address": "30.012345678,31.012345678",
+      "warehouseAddress": "30.112345678,31.112345678",
+      "invalidPhone": "012345",
+      "pricePerKilo": "10",
+      "secondaryPricePerKilo": "15",
+      "quantity": 2,
+      "notes": "test automation note",
+      "errors": {
+        "phoneRequired": "رقم التليفون مطلوب",
+        "countryCodeRequired": "رمز الدولة مطلوب",
+        "addressRequired": "العنوان مطلوب"
+      }
     }
 }

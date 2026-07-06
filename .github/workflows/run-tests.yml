@@ -162,6 +162,9 @@ jobs:
     needs: test
     if: always() && !cancelled()
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/
@@ -220,6 +223,8 @@ jobs:
           </html>
           EOF
 
+          touch "$SITE/.nojekyll"
+
       - name: Set report URL
         id: pages_url
         run: |
@@ -228,12 +233,14 @@ jobs:
           URL="https://${OWNER}.github.io/${REPO}/reports/${{ github.run_id }}/"
           echo "url=${URL}" >> "$GITHUB_OUTPUT"
 
-      - name: Publish to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          publish_branch: gh-pages
+          path: ./site
+
+      - uses: actions/deploy-pages@v4
+        id: deployment
 
       - name: Playwright report summary
         if: always()
