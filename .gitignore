@@ -4,3 +4,4 @@ playwright-report/
 test-results/
 .env
 playwright/.auth/user.json
+playwright/.auth/token.json

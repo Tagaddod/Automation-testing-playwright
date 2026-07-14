@@ -10,6 +10,7 @@
     "report:open": "playwright show-report playwright-report",
     "b2b": "npx playwright test --project=b2b",
     "b2b:newbranch:debug": "playwright test --project=b2b --debug --workers=1 tests/b2b/e2eCreateNewBranch.spec.ts -g \"Create new branch\"",
+    "api": "npx playwright test --project=api",
     "greenpan": "npx playwright test --grep @greenpan"
   },
   "repository": {
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/Tagaddod/frontend-testing-playwright#readme",
   "devDependencies": {
+    "@faker-js/faker": "^10.5.0",
     "@playwright/cli": "^0.1.14",
     "@playwright/test": "^1.58.2",
     "@types/dotenv": "^6.1.1",

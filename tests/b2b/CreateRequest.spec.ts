@@ -11,7 +11,7 @@ test.describe("B2B create request", () => {
     await expect(page).not.toHaveURL(/\/auth/);
   });
 
-  test("create request for new branch", { tag: ["@b2b", "@smoke", "@regression", "@e2e"] }, async ({ page }) => {
+  test("create request for new branch", { tag: ["@b2b", "create b2b request", "@regression"] }, async ({ page }) => {
     const b2bData = getB2bTestData();
 
     await po.completeB2BCreateNewBranchFlow(b2bData);
