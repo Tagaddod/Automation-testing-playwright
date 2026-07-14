@@ -5,23 +5,19 @@ import {
   buildBusinessClientData,
 } from "../../../src/api/b2b/testData";
 
-test.describe("B2B GraphQL API @api @b2b","create business client", () => {
+test.describe("B2B GraphQL API @api @b2b, @create business client", () => {
   test("create business client", async ({ api }) => {
     const brands = await api.b2b.getBrandTypes();
     expect(brands.errors).toBeUndefined();
 
     const brandTypeId = brands.data?.getBrandTypesB2bForm?.[0]?.id;
     expect(brandTypeId, "No brand types returned from getBrandTypesB2bForm").toBeTruthy();
-
     const data = buildBusinessClientData({ brand_type_id: brandTypeId! });
     const response = await api.b2b.createBusinessClient(data);
-
     expect(response.errors).toBeUndefined();
-
     const businessClient = response.data?.createBusinessClientB2bForm;
     expect(businessClient?.id).toBeTruthy();
     expect(businessClient?.brandType?.id).toBe(brandTypeId);
-
     const filePath = saveApiResponse("createBusinessClient", response);
     console.log(`Saved business client response to ${filePath}`);
   });
