@@ -23,14 +23,13 @@ on:
           - b2x
           - superapp
       suite:
-        description: Test suite
+        description: Test suite tag (matched as @<suite> via --grep)
         required: true
-        default: e2e
+        default: create business client
         type: choice
         options:
-          - smoke
+          - create business client
           - regression
-          - e2e
       execution_id:
         description: QA Dashboard execution ID (optional)
         required: false
@@ -84,13 +83,14 @@ jobs:
 
       - name: Run Playwright API tests
         run: |
-          echo "Command: ENV=${{ inputs.env }} npx playwright test --project=api tests/api/${{ inputs.platform }} --grep @${{ inputs.suite }}"
-          ENV="${{ inputs.env }}" npx playwright test --project=api "tests/api/${{ inputs.platform }}" --grep "@${{ inputs.suite }}"
+          SUITE_TAG="@${{ inputs.suite }}"
+          echo "Command: ENV=${{ inputs.env }} npx playwright test --project=api tests/api/${{ inputs.platform }} --grep \"${SUITE_TAG}\""
+          ENV="${{ inputs.env }}" npx playwright test --project=api "tests/api/${{ inputs.platform }}" --grep "${SUITE_TAG}"
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ inputs.platform }}-${{ inputs.suite }}-${{ inputs.env }}
+          name: playwright-report-${{ inputs.platform }}-${{ inputs.env }}
           path: |
             playwright-report/
             test-results/

@@ -5,7 +5,10 @@ import {
   buildBusinessClientData,
 } from "../../../src/api/b2b/testData";
 
-test.describe("B2B GraphQL API @api @b2b, @create business client", () => {
+test.describe(
+  "B2B GraphQL API",
+  { tag: ["@api", "@b2b", "@create business client"] },
+  () => {
   test("create business client", async ({ api }) => {
     const brands = await api.b2b.getBrandTypes();
     expect(brands.errors).toBeUndefined();
