@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { test as setup } from "../../src/fixtures/loginFixture";
 import { URLs } from "../../src/config/urls";
+import { saveAuthToken } from "../../src/utils/authApi";
 
 const AUTH_STATE_PATH = "playwright/.auth/user.json";
 
@@ -26,10 +27,12 @@ async function waitForAuthRedirect(page: import("@playwright/test").Page, authUr
 }
 
 /**
- * Runs once before B2B tests: token login → save cookies/localStorage for reuse.
+ * Runs once before B2B / API tests:
+ * GraphQL login (existing apiLogin) → persist JWT + browser storageState.
  */
 setup("authenticate B2B and save storage state", async ({ page, token }) => {
   mkdirSync(dirname(AUTH_STATE_PATH), { recursive: true });
+  saveAuthToken(token);
 
   await waitForAuthRedirect(page, `${URLs.b2b.auth}${token}`);
   await page.context().storageState({ path: AUTH_STATE_PATH });

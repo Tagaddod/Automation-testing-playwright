@@ -1,4 +1,4 @@
-name: Run Playwright Tests
+name: Run Playwright API Tests
 
 on:
   workflow_dispatch:
@@ -19,20 +19,18 @@ on:
         type: choice
         options:
           - b2b
-          - b2c
+          - warehouse
           - b2x
-          - greenpan
+          - superapp
       suite:
         description: Test suite
         required: true
         default: e2e
         type: choice
         options:
-          - create b2b request
+          - smoke
           - regression
-          - create b2x request
-          - create b2c request
-
+          - e2e
       execution_id:
         description: QA Dashboard execution ID (optional)
         required: false
@@ -66,7 +64,6 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run test:install-browsers
 
       - name: Debug test parameters
         run: |
@@ -78,17 +75,17 @@ jobs:
       - name: Validate platform
         run: |
           case "${{ inputs.platform }}" in
-            b2b|b2c|b2x|greenpan) ;;
+            b2b|warehouse|b2x|superapp) ;;
             *)
-              echo "Invalid platform: ${{ inputs.platform }}. Must be one of: b2b, b2c, b2x, greenpan."
+              echo "Invalid platform: ${{ inputs.platform }}. Must be one of: b2b, warehouse, b2x, superapp."
               exit 1
               ;;
           esac
 
-      - name: Run Playwright tests
+      - name: Run Playwright API tests
         run: |
-          echo "Command: ENV=${{ inputs.env }} npx playwright test --project=${{ inputs.platform }} tests/${{ inputs.platform }} --grep @${{ inputs.suite }}"
-          ENV="${{ inputs.env }}" npx playwright test --project="${{ inputs.platform }}" "tests/${{ inputs.platform }}" --grep "@${{ inputs.suite }}"
+          echo "Command: ENV=${{ inputs.env }} npx playwright test --project=api tests/api/${{ inputs.platform }} --grep @${{ inputs.suite }}"
+          ENV="${{ inputs.env }}" npx playwright test --project=api "tests/api/${{ inputs.platform }}" --grep "@${{ inputs.suite }}"
 
       - uses: actions/upload-artifact@v4
         if: always()
