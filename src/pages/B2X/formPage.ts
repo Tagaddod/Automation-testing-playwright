@@ -1,4 +1,6 @@
-import { expect, Locator, Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
+
 import { fillAddressLatLong } from "../../utils/fillAddressLatLong";
 import { fillCountryCode as selectCountryCode } from "../../utils/fillCountryCode";
 import { images } from "../../utils/images";
@@ -40,35 +42,35 @@ export class formPage {
     this.pickupAddress = page.locator("#pickupAddress");
     this.warehouseAddress = page.locator("#warehouseAddress");
     this.hasWarehouseYes = page.locator(
-      '.ant-radio-button-wrapper:has(input[name="warehouseAvailability"][value="true"])'
+      '.ant-radio-button-wrapper:has(input[name="warehouseAvailability"][value="true"])',
     );
     this.hasWarehouseNo = page.locator(
-      '.ant-radio-button-wrapper:has(input[name="warehouseAvailability"][value="false"])'
+      '.ant-radio-button-wrapper:has(input[name="warehouseAvailability"][value="false"])',
     );
     this.nextButton = page.getByRole("button", { name: "التالي" }).last();
     this.phoneErrorMessage = page.locator(
-      ".ant-form-item:has(#phoneNumber) .ant-form-item-explain-error"
+      ".ant-form-item:has(#phoneNumber) .ant-form-item-explain-error",
     );
     this.countryCodeErrorMessage = page.locator(
-      ".ant-form-item:has(#countryCode) .ant-form-item-explain-error"
+      ".ant-form-item:has(#countryCode) .ant-form-item-explain-error",
     );
     this.traderTypeErrorMessage = page.locator(
-      ".ant-form-item:has(#traderType) .ant-form-item-explain-error"
+      ".ant-form-item:has(#traderType) .ant-form-item-explain-error",
     );
     this.nationalIdErrorMessage = page.locator(
-      ".ant-form-item:has(#nationalIdImage) .ant-form-item-explain-error"
+      ".ant-form-item:has(#nationalIdImage) .ant-form-item-explain-error",
     );
     this.personalImageErrorMessage = page.locator(
-      ".ant-form-item:has(#personalImage) .ant-form-item-explain-error"
+      ".ant-form-item:has(#personalImage) .ant-form-item-explain-error",
     );
     this.vehicleTypeErrorMessage = page.locator(
-      ".ant-form-item:has(#vehicleType) .ant-form-item-explain-error"
+      ".ant-form-item:has(#vehicleType) .ant-form-item-explain-error",
     );
     this.pickupAddressErrorMessage = page.locator(
-      ".ant-form-item:has(#pickupAddress) .ant-form-item-explain-error"
+      ".ant-form-item:has(#pickupAddress) .ant-form-item-explain-error",
     );
     this.warehouseAddressErrorMessage = page.locator(
-      ".ant-form-item:has(#warehouseAddress) .ant-form-item-explain-error"
+      ".ant-form-item:has(#warehouseAddress) .ant-form-item-explain-error",
     );
   }
 
@@ -83,9 +85,7 @@ export class formPage {
   }
 
   private async selectAntDropdown(fieldId: string, optionIndex = 0) {
-    const selector = this.page.locator(
-      `.ant-form-item:has(#${fieldId}) .ant-select-selector`
-    );
+    const selector = this.page.locator(`.ant-form-item:has(#${fieldId}) .ant-select-selector`);
     await selector.scrollIntoViewIfNeeded();
     await selector.click();
 

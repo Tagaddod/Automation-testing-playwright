@@ -1,7 +1,8 @@
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { test as setup } from "../../src/fixtures/loginFixture";
+
 import { URLs } from "../../src/config/urls";
+import { test as setup } from "../../src/fixtures/loginFixture";
 import { saveAuthToken } from "../../src/utils/authApi";
 
 const AUTH_STATE_PATH = "playwright/.auth/user.json";
@@ -20,7 +21,9 @@ async function waitForAuthRedirect(page: import("@playwright/test").Page, authUr
       return;
     } catch {
       if (attempt === 2) {
-        throw new Error("Auth redirect failed after 3 attempts (Network Error or timeout on staging).");
+        throw new Error(
+          "Auth redirect failed after 3 attempts (Network Error or timeout on staging).",
+        );
       }
     }
   }

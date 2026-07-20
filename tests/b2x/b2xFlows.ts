@@ -1,4 +1,4 @@
-import { PoManager } from "../../src/core/PoManager";
+import type { PoManager } from "../../src/core/PoManager";
 import { getB2xTestData, randomTraderName } from "../../src/utils/testdata";
 
 export async function openB2XHome(po: PoManager) {

@@ -1,9 +1,7 @@
 import { faker } from "@faker-js/faker";
+
 import { randomPhoneNumber } from "../../utils/testdata";
-import {
-  CreateBranchData,
-  CreateBusinessClientData,
-} from "./B2bService";
+import type { CreateBranchData, CreateBusinessClientData } from "./B2bService";
 
 const LAT = "29.930406163389";
 const LNG = "31.893502392581";

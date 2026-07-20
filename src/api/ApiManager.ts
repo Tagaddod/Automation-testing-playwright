@@ -1,5 +1,5 @@
-import { GraphQLClient } from "./GraphQLClient";
 import { B2bService } from "./b2b/B2bService";
+import type { GraphQLClient } from "./GraphQLClient";
 
 /** Facade for API modules — same idea as PoManager. */
 export class ApiManager {
