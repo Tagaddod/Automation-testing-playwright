@@ -1,3 +1,4 @@
+import { Console } from "node:console";
 import { GraphQLClient } from "./GraphQLClient";
 import { B2bService } from "./b2b/B2bService";
 
@@ -7,6 +8,10 @@ export class ApiManager {
 
   constructor(private readonly client: GraphQLClient) {
     this.b2b = new B2bService(client);
+  }
+ 
+  async login(username: string, password: string): Promise<void> {
+    Console.log("hi");
   }
 
   async dispose(): Promise<void> {
