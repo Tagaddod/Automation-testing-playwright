@@ -9,6 +9,10 @@ export class ApiManager {
     this.b2b = new B2bService(client);
   }
 
+  async graphql(query: string, variables: Record<string, any>): Promise<any> {
+    return this.client.request(query, variables);
+  }
+
   async dispose(): Promise<void> {
     await this.client.dispose();
   }
