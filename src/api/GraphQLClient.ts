@@ -1,4 +1,6 @@
-import { APIRequestContext, request } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
+import { request } from "@playwright/test";
+
 import { URLs } from "../config/urls";
 
 export type GraphQLResponse<T> = {
@@ -22,7 +24,7 @@ export class GraphQLClient {
 
   async request<T>(
     query: string,
-    variables: Record<string, unknown> = {}
+    variables: Record<string, unknown> = {},
   ): Promise<GraphQLResponse<T>> {
     const response = await this.context.post(URLs.graphql, {
       data: { query, variables },

@@ -1,4 +1,5 @@
-import { expect, Locator, Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 const USED_OIL = "زيت مستعمل";
 
@@ -16,9 +17,7 @@ export class collectablePage {
   }
 
   private usedOilArticle(blockIndex: number): Locator {
-    return this.page
-      .locator(`article:has([aria-label="عدد ${USED_OIL}"])`)
-      .nth(blockIndex);
+    return this.page.locator(`article:has([aria-label="عدد ${USED_OIL}"])`).nth(blockIndex);
   }
 
   private priceInput(blockIndex: number): Locator {
@@ -38,9 +37,7 @@ export class collectablePage {
   }
 
   materialHeadings(): Locator {
-    return this.materialsGroup
-      .getByRole("heading", { level: 3 })
-      .filter({ hasNotText: /^عدد / });
+    return this.materialsGroup.getByRole("heading", { level: 3 }).filter({ hasNotText: /^عدد / });
   }
 
   /** Clicks أضف / إضافة for the given collectable block (0 = first, 1 = second, …). */

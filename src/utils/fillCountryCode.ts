@@ -1,4 +1,5 @@
-import { expect, Locator, Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 const DEFAULT_COUNTRY_FILTER = /Egypt|مصر|\+20/;
 
@@ -14,7 +15,7 @@ export type FillCountryCodeOptions = {
 export async function fillCountryCode(
   page: Page,
   countryCodeInput: Locator,
-  options: FillCountryCodeOptions = {}
+  options: FillCountryCodeOptions = {},
 ) {
   const { countryFilter = DEFAULT_COUNTRY_FILTER, waitForEnabledAfter } = options;
 

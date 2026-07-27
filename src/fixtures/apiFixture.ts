@@ -1,4 +1,5 @@
-import { test as base, expect } from "@playwright/test";
+import { expect, test as base } from "@playwright/test";
+
 import { ApiManager } from "../api/ApiManager";
 import { GraphQLClient } from "../api/GraphQLClient";
 import { getAuthToken } from "../utils/authApi";

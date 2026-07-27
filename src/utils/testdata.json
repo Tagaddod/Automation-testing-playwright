@@ -1,68 +1,92 @@
 {
-    "phones": {
-      "validNewUser": "01020045408",
-      "validUser":"01126272662",
-      "invalidUser": "012345",
-      "anotherUser": "01000100001"
-    },
-  
-    "quantities": {
-      "small": 1,
-      "medium": 5,
-      "large": 10
-    },
-  
-    "addresses": {
-      "cairo": {
-        "governorate": "Cairo",
-        "area": "Nasr City",
-        "district": "استاد القاهرة",
-        "street": "nasrcity",
-        "building": "5",
-        "apartment": "2",
-        "floor": "5",
-        "clientName": "Haidy"
-      }
-    },
-    "b2b": {
-      "branchNamePrefix": "test-branch",
-      "existingBranchName": "كريف",
-      "phonePrefixes": ["010", "011", "012", "015"],
-      "countryCode": "20",
-      "address": "30.012345678,31.012345678",
-      "paymentMethod": "cash",
-      "preferredDay": "الاحد",
-      "preferredTime": "صباحاَ",
-      "errors": {
-        "phoneRequired": "رقم التليفون الرئيسي مطلوب",
-        "phoneAlreadyExists": "رقم التليفون مستخدم من قبل",
-        "nameAlreadyExists": "اسم العميل موجود بالفعل",
-        "countryCodeRequired": "رمز الدولة مطلوب",
-        "addressRequired": "عنوان الفرع مطلوب",
-        "collectablesRequired": "يجب اختيار نوع واحد علي الاقل من المخلفات المتاحة",
-        "paymentMethodRequired": "طريقة الدفع مطلوبة",
-        "photoRequired": "بانر الفرع مطلوب"
-      }
-    },
-    "b2bInvalidSubmission": {
-      "phone": "012345",
-      "address": "not-valid-coordinates"
-    },
-    "b2x": {
-      "traderNamePrefix": "test-trader",
-      "existingTraderName": "meko",
-      "nonExistingTraderName": "non-existent-trader-000000",
-      "address": "30.012345678,31.012345678",
-      "warehouseAddress": "30.112345678,31.112345678",
-      "invalidPhone": "012345",
-      "pricePerKilo": "10",
-      "secondaryPricePerKilo": "15",
-      "quantity": 2,
-      "notes": "test automation note",
-      "errors": {
-        "phoneRequired": "رقم التليفون مطلوب",
-        "countryCodeRequired": "رمز الدولة مطلوب",
-        "addressRequired": "العنوان مطلوب"
-      }
+  "phones": {
+    "validNewUser": "01020045408",
+    "validUser": "01126272662",
+    "invalidUser": "012345",
+    "anotherUser": "01000100001"
+  },
+
+  "quantities": {
+    "small": 1,
+    "medium": 5,
+    "large": 10
+  },
+
+  "addresses": {
+    "cairo": {
+      "governorate": "Cairo",
+      "area": "Nasr City",
+      "district": "استاد القاهرة",
+      "street": "nasrcity",
+      "building": "5",
+      "apartment": "2",
+      "floor": "5",
+      "clientName": "Haidy"
     }
+  },
+  "b2b": {
+    "branchNamePrefix": "test-branch",
+    "existingBranchName": "كريف",
+    "existingClientId": "38",
+    "existingBranchWithFp": "test-branch-1781613566734",
+    "existingBranchWithFpId": "387924677",
+    "phonePrefixes": ["010", "011", "012", "015"],
+    "countryCode": "20",
+    "address": "30.012345678,31.012345678",
+    "paymentMethod": "cash",
+    "preferredDay": "الاحد",
+    "preferredTime": "صباحاَ",
+    "defaultBusinessType": "فندق",
+    "usedOilPricePerKilo": "10",
+    "requestQuantity": 2,
+    "wasteTypes": {
+      "usedOil": "زيت مستعمل",
+      "fattyAcids": "أحماض دهنية",
+      "freshProduct": "منتجات سوبر ماركت"
+    },
+    "freshProductsSection": "اختر منتجات الماركت",
+    "confirmation": {
+      "successHeading": "تم إضافة الفرع",
+      "registerRequestLink": "تسجيل طلب بيزنس",
+      "requestSuccessHeading": "تم إرسال الطلب"
+    },
+    "priceLabels": {
+      "totalPrice": "إجمالي السعر",
+      "payToCustomer": "ستدفع للعميل",
+      "clientWillPay": "سيقوم العميل بدفع",
+      "total": "المجموع"
+    },
+    "errors": {
+      "phoneRequired": "رقم التليفون الرئيسي مطلوب",
+      "phoneAlreadyExists": "رقم التليفون مستخدم من قبل",
+      "nameAlreadyExists": "اسم العميل موجود بالفعل",
+      "countryCodeRequired": "رمز الدولة مطلوب",
+      "addressRequired": "عنوان الفرع مطلوب",
+      "collectablesRequired": "يجب اختيار نوع واحد علي الاقل من المخلفات المتاحة",
+      "paymentMethodRequired": "طريقة الدفع مطلوبة",
+      "photoRequired": "بانر الفرع مطلوب",
+      "materialsRequired": "قم بإضافة كمية من مادة واحدة على الأقل"
+    }
+  },
+  "b2bInvalidSubmission": {
+    "phone": "012345",
+    "address": "not-valid-coordinates"
+  },
+  "b2x": {
+    "traderNamePrefix": "test-trader",
+    "existingTraderName": "meko",
+    "nonExistingTraderName": "non-existent-trader-000000",
+    "address": "30.012345678,31.012345678",
+    "warehouseAddress": "30.112345678,31.112345678",
+    "invalidPhone": "012345",
+    "pricePerKilo": "10",
+    "secondaryPricePerKilo": "15",
+    "quantity": 2,
+    "notes": "test automation note",
+    "errors": {
+      "phoneRequired": "رقم التليفون مطلوب",
+      "countryCodeRequired": "رمز الدولة مطلوب",
+      "addressRequired": "العنوان مطلوب"
+    }
+  }
 }

@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
 import { PoManager } from "../../src/core/PoManager";
 import { testdata } from "../../src/utils/testdata";
 import { goToRequestDetailsStep } from "./b2xFlows";
@@ -10,13 +11,19 @@ test.describe("B2X request details", () => {
     po = new PoManager(page);
     await goToRequestDetailsStep(po);
     await expect(page).not.toHaveURL(/\/auth/);
-    await expect(po.getB2XRequestDetailsPage().collectionDetailsHeading).toBeVisible({ timeout: 30_000 });
+    await expect(po.getB2XRequestDetailsPage().collectionDetailsHeading).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
-  test("submit request with valid data", { tag: ["@b2x", "@smoke", "@regression", "@e2e"] }, async () => {
-    await po.getB2XRequestDetailsPage().completeRequestDetailsStep();
-    await expect(po.getB2XRequestDetailsPage().successHeading).toBeVisible({ timeout: 60_000 });
-  });
+  test(
+    "submit request with valid data",
+    { tag: ["@b2x", "@smoke", "@regression", "@e2e"] },
+    async () => {
+      await po.getB2XRequestDetailsPage().completeRequestDetailsStep();
+      await expect(po.getB2XRequestDetailsPage().successHeading).toBeVisible({ timeout: 60_000 });
+    },
+  );
 
   test("all request detail fields are visible", { tag: ["@b2x", "@regression"] }, async () => {
     await po.getB2XRequestDetailsPage().assertAllFieldsVisible();
@@ -44,15 +51,19 @@ test.describe("B2X request details", () => {
     await expect(details.successHeading).toBeVisible({ timeout: 60_000 });
   });
 
-  test("submit request with green pan representative", { tag: ["@b2x", "@regression"] }, async () => {
-    const details = po.getB2XRequestDetailsPage();
+  test(
+    "submit request with green pan representative",
+    { tag: ["@b2x", "@regression"] },
+    async () => {
+      const details = po.getB2XRequestDetailsPage();
 
-    await details.fillPickupDate();
-    await details.selectPickupTime();
-    await details.selectDeliveryMethod(details.greenPanRepDelivery);
-    await details.clickSubmit();
-    await expect(details.successHeading).toBeVisible({ timeout: 60_000 });
-  });
+      await details.fillPickupDate();
+      await details.selectPickupTime();
+      await details.selectDeliveryMethod(details.greenPanRepDelivery);
+      await details.clickSubmit();
+      await expect(details.successHeading).toBeVisible({ timeout: 60_000 });
+    },
+  );
 
   test("select dawn pickup time", { tag: ["@b2x", "@regression"] }, async () => {
     const details = po.getB2XRequestDetailsPage();
@@ -84,12 +95,16 @@ test.describe("B2X request details", () => {
     await expect(details.successHeading).toBeVisible({ timeout: 60_000 });
   });
 
-  test("total price summary is visible before submit", { tag: ["@b2x", "@regression"] }, async () => {
-    const details = po.getB2XRequestDetailsPage();
+  test(
+    "total price summary is visible before submit",
+    { tag: ["@b2x", "@regression"] },
+    async () => {
+      const details = po.getB2XRequestDetailsPage();
 
-    await expect(details.usedOilItem).toBeVisible();
-    await expect(details.totalSummary).toBeVisible();
-    await expect(details.pricePerKiloBadge).toBeVisible();
-    await expect(details.quantityDisplay).toBeVisible();
-  });
+      await expect(details.usedOilItem).toBeVisible();
+      await expect(details.totalSummary).toBeVisible();
+      await expect(details.pricePerKiloBadge).toBeVisible();
+      await expect(details.quantityDisplay).toBeVisible();
+    },
+  );
 });

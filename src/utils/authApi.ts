@@ -1,8 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+
 import { request } from "@playwright/test";
-import { URLs } from "../config/urls";
+
 import { ENV } from "../config/env";
+import { URLs } from "../config/urls";
 
 const AUTH_TOKEN_PATH = "playwright/.auth/token.json";
 
@@ -42,9 +44,7 @@ export async function apiLogin() {
   const token = json?.data?.login?.jwtToken;
 
   if (!token) {
-    throw new Error(
-      `Login failed: token not returned. Response: ${text.slice(0, 300)}`
-    );
+    throw new Error(`Login failed: token not returned. Response: ${text.slice(0, 300)}`);
   }
 
   return { token };
@@ -59,9 +59,7 @@ export function saveAuthToken(token: string): void {
 /** Prefer setup token; fall back to apiLogin for local API-only runs. */
 export async function getAuthToken(): Promise<string> {
   if (existsSync(AUTH_TOKEN_PATH)) {
-    const { token } = JSON.parse(
-      readFileSync(AUTH_TOKEN_PATH, "utf-8")
-    ) as { token?: string };
+    const { token } = JSON.parse(readFileSync(AUTH_TOKEN_PATH, "utf-8")) as { token?: string };
     if (token) return token;
   }
 

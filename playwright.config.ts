@@ -18,10 +18,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
 
-  reporter: [
-    ["list"],
-    ["html", { open: "never", outputFolder: "playwright-report" }],
-  ],
+  reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 
   projects: [
     {
@@ -33,6 +30,8 @@ export default defineConfig({
       name: "b2b",
       dependencies: ["setup"],
       testMatch: "b2b/**/*.spec.ts",
+      fullyParallel: false,
+      timeout: 180_000,
       use: {
         storageState: "playwright/.auth/user.json",
       },
@@ -44,6 +43,9 @@ export default defineConfig({
     {
       name: "greenpan",
       testMatch: "greenpan/**/*.spec.ts",
+      fullyParallel: false,
+      retries: 2,
+      timeout: 180_000,
     },
     {
       name: "b2x",

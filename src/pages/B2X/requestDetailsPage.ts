@@ -1,4 +1,5 @@
-import { expect, Locator, Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 export class requestDetailsPage {
   readonly pickupDateInput: Locator;
@@ -31,7 +32,12 @@ export class requestDetailsPage {
     this.deliverToWarehouse = page.getByRole("radio", { name: /توصيل الزيت/ });
     this.warehouseTypeCombobox = page
       .getByRole("combobox", { name: /نوع المخزن/ })
-      .or(page.locator(".ant-select").filter({ hasText: "اختر نوع المخزن" }).locator(".ant-select-selector"));
+      .or(
+        page
+          .locator(".ant-select")
+          .filter({ hasText: "اختر نوع المخزن" })
+          .locator(".ant-select-selector"),
+      );
     this.notesInput = page.locator("#notes").or(page.getByPlaceholder("ملاحظات"));
     this.usedOilItem = page.locator("article").getByRole("heading", { name: "زيت مستعمل" });
     this.pricePerKiloBadge = page.locator("article").getByText(/سعر الكيلو/);
@@ -71,7 +77,9 @@ export class requestDetailsPage {
         await todayButton.click();
       } else {
         await picker
-          .locator("td.ant-picker-cell-today, td.ant-picker-cell-in-view:not(.ant-picker-cell-disabled)")
+          .locator(
+            "td.ant-picker-cell-today, td.ant-picker-cell-in-view:not(.ant-picker-cell-disabled)",
+          )
           .first()
           .click();
       }

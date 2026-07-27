@@ -7,7 +7,7 @@ export const ENVIRONMENTS = {
   },
   staging: {
     GRAPHQL_URL: "https://staging2.tagaddod.com/graphql",
-    GREENPAN_BASE_URL: "https://staging2-greenpan.tagaddod.com",
+    GREENPAN_BASE_URL: "https://staging-greenpan.tagaddod.com",
     B2B_BASE_URL: "https://staging-b2b.tagaddod.com",
     B2X_BASE_URL: "https://staging-b2b.tagaddod.com/trader",
   },
@@ -16,5 +16,5 @@ export const ENVIRONMENTS = {
     GREENPAN_BASE_URL: "https://uat-greenpan.tagaddod.com",
     B2B_BASE_URL: "https://uat-b2b.tagaddod.com",
     B2X_BASE_URL: "https://uat-b2b.tagaddod.com/trader",
-  }
-} as const; // as const to protect the values from being changed 
+  },
+} as const; // as const to protect the values from being changed
