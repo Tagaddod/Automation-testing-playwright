@@ -14,6 +14,7 @@ export class GraphQLClient {
 
   static async create(token: string): Promise<GraphQLClient> {
     const context = await request.newContext({
+      timeout: 60_000,
       extraHTTPHeaders: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
