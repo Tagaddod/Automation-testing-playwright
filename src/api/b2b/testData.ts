@@ -5,6 +5,10 @@ import {
   CreateBusinessClientData,
   CreateBusinessRequestData,
 } from "./B2bService";
+import { faker } from "@faker-js/faker";
+
+import { randomPhoneNumber } from "../../utils/testdata";
+import type { CreateBranchData, CreateBusinessClientData } from "./B2bService";
 
 const DAY_CONST = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 

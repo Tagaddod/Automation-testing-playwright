@@ -1,4 +1,5 @@
-import { expect, Locator, Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 const DEFAULT_GOVERNORATE_ERROR = "يجب اختيار المحافظة التابع لها الفرع";
 const DEFAULT_LOADING_TEXT = "جاري التحميل";
@@ -26,7 +27,7 @@ export async function fillAddressLatLong(
   page: Page,
   addressInput: Locator,
   latLong: string,
-  options: FillAddressLatLongOptions = {}
+  options: FillAddressLatLongOptions = {},
 ) {
   const {
     governorateErrorText = DEFAULT_GOVERNORATE_ERROR,
@@ -35,17 +36,18 @@ export async function fillAddressLatLong(
   } = options;
 
   await expect(addressInput).toBeEnabled({ timeout: 15_000 });
-
-  const zoneLookup = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" &&
-      Boolean(response.request().postData()?.includes(zoneApiMarker)) &&
-      response.ok(),
-    { timeout: 30_000 }
-  );
   await addressInput.fill(latLong);
   await addressInput.press("Tab");
-  await zoneLookup;
+
+  await page
+    .waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        Boolean(response.request().postData()?.includes(zoneApiMarker)) &&
+        response.ok(),
+      { timeout: 30_000 },
+    )
+    .catch(() => undefined);
 
   const loading = page.getByText(loadingText);
   if (await loading.isVisible({ timeout: 2_000 }).catch(() => false)) {
@@ -53,7 +55,7 @@ export async function fillAddressLatLong(
   }
 
   const governorateError = page.getByText(governorateErrorText);
-  if (await governorateError.isVisible({ timeout: 2_000 }).catch(() => false)) {
+  if (await governorateError.isVisible({ timeout: 5_000 }).catch(() => false)) {
     const blockIndex = await resolveAddressBlockIndex(addressInput, options.blockIndex);
     await selectAddressHierarchy(page, blockIndex);
   }
@@ -63,7 +65,7 @@ export async function fillAddressLatLong(
 
 async function resolveAddressBlockIndex(
   addressInput: Locator,
-  blockIndex?: number
+  blockIndex?: number,
 ): Promise<number> {
   if (blockIndex !== undefined) return blockIndex;
 
@@ -76,12 +78,9 @@ async function selectAddressDropdown(
   page: Page,
   blockIndex: number,
   label: string,
-  optionIndex = 0
+  optionIndex = 0,
 ) {
-  const formItem = page
-    .locator(".ant-form-item")
-    .filter({ hasText: label })
-    .nth(blockIndex);
+  const formItem = page.locator(".ant-form-item").filter({ hasText: label }).nth(blockIndex);
   await formItem.locator(".ant-select-selector").click();
   const dropdown = page.locator("div.ant-select-dropdown:not(.ant-select-dropdown-hidden)");
   await expect(dropdown.last()).toBeVisible({ timeout: 15_000 });

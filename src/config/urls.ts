@@ -1,5 +1,5 @@
-import { ENVIRONMENTS } from "./environments";
 import { ENV } from "./env";
+import { ENVIRONMENTS } from "./environments";
 
 type EnvKeys = keyof typeof ENVIRONMENTS; // "dev" | "staging" | "uat"
 
@@ -11,18 +11,16 @@ export const URLs = {
 
   greenpan: {
     base: current.GREENPAN_BASE_URL,
-    auth: `${current.GREENPAN_BASE_URL}/auth?token=`
+    auth: `${current.GREENPAN_BASE_URL}/auth?token=`,
   },
 
   b2b: {
     base: current.B2B_BASE_URL,
-    auth: `${current.B2B_BASE_URL}/auth?token=`
+    auth: `${current.B2B_BASE_URL}/auth?token=`,
   },
 
   b2x: {
     base: current.B2X_BASE_URL,
     auth: `${current.B2B_BASE_URL}/auth?token=`,
   },
-
-  
 };

@@ -10,6 +10,9 @@ import {
   GET_COLLECTABLES,
 } from "./graphql/queries";
 import { Channel, CountryCode } from "../enums";
+import type { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
+import { CREATE_BRANCH, CREATE_BUSINESS_CLIENT } from "./graphql/mutations";
+import { GET_BRAND_TYPES_B2B_FORM } from "./graphql/queries";
 
 export type BrandType = {
   id: string;

@@ -1,4 +1,5 @@
 import { test as base } from "@playwright/test";
+
 import { apiLogin } from "../utils/authApi";
 
 type MyFixtures = {
@@ -8,7 +9,8 @@ type MyFixtures = {
 export const test = base.extend<MyFixtures>({
   // ✅ token fixture
   token: async ({}, use) => {
-    const { token } = await apiLogin();
+    // Admin EMAIL login for B2B/B2X UI auth.setup only
+    const { token } = await apiLogin("admin");
     await use(token);
   },
 });

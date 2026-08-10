@@ -1,4 +1,6 @@
-import { expect, Locator, Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
+
 import { URLs } from "../../config/urls";
 
 export class B2XHomePage {

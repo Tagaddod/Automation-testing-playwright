@@ -2,16 +2,17 @@
   "name": "frontend-testing-playwright",
   "version": "1.0.0",
   "description": "Playwright TypeScript E2E framework for B2B, B2C, GreenPan, and Webform",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
-    "test": "playwright test",
-    "test:headed": "playwright test --headed",
-    "test:ci": "bash scripts/run-tests-ci.sh",
-    "test:install-browsers": "playwright install --with-deps chromium",
-    "report:open": "playwright show-report playwright-report",
-    "b2b": "npx playwright test --project=b2b",
-    "b2b:newbranch:debug": "playwright test --project=b2b --debug --workers=1 tests/b2b/e2eCreateNewBranch.spec.ts -g \"Create new branch\"",
-    "api": "npx playwright test --project=api",
-    "greenpan": "npx playwright test --grep @greenpan"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run typecheck && npm run lint && npm run format:check",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -26,15 +27,37 @@
   },
   "homepage": "https://github.com/Tagaddod/frontend-testing-playwright#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.5.0",
     "@playwright/cli": "^0.1.14",
     "@playwright/test": "^1.58.2",
-    "@types/dotenv": "^6.1.1",
+    "@types/node": "^26.1.1",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.10.5",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0",
     "playwright": "^1.58.2",
+    "prettier": "^3.9.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0"
   },
   "dependencies": {
     "dotenv": "^17.2.3"
+  },
+  "lint-staged": {
+    "{src,tests,scripts}/**/*.{ts,js}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{ts,js,mjs,cjs}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

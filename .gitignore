@@ -1,7 +1,18 @@
+.playwright-cli/
 node_modules/
 playwright-report/
 .html-report/
 test-results/
+allure-results/
+coverage/
+dist/
 .env
+.env.*
+!.env.example
 playwright/.auth/user.json
 playwright/.auth/token.json
+.DS_Store
+*.log
+
+# Per-profile API auth tokens
+playwright/.auth/token-*.json

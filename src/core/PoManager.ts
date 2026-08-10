@@ -1,67 +1,143 @@
-import { Page } from '@playwright/test';
-import { GreenpanHomePage } from '../pages/greenpan/GreenpanHomePage';
-import { addressPage} from '../pages/greenpan/addressPage';
-import {sendRequestPage} from '../pages/greenpan/sendRequestPage';
-import {sendB2BRequestPage} from '../pages/b2b/sendB2BRequestPage';
-import { NewClientForm } from '../pages/b2b/NewClientForm';
-import { requestDetails } from '../pages/b2b/requestDetails';
-import { B2BHomePage } from '../pages/b2b/B2BHomePage';
-import { B2XHomePage } from '../pages/B2X/B2XHomePage';
-import { formPage } from '../pages/B2X/formPage';
-import { collectablePage } from '../pages/B2X/collectablePage';
-import { requestDetailsPage } from '../pages/B2X/requestDetailsPage';
-import { traderRegistrationSuccessPage } from '../pages/B2X/traderRegistrationSuccessPage';
+import type { Page } from "@playwright/test";
+
+import { branchConfirmationPage } from "../pages/b2b/branchConfirmationPage";
+import { branchFormPage } from "../pages/b2b/branchFormPage";
+import { createBusinessClientPage } from "../pages/b2b/createBusinessClientPage";
+import { B2BHomePage } from "../pages/b2b/homePage";
+import { requestDetailsPage as b2bRequestDetailsPage } from "../pages/b2b/requestDetailsPage";
+import { requestMaterialsPage } from "../pages/b2b/requestMaterialsPage";
+import { B2XHomePage } from "../pages/B2X/B2XHomePage";
+import { collectablePage } from "../pages/B2X/collectablePage";
+import { formPage } from "../pages/B2X/formPage";
+import { requestDetailsPage as b2xRequestDetailsPage } from "../pages/B2X/requestDetailsPage";
+import { traderRegistrationSuccessPage } from "../pages/B2X/traderRegistrationSuccessPage";
+import { addressPage } from "../pages/greenpan/addressPage";
+import { bundlePackagePage } from "../pages/greenpan/bundlePackagePage";
+import { giftsPage } from "../pages/greenpan/giftsPage";
+import { greenpanHomePage } from "../pages/greenpan/homePage";
+import { quantityPage } from "../pages/greenpan/quantityPage";
+import { requestSuccessPage } from "../pages/greenpan/requestSuccessPage";
+import { sendRequestPage } from "../pages/greenpan/sendRequestPage";
 
 export class PoManager {
   private page: Page;
-  private greenpanHome?: GreenpanHomePage;
+  private greenpanHome?: greenpanHomePage;
+  private greenpanBundlePackage?: bundlePackagePage;
+  private greenpanQuantity?: quantityPage;
+  private greenpanGifts?: giftsPage;
   private addressPage?: addressPage;
   private sendRequest?: sendRequestPage;
-  private sendB2BRequest?: sendB2BRequestPage;
-  private newClientForm?: NewClientForm;
-  private requestDetails?: requestDetails;
+  private greenpanRequestSuccess?: requestSuccessPage;
   private b2bHome?: B2BHomePage;
+  private b2bCreateBusinessClient?: createBusinessClientPage;
+  private b2bBranchForm?: branchFormPage;
+  private b2bBranchConfirmation?: branchConfirmationPage;
+  private b2bRequestMaterials?: requestMaterialsPage;
+  private b2bRequestDetails?: b2bRequestDetailsPage;
   private b2xHome?: B2XHomePage;
   private b2xForm?: formPage;
   private b2xCollectable?: collectablePage;
-  private b2xRequestDetails?: requestDetailsPage;
+  private b2xRequestDetails?: b2xRequestDetailsPage;
   private b2xTraderRegistrationSuccess?: traderRegistrationSuccessPage;
 
-
-  constructor(page: Page, greenpanHome?: GreenpanHomePage) {
+  constructor(page: Page) {
     this.page = page;
-    this.greenpanHome = greenpanHome;
   }
 
-  getGreenpanHome() {
-    if (!this.greenpanHome) this.greenpanHome = new GreenpanHomePage(this.page);
+  getPage() {
+    return this.page;
+  }
+
+  getGreenpanHomePage() {
+    if (!this.greenpanHome) this.greenpanHome = new greenpanHomePage(this.page);
     return this.greenpanHome;
   }
 
-  getAddressPage() {
+  /** @deprecated Use getGreenpanHomePage() */
+  getGreenpanHome() {
+    return this.getGreenpanHomePage();
+  }
+
+  getGreenpanBundlePackagePage() {
+    if (!this.greenpanBundlePackage) {
+      this.greenpanBundlePackage = new bundlePackagePage(this.page);
+    }
+    return this.greenpanBundlePackage;
+  }
+
+  getGreenpanQuantityPage() {
+    if (!this.greenpanQuantity) this.greenpanQuantity = new quantityPage(this.page);
+    return this.greenpanQuantity;
+  }
+
+  getGreenpanGiftsPage() {
+    if (!this.greenpanGifts) this.greenpanGifts = new giftsPage(this.page);
+    return this.greenpanGifts;
+  }
+
+  getGreenpanAddressPage() {
     if (!this.addressPage) this.addressPage = new addressPage(this.page);
     return this.addressPage;
   }
 
-  getSendRequestPage(){
+  /** @deprecated Use getGreenpanAddressPage() */
+  getAddressPage() {
+    return this.getGreenpanAddressPage();
+  }
+
+  getGreenpanSendRequestPage() {
     if (!this.sendRequest) this.sendRequest = new sendRequestPage(this.page);
     return this.sendRequest;
   }
-  getSendB2BRequestPage(){
-    if (!this.sendB2BRequest) this.sendB2BRequest = new sendB2BRequestPage(this.page);
-    return this.sendB2BRequest;
+
+  /** @deprecated Use getGreenpanSendRequestPage() */
+  getSendRequestPage() {
+    return this.getGreenpanSendRequestPage();
   }
-  getNewClientForm(){
-    if (!this.newClientForm) this.newClientForm = new NewClientForm(this.page);
-    return this.newClientForm;
+
+  getGreenpanRequestSuccessPage() {
+    if (!this.greenpanRequestSuccess) {
+      this.greenpanRequestSuccess = new requestSuccessPage(this.page);
+    }
+    return this.greenpanRequestSuccess;
   }
- getB2BHomePage(){
+
+  getB2BHomePage() {
     if (!this.b2bHome) this.b2bHome = new B2BHomePage(this.page);
     return this.b2bHome;
   }
-  getRequestDetails(){
-    if (!this.requestDetails) this.requestDetails = new requestDetails(this.page);
-    return this.requestDetails;
+
+  getB2BCreateBusinessClientPage() {
+    if (!this.b2bCreateBusinessClient) {
+      this.b2bCreateBusinessClient = new createBusinessClientPage(this.page);
+    }
+    return this.b2bCreateBusinessClient;
+  }
+
+  getB2BBranchFormPage() {
+    if (!this.b2bBranchForm) this.b2bBranchForm = new branchFormPage(this.page);
+    return this.b2bBranchForm;
+  }
+
+  getB2BBranchConfirmationPage() {
+    if (!this.b2bBranchConfirmation) {
+      this.b2bBranchConfirmation = new branchConfirmationPage(this.page);
+    }
+    return this.b2bBranchConfirmation;
+  }
+
+  getB2BRequestMaterialsPage() {
+    if (!this.b2bRequestMaterials) {
+      this.b2bRequestMaterials = new requestMaterialsPage(this.page);
+    }
+    return this.b2bRequestMaterials;
+  }
+
+  getB2BRequestDetailsPage() {
+    if (!this.b2bRequestDetails) {
+      this.b2bRequestDetails = new b2bRequestDetailsPage(this.page);
+    }
+    return this.b2bRequestDetails;
   }
 
   getB2XHomePage() {
@@ -80,7 +156,7 @@ export class PoManager {
   }
 
   getB2XRequestDetailsPage() {
-    if (!this.b2xRequestDetails) this.b2xRequestDetails = new requestDetailsPage(this.page);
+    if (!this.b2xRequestDetails) this.b2xRequestDetails = new b2xRequestDetailsPage(this.page);
     return this.b2xRequestDetails;
   }
 
@@ -90,18 +166,6 @@ export class PoManager {
     }
     return this.b2xTraderRegistrationSuccess;
   }
-
-  /**
-   * @see {@link NewClientForm.completeB2BCreateNewBranchFlow}
-   */
-  async completeB2BCreateNewBranchFlow(data: {
-    branchName: string;
-    phone: string;
-    address: string;
-  }) {
-    return this.getNewClientForm().completeB2BCreateNewBranchFlow(data);
-  }
-
 }
 
 export default PoManager;
