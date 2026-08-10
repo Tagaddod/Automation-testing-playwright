@@ -26,6 +26,7 @@ export class GraphQLClient {
   ): Promise<GraphQLResponse<T>> {
     const response = await this.context.post(URLs.graphql, {
       data: { query, variables },
+      timeout: 60_000,
     });
 
     const text = await response.text();

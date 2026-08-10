@@ -22,18 +22,30 @@ function parseGraphqlResponse(text: string) {
 export async function apiLogin() {
   const api = await request.newContext();
 
-  const response = await api.post(URLs.graphql, {
-    data: {
-      query: `
+  const query = `
         mutation {
           login(email: "${ENV.ADMIN_EMAIL}", password: "${ENV.ADMIN_PASSWORD}", type: EMAIL) {
             id
             jwtToken
           }
         }
-      `,
-    },
-  });
+      `;
+
+  // Staging occasionally resets the connection (ECONNRESET); retry a few times.
+  let response;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      response = await api.post(URLs.graphql, { data: { query } });
+      break;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  if (!response) {
+    throw new Error(`Login request failed after retries: ${String(lastError)}`);
+  }
 
   const text = await response.text();
   const json = parseGraphqlResponse(text) as {

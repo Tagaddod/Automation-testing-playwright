@@ -1,18 +1,25 @@
 import { test as base, expect } from "@playwright/test";
 import { ApiManager } from "../api/ApiManager";
 import { GraphQLClient } from "../api/GraphQLClient";
-import { getAuthToken } from "../utils/authApi";
+import { apiLogin } from "../utils/authApi";
 
 type ApiFixtures = {
-  token: string;
   api: ApiManager;
 };
 
-/** API tests reuse the JWT from auth.setup (same apiLogin path as UI). */
-export const test = base.extend<ApiFixtures>({
-  token: async ({}, use) => {
-    await use(await getAuthToken());
-  },
+type ApiWorkerFixtures = {
+  token: string;
+};
+
+/** Use a fresh token once per worker; persisted JWTs may be invalidated elsewhere. */
+export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
+  token: [
+    async ({}, use) => {
+      const { token } = await apiLogin();
+      await use(token);
+    },
+    { scope: "worker" },
+  ],
 
   api: async ({ token }, use) => {
     const client = await GraphQLClient.create(token);
