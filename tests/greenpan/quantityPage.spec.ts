@@ -14,13 +14,9 @@ test.describe("GreenPan quantity page", () => {
     await goToQuantityStep(po, testdata.phones.validUser);
   });
 
-  test(
-    "quantity page fields are visible",
-    { tag: ["@greenpan", "@smoke", "@regression"] },
-    async () => {
-      await po.getGreenpanQuantityPage().assertPageVisible();
-    },
-  );
+  test("quantity page fields are visible", { tag: ["@greenpan", "@regression"] }, async () => {
+    await po.getGreenpanQuantityPage().assertPageVisible();
+  });
 
   test(
     "quantity below minimum does not open gifts step",
@@ -36,7 +32,7 @@ test.describe("GreenPan quantity page", () => {
   test(
     "quantity at or above minimum opens gifts step",
     {
-      tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+      tag: ["@greenpan", "@regression"],
     },
     async () => {
       const quantity = po.getGreenpanQuantityPage();

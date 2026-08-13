@@ -32,6 +32,7 @@ async function waitForAuthRedirect(page: import("@playwright/test").Page, authUr
 /**
  * Runs once before B2B / API tests:
  * GraphQL login (existing apiLogin) → persist JWT + browser storageState.
+ * save the browser session for b2b and b2x
  */
 setup("authenticate B2B and save storage state", async ({ page, token }) => {
   mkdirSync(dirname(AUTH_STATE_PATH), { recursive: true });

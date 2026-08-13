@@ -1,45 +1,65 @@
 # frontend-testing-playwright
 
-Frontend Testing with Playwright
-This repository contains the end-to-end (E2E) automation testing framework for the B2C React Webform using Playwright with TypeScript.
+Playwright + TypeScript E2E / API automation for Tagaddod products: **B2B**, **B2X**, **GreenPan**, and GraphQL **API**.
 
-📌 Project Scope
-The initial scope of this project is to cover:
+### API coverage (GraphQL)
 
-Automation of critical user flows for the B2C React Webform
+| Area          | Notes                                           |
+| ------------- | ----------------------------------------------- |
+| Warehouse     | Trip load, scales, sample, quality, middle mile |
+| B2B webform   | Business client / form GraphQL                  |
+| B2X webform   | Trader webform GraphQL                          |
+| B2C webform   | Household webform GraphQL                       |
+| Sales App     | B2B and B2X sales flows                         |
+| Collector App | Collector GraphQL                               |
 
-Regression testing to ensure app stability
-
-Scalable test structure for future test cases and other web platforms
-
-🧰 Tech Stack
-Playwright – Browser automation framework
-
-TypeScript – Type-safe JavaScript for scalable development
-
-Node.js – Runtime environment (20.19+)
-
-ESLint (flat config) + Prettier – linting and formatting
-
-Husky + lint-staged – pre-commit checks on staged files only
-
-Allure / HTML Reports – For test result visualization (optional based on integration)
-
-## Tooling (multi-developer)
+## Quick start
 
 ```bash
 npm install
 npx playwright install
 ```
 
-Useful scripts:
+Create `.env.dev` / `.env.staging` / `.env.uat` (gitignored) with at least:
+
+```bash
+ENV=dev
+ADMIN_EMAIL=...
+ADMIN_PASSWORD=...
+```
+
+Run examples:
+
+```bash
+ENV=staging npx playwright test --project=b2b
+ENV=dev npx playwright test --project=greenpan --grep @smoke
+ENV=staging npx playwright test --project=api --grep "@create business client"
+ENV=staging npx playwright test --project=api tests/api/Warehouse --workers=1
+```
+
+## Documentation
+
+| Doc                                                              | Purpose                              |
+| ---------------------------------------------------------------- | ------------------------------------ |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                               | How to contribute safely as a team   |
+| [docs/framework-architecture.md](docs/framework-architecture.md) | How the framework is structured      |
+| [docs/create-test.md](docs/create-test.md)                       | Add a UI test                        |
+| [docs/create-page.md](docs/create-page.md)                       | Add a page object + PoManager getter |
+| [docs/create-api.md](docs/create-api.md)                         | Add a GraphQL API test               |
+| [docs/create-fixture.md](docs/create-fixture.md)                 | Extend login/API fixtures            |
+| [docs/debugging.md](docs/debugging.md)                           | Debug failures and flakes            |
+| [docs/code-review-checklist.md](docs/code-review-checklist.md)   | PR review checklist                  |
+
+## Tooling
 
 | Script              | Purpose                         |
 | ------------------- | ------------------------------- |
-| `npm run lint`      | ESLint across the repo          |
+| `npm run lint`      | ESLint                          |
 | `npm run lint:fix`  | Auto-fix lint issues            |
-| `npm run format`    | Format with Prettier            |
-| `npm run typecheck` | TypeScript `tsc --noEmit`       |
+| `npm run format`    | Prettier write                  |
+| `npm run typecheck` | `tsc --noEmit`                  |
 | `npm run validate`  | typecheck + lint + format check |
 
-Pre-commit (Husky) runs **lint-staged** only — staged `ts/js` files are ESLint-fixed and Prettier-formatted. Playwright tests are **not** run on commit.
+Pre-commit (Husky) runs **lint-staged** on staged files only. Playwright tests are **not** run on commit.
+
+Node **20+** required (see `.nvmrc`).

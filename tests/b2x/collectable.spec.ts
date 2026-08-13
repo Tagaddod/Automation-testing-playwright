@@ -22,7 +22,7 @@ test.describe("B2X collectables", () => {
 
   test(
     "add collectable with price and quantity",
-    { tag: ["@b2x", "@smoke", "@regression", "@e2e"] },
+    { tag: ["@b2x", "@regression"] },
     async ({ page }) => {
       const collectable = po.getB2XCollectablePage();
 
@@ -91,21 +91,17 @@ test.describe("B2X collectables", () => {
     await expect(page.getByRole("heading", { name: "أدخل الكميات" })).toBeVisible();
   });
 
-  test(
-    "collect with only one collectable",
-    { tag: ["@b2x", "@smoke", "@regression", "@e2e"] },
-    async ({ page }) => {
-      const collectable = po.getB2XCollectablePage();
+  test("collect with only one collectable", { tag: ["@b2x", "@regression"] }, async ({ page }) => {
+    const collectable = po.getB2XCollectablePage();
 
-      await collectable.fillCollectableBlock(testdata.b2x.pricePerKilo, 1, 0);
-      await collectable.clickNext();
-      await expect(page.getByText("تفاصيل التجميع")).toBeVisible({ timeout: 30_000 });
-    },
-  );
+    await collectable.fillCollectableBlock(testdata.b2x.pricePerKilo, 1, 0);
+    await collectable.clickNext();
+    await expect(page.getByText("تفاصيل التجميع")).toBeVisible({ timeout: 30_000 });
+  });
 
   test(
     "collect with more than one collectable",
-    { tag: ["@b2x", "@regression", "@e2e"] },
+    { tag: ["@b2x", "@regression"] },
     async ({ page }) => {
       const data = getB2xTestData();
       await goToTraderForm(po, data.traderName);

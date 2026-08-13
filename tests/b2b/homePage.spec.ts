@@ -15,7 +15,7 @@ test.describe("B2B home page", () => {
   test(
     "home page is visible with branch search and create branch action",
     {
-      tag: ["@b2b", "@smoke", "@regression"],
+      tag: ["@b2b", "@regression"],
     },
     async () => {
       await po.getB2BHomePage().assertHomePageVisible();
@@ -25,7 +25,7 @@ test.describe("B2B home page", () => {
   test(
     "create new branch opens business client step",
     {
-      tag: ["@b2b", "@smoke", "@regression", "@e2e"],
+      tag: ["@b2b", "@regression"],
     },
     async () => {
       await goToCreateBusinessClientStep(po);

@@ -21,7 +21,7 @@ test.describe("GreenPan send request page", () => {
   test(
     "send request page fields are visible",
     {
-      tag: ["@greenpan", "@smoke", "@regression"],
+      tag: ["@greenpan", "@regression"],
     },
     async () => {
       const send = po.getGreenpanSendRequestPage();
@@ -33,7 +33,7 @@ test.describe("GreenPan send request page", () => {
   test(
     "existing user can open change address and add a new address",
     {
-      tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+      tag: ["@greenpan", "@regression"],
     },
     async ({ page }) => {
       const send = po.getGreenpanSendRequestPage();
@@ -57,7 +57,7 @@ test.describe("GreenPan send request page", () => {
   test(
     "selecting day and submitting shows success page",
     {
-      tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+      tag: ["@greenpan", "@create-request", "@regression"],
     },
     async () => {
       await po.getGreenpanSendRequestPage().completeSendRequestStep();

@@ -12,27 +12,19 @@ on:
           - dev
           - staging
           - uat
-      platform:
-        description: Platform
-        required: true
-        default: b2b
-        type: choice
-        options:
-          - b2b
-          - b2c
-          - b2x
-          - greenpan
       suite:
         description: Test suite
         required: true
-        default: e2e
+        default: all-regression
         type: choice
         options:
-          - create b2b request
-          - regression
-          - create b2x request
-          - create b2c request
-
+          - all-regression
+          - b2b-regression
+          - b2x-regression
+          - greenpan-regression
+          - create-b2b-request
+          - create-b2x-request
+          - create-b2c-request
       execution_id:
         description: QA Dashboard execution ID (optional)
         required: false
@@ -71,29 +63,54 @@ jobs:
       - name: Debug test parameters
         run: |
           echo "env=${{ inputs.env }}"
-          echo "platform=${{ inputs.platform }}"
           echo "suite=${{ inputs.suite }}"
           echo "execution_id=${{ inputs.execution_id }}"
 
-      - name: Validate platform
+      - name: Run Playwright tests
         run: |
-          case "${{ inputs.platform }}" in
-            b2b|b2c|b2x|greenpan) ;;
+          set -euo pipefail
+          SUITE="${{ inputs.suite }}"
+          ENV_NAME="${{ inputs.env }}"
+
+          case "$SUITE" in
+            all-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --project=b2x --project=greenpan --grep @regression"
+              ENV="${ENV_NAME}" npx playwright test --project=b2b --project=b2x --project=greenpan --grep "@regression"
+              ;;
+            b2b-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --grep @regression"
+              ENV="${ENV_NAME}" npx playwright test --project=b2b --grep "@regression"
+              ;;
+            b2x-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2x --grep @regression"
+              ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@regression"
+              ;;
+            greenpan-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=greenpan --grep @regression"
+              ENV="${ENV_NAME}" npx playwright test --project=greenpan --grep "@regression"
+              ;;
+            create-b2b-request)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --grep @create-request"
+              ENV="${ENV_NAME}" npx playwright test --project=b2b --grep "@create-request"
+              ;;
+            create-b2x-request)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2x --grep @create-request"
+              ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@create-request"
+              ;;
+            create-b2c-request)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2c --project=greenpan --grep @create-request"
+              ENV="${ENV_NAME}" npx playwright test --project=b2c --project=greenpan --grep "@create-request"
+              ;;
             *)
-              echo "Invalid platform: ${{ inputs.platform }}. Must be one of: b2b, b2c, b2x, greenpan."
+              echo "Unknown suite: ${SUITE}"
               exit 1
               ;;
           esac
 
-      - name: Run Playwright tests
-        run: |
-          echo "Command: ENV=${{ inputs.env }} npx playwright test --project=${{ inputs.platform }} tests/${{ inputs.platform }} --grep @${{ inputs.suite }}"
-          ENV="${{ inputs.env }}" npx playwright test --project="${{ inputs.platform }}" "tests/${{ inputs.platform }}" --grep "@${{ inputs.suite }}"
-
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ inputs.platform }}-${{ inputs.suite }}-${{ inputs.env }}
+          name: playwright-report-${{ inputs.suite }}-${{ inputs.env }}
           path: |
             playwright-report/
             test-results/
@@ -257,7 +274,6 @@ jobs:
             echo "| Input | Value |"
             echo "| --- | --- |"
             echo "| Environment | \`${{ inputs.env }}\` |"
-            echo "| Platform | \`${{ inputs.platform }}\` |"
             echo "| Suite | \`${{ inputs.suite }}\` |"
             echo "| Run ID | \`${{ github.run_id }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"

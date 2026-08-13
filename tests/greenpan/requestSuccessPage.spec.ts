@@ -22,7 +22,7 @@ test.describe("GreenPan request success page", () => {
   test(
     "success page is shown after existing user completes request",
     {
-      tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+      tag: ["@greenpan", "@create-request", "@regression"],
     },
     async () => {
       await completeGreenpanRequestForExistingUser(
@@ -37,7 +37,7 @@ test.describe("GreenPan request success page", () => {
   test(
     "success page is shown after new user completes request with address",
     {
-      tag: ["@greenpan", "@regression", "@e2e"],
+      tag: ["@greenpan", "@create-request", "@regression"],
     },
     async () => {
       await completeGreenpanRequestForNewUser(

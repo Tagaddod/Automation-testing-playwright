@@ -12,6 +12,7 @@ import { URLs } from "../config/urls";
  * - sales-app-*: PHONE → Sales App API only
  * - collector-app: PHONE → Collector App API only
  */
+
 export type AuthProfile = "admin" | "sales-app-egypt" | "sales-app-saudi" | "collector-app";
 
 const TOKEN_PATHS: Record<AuthProfile, string> = {

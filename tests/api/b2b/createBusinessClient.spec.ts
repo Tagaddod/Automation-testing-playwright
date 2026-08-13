@@ -2,26 +2,30 @@ import { buildBranchData, buildBusinessClientData } from "../../../src/api/b2b/t
 import { saveApiResponse } from "../../../src/api/saveApiResponse";
 import { expect, test } from "../../../src/fixtures/apiFixture";
 
-test.describe("B2B GraphQL API", { tag: ["@api", "@b2b", "@create business client"] }, () => {
-  test("create business client", async ({ api }) => {
-    const brands = await api.b2b.getBrandTypes();
+test.describe("B2B GraphQL API", { tag: ["@api", "@b2b", "@webform", "@regression"] }, () => {
+  test(
+    "create business client",
+    { tag: ["@create-b2b-request", "@create business client"] },
+    async ({ api }) => {
+      const brands = await api.b2b.getBrandTypes();
 
-    expect(brands.errors).toBeUndefined();
+      expect(brands.errors).toBeUndefined();
 
-    const brandTypeId = brands.data?.getBrandTypesB2bForm?.[0]?.id;
-    expect(brandTypeId, "No brand types returned from getBrandTypesB2bForm").toBeTruthy();
-    const data = buildBusinessClientData({ brand_type_id: brandTypeId! });
+      const brandTypeId = brands.data?.getBrandTypesB2bForm?.[0]?.id;
+      expect(brandTypeId, "No brand types returned from getBrandTypesB2bForm").toBeTruthy();
+      const data = buildBusinessClientData({ brand_type_id: brandTypeId! });
 
-    const response = await api.b2b.createBusinessClient(data);
+      const response = await api.b2b.createBusinessClient(data);
 
-    expect(response.errors).toBeUndefined();
+      expect(response.errors).toBeUndefined();
 
-    expect(response.data?.createBusinessClientB2bForm).toBeDefined();
+      expect(response.data?.createBusinessClientB2bForm).toBeDefined();
 
-    const filePath = saveApiResponse("createBusinessClient", response);
+      const filePath = saveApiResponse("createBusinessClient", response);
 
-    console.warn(`Saved business client response to ${filePath}`);
-  });
+      console.warn(`Saved business client response to ${filePath}`);
+    },
+  );
 
   test("create branch", async ({ api }) => {
     const businessClientId = process.env.BUSINESS_CLIENT_ID;

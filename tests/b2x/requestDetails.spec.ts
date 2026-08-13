@@ -16,14 +16,10 @@ test.describe("B2X request details", () => {
     });
   });
 
-  test(
-    "submit request with valid data",
-    { tag: ["@b2x", "@smoke", "@regression", "@e2e"] },
-    async () => {
-      await po.getB2XRequestDetailsPage().completeRequestDetailsStep();
-      await expect(po.getB2XRequestDetailsPage().successHeading).toBeVisible({ timeout: 60_000 });
-    },
-  );
+  test("submit request with valid data", { tag: ["@b2x", "@regression"] }, async () => {
+    await po.getB2XRequestDetailsPage().completeRequestDetailsStep();
+    await expect(po.getB2XRequestDetailsPage().successHeading).toBeVisible({ timeout: 60_000 });
+  });
 
   test("all request detail fields are visible", { tag: ["@b2x", "@regression"] }, async () => {
     await po.getB2XRequestDetailsPage().assertAllFieldsVisible();
