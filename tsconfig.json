@@ -1,19 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "CommonJS",
-    "lib": ["ES2022", "DOM"],
-    "moduleResolution": "Node",
+    "target": "ESNext",
+    "module": "Node16",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node16",
     "strict": true,
-    "noEmit": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noFallthroughCasesInSwitch": true,
-    "types": ["node", "@playwright/test"]
+    "forceConsistentCasingInFileNames": true,
+    "types": ["@playwright/test"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "playwright.config.ts", "scripts/**/*.ts"],
-  "exclude": ["node_modules", "playwright-report", "test-results", "dist", "coverage"]
+  "include": ["tests", "src", "playwright.config.ts"]
 }

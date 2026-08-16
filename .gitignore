@@ -11,6 +11,7 @@ dist/
 !.env.example
 playwright/.auth/user.json
 playwright/.auth/token.json
+playwright/api-responses/
 .DS_Store
 *.log
 
