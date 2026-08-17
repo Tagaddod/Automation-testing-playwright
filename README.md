@@ -1,4 +1,4 @@
-# frontend-testing-playwright
+# Automation-testing-playwright
 
 Playwright + TypeScript E2E / API automation for Tagaddod products: **B2B**, **B2X**, **GreenPan**, and GraphQL **API**.
 

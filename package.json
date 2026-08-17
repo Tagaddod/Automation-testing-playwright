@@ -1,5 +1,5 @@
 {
-  "name": "frontend-testing-playwright",
+  "name": "Automation-testing-playwright",
   "version": "1.0.0",
   "description": "Playwright TypeScript E2E framework for B2B, B2C, GreenPan, and Webform",
   "engines": {
@@ -16,16 +16,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tagaddod/frontend-testing-playwright.git"
+    "url": "git+https://github.com/Tagaddod/Automation-testing-playwright.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/Tagaddod/frontend-testing-playwright/issues"
+    "url": "https://github.com/Tagaddod/Automation-testing-playwright/issues"
   },
-  "homepage": "https://github.com/Tagaddod/frontend-testing-playwright#readme",
+  "homepage": "https://github.com/Tagaddod/Automation-testing-playwright#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.5.0",
