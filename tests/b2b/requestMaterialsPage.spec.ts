@@ -118,11 +118,14 @@ test.describe("B2B request materials page", () => {
     { tag: ["@b2b", "@create-request"] },
     async () => {
       const data = getB2bTestData();
+      const ucoQuantityKg = 1000;
       await completeB2BCreateNewBranchFlow(po, data, branchWithCollectablesAndFreshProduct);
       await po.getB2BBranchConfirmationPage().clickRegisterBusinessRequest();
       await selectBranchForExistingClientRequest(po, data.branchName);
-      await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
-      await po.getB2BRequestDetailsPage().completeRequestDetailsStep();
+      await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(ucoQuantityKg);
+      const { requestId } = await po.getB2BRequestDetailsPage().completeRequestDetailsStep();
+      expect(requestId, "create request did not return an id").toBeTruthy();
+      console.warn(`Created B2B request id: ${requestId}`);
     },
   );
 });

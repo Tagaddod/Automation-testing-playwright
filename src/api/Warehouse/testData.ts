@@ -139,13 +139,13 @@ export function buildCreateMiddleMileTripInput(
   input: Partial<CreateMiddleMileTripInput> = {},
 ): CreateMiddleMileTripInput {
   return {
-    source_warehouse_id: input.source_warehouse_id ?? 1,
-    destination_warehouse_id: input.destination_warehouse_id ?? 5,
-    collectable_id: input.collectable_id ?? 3,
+    source_warehouse_id: input.source_warehouse_id ?? 5,
+    destination_warehouse_id: input.destination_warehouse_id ?? 1,
+    collectable_id: input.collectable_id ?? 1,
     truck_type: input.truck_type ?? "JUMBO",
     shipping_date: input.shipping_date ?? systemShippingDate(),
     notes: input.notes ?? "Priority shipment",
-    items: input.items ?? [{ channel_type: "B2X", quantity: 100 }],
+    items: input.items ?? [{ channel_type: "B2X", quantity: 1000 }],
   };
 }
 
@@ -155,7 +155,7 @@ export function buildConfirmMiddleMileSendingLoadInput(input: {
 }): ConfirmMiddleMileSendingLoadInput {
   return {
     trip_load_id: input.trip_load_id,
-    net_weight: input.net_weight ?? 1200,
+    net_weight: input.net_weight ?? 1000,
   };
 }
 
@@ -167,7 +167,7 @@ export function buildAddMiddleMileReceivingLoadInput(input: {
   return {
     middle_mile_trip_id: input.middle_mile_trip_id,
     channel_type: input.channel_type ?? "B2B",
-    net_weight: input.net_weight ?? 200,
+    net_weight: input.net_weight ?? 900,
   };
 }
 
@@ -178,7 +178,7 @@ export function buildConfirmMiddleMileReceivingLoadInput(input: {
 }): ConfirmMiddleMileReceivingLoadInput {
   return {
     trip_load_id: input.trip_load_id,
-    net_weight: input.net_weight ?? 1200,
+    net_weight: input.net_weight ?? 9000,
     has_scrape: input.has_scrape ?? false,
   };
 }
