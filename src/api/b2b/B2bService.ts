@@ -101,7 +101,7 @@ export class B2bService {
   constructor(private readonly client: GraphQLClient) {}
 
   getBrandTypes() {
-    return this.client.request<{
+    return this.client.execute<{
       getBrandTypesB2bForm: BrandType[];
     }>(GET_BRAND_TYPES_B2B_FORM);
   }
@@ -116,7 +116,7 @@ export class B2bService {
   }
 
   createBusinessClient(data: CreateBusinessClientData) {
-    return this.client.request<{
+    return this.client.execute<{
       createBusinessClientB2bForm: {
         id: string;
         name: string;

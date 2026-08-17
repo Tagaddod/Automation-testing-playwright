@@ -1,11 +1,24 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const RESPONSES_DIR = join("test-results", "api", "responses");
+/**
+ * Shared API IDs (traderId, branchId, …) live under playwright/ — not under
+ * Playwright's outputDir (`test-results`) — so they survive per-test cleanup
+ * and work when the Sales suite runs on its own.
+ */
+export const API_RESPONSES_DIR = join("playwright", "api-responses");
 
-/** Save an API response JSON under test-results/api/responses/<name>.json */
+/** Absolute-from-cwd path for a saved API response JSON. */
+export function getApiResponsePath(name: string): string {
+  return join(API_RESPONSES_DIR, `${name}.json`);
+}
+
+export const BRANCH_ID_PATH = getApiResponsePath("branchId");
+export const TRADER_ID_PATH = getApiResponsePath("traderId");
+
+/** Save an API response JSON under playwright/api-responses/<name>.json */
 export function saveApiResponse(name: string, payload: unknown): string {
-  const filePath = join(RESPONSES_DIR, `${name}.json`);
+  const filePath = getApiResponsePath(name);
   mkdirSync(dirname(filePath), { recursive: true });
   writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf-8");
   return filePath;

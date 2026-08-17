@@ -13,14 +13,25 @@ type ApiFixtures = {
   /** Admin API client (default) */
   api: ApiManager;
 
-  salesAppEgyptToken: string;
   salesAppEgyptApi: ApiManager;
 
   salesAppSaudiToken: string;
   salesAppSaudiApi: ApiManager;
 
+  salesAppJordanToken: string;
+  salesAppJordanApi: ApiManager;
+
+  salesAppViennaToken: string;
+  salesAppViennaApi: ApiManager;
+
   collectorAppToken: string;
   collectorAppApi: ApiManager;
+
+  /**
+   * Auto-attaches the last GraphQL request/response to the HTML report.
+   * Keeps Sales tests free of GraphQLClient.attachLastExchange / test.info() calls.
+   */
+  attachGraphqlExchange: undefined;
 };
 
 type ApiWorkerFixtures = {
@@ -45,10 +56,21 @@ async function createApiManager(profile: AuthProfile): Promise<ApiManager> {
 /**
  * API fixtures:
  * - `api` / `token` → admin EMAIL (backward compatible)
- * - `salesAppEgyptApi` / `salesAppSaudiApi` → Sales App phone login
+ * - `salesAppEgyptApi` / `salesAppSaudiApi` / `salesAppJordanApi` / `salesAppViennaApi` → Sales App phone login
  * - `collectorAppApi` → Collector App phone login
+ *
+ * Sales Egypt token is worker-scoped so login runs once per worker
+ * (Sales Egypt JWT is single-session — a second login invalidates the first).
  */
-export const test = base.extend<ApiFixtures>({
+export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
+  attachGraphqlExchange: [
+    async ({}, use, testInfo) => {
+      await use(undefined);
+      await GraphQLClient.attachLastExchange(testInfo);
+    },
+    { auto: true },
+  ],
+
   token: async ({}, use) => {
     await use(await getAuthToken("admin"));
   },
@@ -60,12 +82,16 @@ export const test = base.extend<ApiFixtures>({
     await api.dispose();
   },
 
-  salesAppEgyptToken: async ({}, use) => {
-    await use(await getAuthToken("sales-app-egypt"));
-  },
+  salesAppEgyptToken: [
+    async ({}, use) => {
+      await use(await getAuthToken("sales-app-egypt"));
+    },
+    { scope: "worker" },
+  ],
 
-  salesAppEgyptApi: async ({}, use) => {
-    const api = await createApiManager("sales-app-egypt");
+  salesAppEgyptApi: async ({ salesAppEgyptToken }, use) => {
+    const client = await GraphQLClient.create(salesAppEgyptToken);
+    const api = new ApiManager(client);
     await use(api);
     await api.dispose();
   },
@@ -74,8 +100,31 @@ export const test = base.extend<ApiFixtures>({
     await use(await getAuthToken("sales-app-saudi"));
   },
 
-  salesAppSaudiApi: async ({}, use) => {
-    const api = await createApiManager("sales-app-saudi");
+  salesAppSaudiApi: async ({ salesAppSaudiToken }, use) => {
+    const client = await GraphQLClient.create(salesAppSaudiToken);
+    const api = new ApiManager(client);
+    await use(api);
+    await api.dispose();
+  },
+
+  salesAppJordanToken: async ({}, use) => {
+    await use(await getAuthToken("sales-app-jordan"));
+  },
+
+  salesAppJordanApi: async ({ salesAppJordanToken }, use) => {
+    const client = await GraphQLClient.create(salesAppJordanToken);
+    const api = new ApiManager(client);
+    await use(api);
+    await api.dispose();
+  },
+
+  salesAppViennaToken: async ({}, use) => {
+    await use(await getAuthToken("sales-app-vienna"));
+  },
+
+  salesAppViennaApi: async ({ salesAppViennaToken }, use) => {
+    const client = await GraphQLClient.create(salesAppViennaToken);
+    const api = new ApiManager(client);
     await use(api);
     await api.dispose();
   },
@@ -84,8 +133,9 @@ export const test = base.extend<ApiFixtures>({
     await use(await getAuthToken("collector-app"));
   },
 
-  collectorAppApi: async ({}, use) => {
-    const api = await createApiManager("collector-app");
+  collectorAppApi: async ({ collectorAppToken }, use) => {
+    const client = await GraphQLClient.create(collectorAppToken);
+    const api = new ApiManager(client);
     await use(api);
     await api.dispose();
   },

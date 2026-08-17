@@ -19,6 +19,13 @@ function pad(value: number): string {
 const LAT = "29.930406163389";
 const LNG = "31.893502392581";
 
+function randomSuffix(length = 6): string {
+  return Math.random()
+    .toString(36)
+    .slice(2, 2 + length)
+    .padEnd(length, "0");
+}
+
 export function buildBusinessClientData(input: {
   brand_type_id: string;
   business_client_ar_name?: string;
