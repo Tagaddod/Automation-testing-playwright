@@ -56,6 +56,30 @@ function requireValue(value: string, name: string): string {
   return value;
 }
 
+  const query = `
+        mutation {
+          login(email: "${ENV.ADMIN_EMAIL}", password: "${ENV.ADMIN_PASSWORD}", type: EMAIL) {
+            id
+            jwtToken
+          }
+        }
+      `;
+
+  // Staging occasionally resets the connection (ECONNRESET); retry a few times.
+  let response;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      response = await api.post(URLs.graphql, { data: { query } });
+      break;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  if (!response) {
+    throw new Error(`Login request failed after retries: ${String(lastError)}`);
+  }
 function phoneCredentials(profile: Exclude<AuthProfile, "admin">): PhoneCredentials {
   switch (profile) {
     case "sales-app-egypt":

@@ -2,7 +2,10 @@ import { expect, test as base } from "@playwright/test";
 
 import { ApiManager } from "../api/ApiManager";
 import { GraphQLClient } from "../api/GraphQLClient";
-import { getAuthToken } from "../utils/authApi";
+import { apiLogin } from "../utils/authApi";
+
+type ApiFixtures = {
+import { type AuthProfile, getAuthToken } from "../utils/authApi";
 
 type ApiFixtures = {
   /** Admin JWT (default) — same path as UI setup token.json */
@@ -32,9 +35,23 @@ type ApiFixtures = {
 };
 
 type ApiWorkerFixtures = {
-  /** One Sales Egypt login per worker (single-session JWT). */
-  salesAppEgyptToken: string;
+  token: string;
 };
+
+/** Use a fresh token once per worker; persisted JWTs may be invalidated elsewhere. */
+export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
+  token: [
+    async ({}, use) => {
+      const { token } = await apiLogin();
+      await use(token);
+    },
+    { scope: "worker" },
+  ],
+async function createApiManager(profile: AuthProfile): Promise<ApiManager> {
+  const token = await getAuthToken(profile);
+  const client = await GraphQLClient.create(token);
+  return new ApiManager(client);
+}
 
 /**
  * API fixtures:
