@@ -1,4 +1,4 @@
-import type { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
+import type { GraphQLClient } from "../GraphQLClient";
 import { CREATE_BRANCH, CREATE_BUSINESS_CLIENT } from "./graphql/mutations";
 import { GET_BRAND_TYPES_B2B_FORM } from "./graphql/queries";
 
@@ -26,13 +26,13 @@ export class B2bService {
   constructor(private readonly client: GraphQLClient) {}
 
   getBrandTypes() {
-    return this.client.request<{
+    return this.client.execute<{
       getBrandTypesB2bForm: BrandType[];
     }>(GET_BRAND_TYPES_B2B_FORM);
   }
 
   createBusinessClient(data: CreateBusinessClientData) {
-    return this.client.request<{
+    return this.client.execute<{
       createBusinessClientB2bForm: {
         id: string;
         name: string;
@@ -43,7 +43,7 @@ export class B2bService {
   }
 
   createBranch(data: CreateBranchData) {
-    return this.client.request<{
+    return this.client.execute<{
       createBranch: {
         id: string;
         name: string | null;
@@ -56,5 +56,3 @@ export class B2bService {
     }>(CREATE_BRANCH, data);
   }
 }
-
-export type { GraphQLResponse };
