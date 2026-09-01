@@ -121,4 +121,4 @@ git push -u fork <branch>     # personal fork
 
 ## Questions
 
-If unsure where code belongs (page vs flow vs fixture), ask in review **before** inventing a new pattern. Match the closest existing product folder (`b2b`, `b2x`, `greenpan`, `api/Warehouse`, `api/b2b`, `api/sales`, …).
+If unsure where code belongs (page vs flow vs fixture), ask in review **before** inventing a new pattern. Match the closest existing product folder (`b2b`, `b2x`, `greenpan`, `api/warehouse`, `api/b2b`, `api/sales`, …).

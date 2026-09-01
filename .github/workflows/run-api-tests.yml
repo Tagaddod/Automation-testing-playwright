@@ -87,24 +87,24 @@ jobs:
 
           case "$SUITE" in
             all-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep '@regression|@warehouse-regression' --workers=1"
-              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@regression|@warehouse-regression" --workers=1
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @all-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@all-regression" --workers=1
               ;;
             webform-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @webform --workers=1"
-              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@webform" --workers=1
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @webform-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@webform-regression" --workers=1
               ;;
             sales-app-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @sales-app --workers=1"
-              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@sales-app" --workers=1
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @sales-app-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@sales-app-regression" --workers=1
               ;;
             warehouse-regression)
               echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @warehouse-regression --workers=1"
               ENV="${ENV_NAME}" npx playwright test --project=api --grep "@warehouse-regression" --workers=1
               ;;
             collector-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @collector-app --workers=1 --pass-with-no-tests"
-              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@collector-app" --workers=1 --pass-with-no-tests
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @collector-regression --workers=1 --pass-with-no-tests"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@collector-regression" --workers=1 --pass-with-no-tests
               ;;
             create-trip-load-with-quality)
               echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-trip-load-with-quality --workers=1"
@@ -119,8 +119,8 @@ jobs:
               ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-b2b-request" --workers=1
               ;;
             create-b2x-request)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-b2x-request --workers=1 --pass-with-no-tests"
-              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-b2x-request" --workers=1 --pass-with-no-tests
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-b2x-request --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-b2x-request" --workers=1
               ;;
             create-b2c-request)
               echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-b2c-request --workers=1 --pass-with-no-tests"

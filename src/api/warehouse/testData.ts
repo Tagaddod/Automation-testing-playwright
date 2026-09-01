@@ -1,5 +1,3 @@
-import { faker } from "@faker-js/faker";
-
 import type {
   AddMiddleMileReceivingLoadInput,
   AddTripLoadQualityInput,
@@ -13,6 +11,11 @@ import type {
   UpdateQualityOptionalFieldsInput,
   VerifySampleCodeData,
 } from "./WarehouseService";
+
+function randomFloat(min: number, max: number, fractionDigits = 2): number {
+  const value = Math.random() * (max - min) + min;
+  return Number(value.toFixed(fractionDigits));
+}
 
 /** Local calendar date as YYYY-MM-DD (system date). */
 export function systemShippingDate(date: Date = new Date()): string {
@@ -39,8 +42,7 @@ export function buildSetFirstScaleData(input: {
 }): SetFirstScaleData {
   return {
     tripLoadId: input.tripLoadId,
-    firstScaleAmount:
-      input.firstScaleAmount ?? faker.number.float({ min: 1000, max: 5000, fractionDigits: 2 }),
+    firstScaleAmount: input.firstScaleAmount ?? randomFloat(1000, 5000, 2),
   };
 }
 
@@ -50,8 +52,7 @@ export function buildSetSecondScaleData(input: {
 }): SetSecondScaleData {
   return {
     firstScaleId: input.firstScaleId,
-    secondScaleAmount:
-      input.secondScaleAmount ?? faker.number.float({ min: 800, max: 4500, fractionDigits: 2 }),
+    secondScaleAmount: input.secondScaleAmount ?? randomFloat(800, 4500, 2),
   };
 }
 
@@ -81,29 +82,28 @@ export function buildAddTripLoadQualityInput(input: {
   p?: number;
   unsaponifiable?: number;
 }): AddTripLoadQualityInput {
-  const emptyBeaker = faker.number.float({ min: 50, max: 120, fractionDigits: 2 });
-  const sampleBefore = emptyBeaker + faker.number.float({ min: 5, max: 40, fractionDigits: 2 });
-  const sampleAfter = sampleBefore + faker.number.float({ min: 1, max: 20, fractionDigits: 2 });
+  const emptyBeaker = randomFloat(50, 120, 2);
+  const sampleBefore = emptyBeaker + randomFloat(5, 40, 2);
+  const sampleAfter = sampleBefore + randomFloat(1, 20, 2);
 
   const base: AddTripLoadQualityInput = {
     trip_load_id: input.trip_load_id,
-    ffa: input.ffa ?? faker.number.float({ min: 0.1, max: 5, fractionDigits: 2 }),
-    i: input.i ?? faker.number.float({ min: 0.1, max: 5, fractionDigits: 2 }),
-    m: input.m ?? faker.number.float({ min: 0.1, max: 5, fractionDigits: 2 }),
+    ffa: input.ffa ?? randomFloat(0.1, 5, 2),
+    i: input.i ?? randomFloat(0.1, 5, 2),
+    m: input.m ?? randomFloat(0.1, 5, 2),
     empty_beaker_weight: emptyBeaker,
     beaker_sample_before: sampleBefore,
     beaker_sample_after: sampleAfter,
-    beaker_sediments: faker.number.float({ min: 0, max: 2, fractionDigits: 2 }),
-    koh_volume: faker.number.float({ min: 0, max: 5, fractionDigits: 2 }),
+    beaker_sediments: randomFloat(0, 2, 2),
+    koh_volume: randomFloat(0, 5, 2),
     product_type: input.product_type ?? "PRODUCT_1",
   };
 
   if (input.includeOptionalFields) {
-    base.s = input.s ?? faker.number.float({ min: 0.1, max: 20, fractionDigits: 2 });
-    base.cl = input.cl ?? faker.number.float({ min: 0.1, max: 10, fractionDigits: 2 });
-    base.p = input.p ?? faker.number.float({ min: 0.1, max: 25, fractionDigits: 2 });
-    base.unsaponifiable =
-      input.unsaponifiable ?? faker.number.float({ min: 0.1, max: 5, fractionDigits: 2 });
+    base.s = input.s ?? randomFloat(0.1, 20, 2);
+    base.cl = input.cl ?? randomFloat(0.1, 10, 2);
+    base.p = input.p ?? randomFloat(0.1, 25, 2);
+    base.unsaponifiable = input.unsaponifiable ?? randomFloat(0.1, 5, 2);
   }
 
   return base;
@@ -139,13 +139,13 @@ export function buildCreateMiddleMileTripInput(
   input: Partial<CreateMiddleMileTripInput> = {},
 ): CreateMiddleMileTripInput {
   return {
-    source_warehouse_id: input.source_warehouse_id ?? 5,
+    source_warehouse_id: input.source_warehouse_id ?? 60,
     destination_warehouse_id: input.destination_warehouse_id ?? 1,
     collectable_id: input.collectable_id ?? 1,
     truck_type: input.truck_type ?? "JUMBO",
     shipping_date: input.shipping_date ?? systemShippingDate(),
     notes: input.notes ?? "Priority shipment",
-    items: input.items ?? [{ channel_type: "B2X", quantity: 1000 }],
+    items: input.items ?? [{ channel_type: "B2B", quantity: 20 }],
   };
 }
 
@@ -155,7 +155,7 @@ export function buildConfirmMiddleMileSendingLoadInput(input: {
 }): ConfirmMiddleMileSendingLoadInput {
   return {
     trip_load_id: input.trip_load_id,
-    net_weight: input.net_weight ?? 1000,
+    net_weight: input.net_weight ?? 20,
   };
 }
 
@@ -167,7 +167,7 @@ export function buildAddMiddleMileReceivingLoadInput(input: {
   return {
     middle_mile_trip_id: input.middle_mile_trip_id,
     channel_type: input.channel_type ?? "B2B",
-    net_weight: input.net_weight ?? 900,
+    net_weight: input.net_weight ?? 20,
   };
 }
 
@@ -178,7 +178,7 @@ export function buildConfirmMiddleMileReceivingLoadInput(input: {
 }): ConfirmMiddleMileReceivingLoadInput {
   return {
     trip_load_id: input.trip_load_id,
-    net_weight: input.net_weight ?? 9000,
+    net_weight: input.net_weight ?? 20,
     has_scrape: input.has_scrape ?? false,
   };
 }

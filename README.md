@@ -34,7 +34,7 @@ Run examples:
 ENV=staging npx playwright test --project=b2b
 ENV=dev npx playwright test --project=greenpan --grep @smoke
 ENV=staging npx playwright test --project=api --grep "@create business client"
-ENV=staging npx playwright test --project=api tests/api/Warehouse --workers=1
+ENV=staging npx playwright test --project=api tests/api/warehouse --workers=1
 ```
 
 ## Documentation

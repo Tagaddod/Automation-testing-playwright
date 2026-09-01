@@ -139,7 +139,7 @@ export class WarehouseService {
   constructor(private readonly client: GraphQLClient) {}
 
   createTripLoad(data: CreateTripLoadData) {
-    return this.client.request<{
+    return this.client.execute<{
       createTripLoad: {
         id: string;
         trip_id: string | null;
@@ -155,13 +155,13 @@ export class WarehouseService {
   }
 
   deleteTripLoad(tripLoadId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       deleteTripLoad: boolean | null;
     }>(DELETE_TRIP_LOAD, { trip_load_id: tripLoadId });
   }
 
   setFirstScale(data: SetFirstScaleData) {
-    return this.client.request<{
+    return this.client.execute<{
       setFirstScale: {
         id: string;
         trip_id: string | null;
@@ -178,7 +178,7 @@ export class WarehouseService {
   }
 
   setSecondScale(data: SetSecondScaleData) {
-    return this.client.request<{
+    return this.client.execute<{
       setSecondScale: {
         id: string;
         first_scale_amount: number | null;
@@ -194,7 +194,7 @@ export class WarehouseService {
   }
 
   setThirdScale(data: SetThirdScaleData) {
-    return this.client.request<{
+    return this.client.execute<{
       setThirdScaleDeductibles: {
         id: string;
         first_scale_amount: number | null;
@@ -213,19 +213,19 @@ export class WarehouseService {
   }
 
   addTripLoadQuality(input: AddTripLoadQualityInput) {
-    return this.client.request<{
+    return this.client.execute<{
       addTripLoadQuality: TripLoadQualityResult;
     }>(ADD_TRIP_LOAD_QUALITY, { input });
   }
 
   updateQualityOptionalFields(input: UpdateQualityOptionalFieldsInput) {
-    return this.client.request<{
+    return this.client.execute<{
       updateQualityOptionalFields: TripLoadQualityResult;
     }>(UPDATE_QUALITY_OPTIONAL_FIELDS, { input });
   }
 
   generateSampleCode(data: GenerateSampleCodeData) {
-    return this.client.request<{
+    return this.client.execute<{
       generateSampleConfirmationCode: {
         id: string;
         sample_confirmation_code: string | null;
@@ -236,7 +236,7 @@ export class WarehouseService {
   }
 
   deleteSampleConfirmation(tripLoadId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       deleteSampleConfirmation: {
         id: string;
         sample_confirmation_code: string | null;
@@ -247,7 +247,7 @@ export class WarehouseService {
   }
 
   verifySampleCode(data: VerifySampleCodeData) {
-    return this.client.request<{
+    return this.client.execute<{
       verifySampleConfirmationCode: {
         id: string;
         sample_confirmation_code: string | null;
@@ -261,7 +261,7 @@ export class WarehouseService {
   }
 
   createMiddleMileTrip(input: CreateMiddleMileTripInput) {
-    return this.client.request<{
+    return this.client.execute<{
       createMiddleMileTrip: {
         id: string;
         status: string | null;
@@ -279,7 +279,7 @@ export class WarehouseService {
   }
 
   startMiddleMileSending(middleMileTripId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       startMiddleMileSending: {
         id: string;
         status: string | null;
@@ -296,7 +296,7 @@ export class WarehouseService {
   }
 
   confirmMiddleMileSendingLoad(input: ConfirmMiddleMileSendingLoadInput) {
-    return this.client.request<{
+    return this.client.execute<{
       confirmMiddleMileSendingLoad: {
         id: string;
         status: string | null;
@@ -311,7 +311,7 @@ export class WarehouseService {
   }
 
   confirmMiddleMileSending(middleMileTripId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       confirmMiddleMileSending: {
         id: string;
         status: string | null;
@@ -321,7 +321,7 @@ export class WarehouseService {
   }
 
   startMiddleMileReceiving(middleMileTripId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       startMiddleMileReceiving: {
         id: string;
         status: string | null;
@@ -336,7 +336,7 @@ export class WarehouseService {
   }
 
   addMiddleMileReceivingLoad(input: AddMiddleMileReceivingLoadInput) {
-    return this.client.request<{
+    return this.client.execute<{
       addMiddleMileReceivingLoad: {
         id: string;
         status: string | null;
@@ -352,7 +352,7 @@ export class WarehouseService {
   }
 
   confirmMiddleMileReceivingLoad(input: ConfirmMiddleMileReceivingLoadInput) {
-    return this.client.request<{
+    return this.client.execute<{
       confirmMiddleMileReceivingLoad: {
         id: string;
         status: string | null;
@@ -368,7 +368,7 @@ export class WarehouseService {
   }
 
   confirmMiddleMileReceiving(middleMileTripId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       confirmMiddleMileReceiving: {
         id: string;
         status: string | null;
