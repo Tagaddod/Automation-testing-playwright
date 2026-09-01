@@ -2,16 +2,16 @@ import { expect, test as base } from "@playwright/test";
 
 import { ApiManager } from "../api/ApiManager";
 import { GraphQLClient } from "../api/GraphQLClient";
-import { apiLogin } from "../utils/authApi";
-
-type ApiFixtures = {
-import { type AuthProfile, getAuthToken } from "../utils/authApi";
+import { getAuthToken } from "../utils/authApi";
 
 type ApiFixtures = {
   /** Admin JWT (default) — same path as UI setup token.json */
   token: string;
   /** Admin API client (default) */
   api: ApiManager;
+
+  customerAppToken: string;
+  customerAppApi: ApiManager;
 
   salesAppEgyptApi: ApiManager;
 
@@ -35,27 +35,14 @@ type ApiFixtures = {
 };
 
 type ApiWorkerFixtures = {
-  token: string;
+  /** One Sales Egypt login per worker (single-session JWT). */
+  salesAppEgyptToken: string;
 };
-
-/** Use a fresh token once per worker; persisted JWTs may be invalidated elsewhere. */
-export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
-  token: [
-    async ({}, use) => {
-      const { token } = await apiLogin();
-      await use(token);
-    },
-    { scope: "worker" },
-  ],
-async function createApiManager(profile: AuthProfile): Promise<ApiManager> {
-  const token = await getAuthToken(profile);
-  const client = await GraphQLClient.create(token);
-  return new ApiManager(client);
-}
 
 /**
  * API fixtures:
  * - `api` / `token` → admin EMAIL (backward compatible)
+ * - `customerAppApi` → B2C Customer App phone login
  * - `salesAppEgyptApi` / `salesAppSaudiApi` / `salesAppJordanApi` / `salesAppViennaApi` → Sales App phone login
  * - `collectorAppApi` → Collector App phone login
  *
@@ -77,6 +64,17 @@ export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
 
   api: async ({ token }, use) => {
     const client = await GraphQLClient.create(token);
+    const api = new ApiManager(client);
+    await use(api);
+    await api.dispose();
+  },
+
+  customerAppToken: async ({}, use) => {
+    await use(await getAuthToken("customer-app"));
+  },
+
+  customerAppApi: async ({ customerAppToken }, use) => {
+    const client = await GraphQLClient.create(customerAppToken);
     const api = new ApiManager(client);
     await use(api);
     await api.dispose();

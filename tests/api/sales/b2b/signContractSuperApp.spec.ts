@@ -7,12 +7,12 @@ import {
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("SignContractSuperApp", { tag: ["@api", "@b2b", "@valid", "@sign-contract"] }, () => {
+test.describe("SignContractSuperApp", () => {
   test.describe.configure({ mode: "serial", timeout: 180_000 });
 
   test(
     "Sign Contract SuperApp with Valid data",
-    { tag: ["@b2b sign contract supperapp"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppEgyptApi }) => {
       const branchVariables = validBranchVariables();
       const branchResponse = await salesAppEgyptApi.sales.createBranch(branchVariables);

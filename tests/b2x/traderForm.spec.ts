@@ -18,7 +18,7 @@ test.describe("B2X trader form", () => {
 
   test(
     "register new trader with valid data (no warehouse)",
-    { tag: ["@b2x", "@smoke", "@regression", "@e2e"] },
+    { tag: ["@b2x", "@regression"] },
     async () => {
       const form = po.getB2XFormPage();
 
@@ -27,7 +27,7 @@ test.describe("B2X trader form", () => {
     },
   );
 
-  test("register new trader with warehouse", { tag: ["@b2x", "@regression", "@e2e"] }, async () => {
+  test("register new trader with warehouse", { tag: ["@b2x", "@regression"] }, async () => {
     const form = po.getB2XFormPage();
 
     await form.completeTraderFormWithWarehouse(data);
@@ -60,7 +60,7 @@ test.describe("B2X trader form", () => {
 
   test(
     "create request from success page opens collectables step",
-    { tag: ["@b2x", "@regression", "@e2e"] },
+    { tag: ["@b2x", "@regression"] },
     async ({ page }) => {
       const form = po.getB2XFormPage();
 

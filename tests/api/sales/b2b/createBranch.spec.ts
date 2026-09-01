@@ -10,12 +10,12 @@ import {
 import { requireSavedBranchId, saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("Create Branch", { tag: ["@api", "@b2b", "@valid", "@create-branch"] }, () => {
+test.describe("Create Branch", () => {
   test.describe.configure({ timeout: 180_000 });
 
   test(
     "Create Branch with valid data - Valid",
-    { tag: ["@b2b Create Branch supperapp"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppEgyptApi }) => {
       const variables = validBranchVariables();
 
@@ -57,7 +57,7 @@ test.describe("Create Branch", { tag: ["@api", "@b2b", "@valid", "@create-branch
 
   test(
     "Create Branch - Valid Saudi",
-    { tag: ["@b2b Create Branch supperapp saudi"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppSaudiApi }) => {
       const variables = validSaudiBranchVariables();
 
@@ -95,7 +95,7 @@ test.describe("Create Branch", { tag: ["@api", "@b2b", "@valid", "@create-branch
 
   test(
     "Create Branch - Valid Jordan",
-    { tag: ["@b2b Create Branch supperapp jordan"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppJordanApi }) => {
       const variables = validJordanBranchVariables();
 
@@ -133,7 +133,7 @@ test.describe("Create Branch", { tag: ["@api", "@b2b", "@valid", "@create-branch
 
   test(
     "Get Recurring Request Summary with valid data - Valid Vienna",
-    { tag: ["@sales", "@recurring-request", "@sales recurring request vienna"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppViennaApi }) => {
       const variables = validViennaRecurringRequestVariables();
 

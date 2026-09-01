@@ -15,7 +15,7 @@ test.describe("GreenPan bundle package page", () => {
   test(
     "bundle package sheet opens from package card",
     {
-      tag: ["@greenpan", "@smoke", "@regression"],
+      tag: ["@greenpan", "@regression"],
     },
     async () => {
       const bundle = po.getGreenpanBundlePackagePage();
@@ -27,7 +27,7 @@ test.describe("GreenPan bundle package page", () => {
   test(
     "valid phone in bundle sheet proceeds to quantity step",
     {
-      tag: ["@greenpan", "@regression", "@e2e"],
+      tag: ["@greenpan", "@regression"],
     },
     async () => {
       await po.getGreenpanBundlePackagePage().completeBundlePhoneStep(testdata.phones.validUser);

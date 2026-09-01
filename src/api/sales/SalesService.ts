@@ -6,7 +6,7 @@ import {
   CREATE_TRADER_SUPER_APP,
   SIGN_CONTRACT_SUPER_APP,
   UPDATE_SALES_AGENT,
-} from "./mutations";
+} from "./graphql/mutations";
 import {
   GET_COLLECTABLES,
   GET_RECURRING_REQUEST_SUMMARY,
@@ -14,7 +14,7 @@ import {
   GET_SELLER_COLLECTABLES_SALES_AGENT,
   MY_SALES_AGENT,
   SALES_AGENT_LATEST_VERSION,
-} from "./queries";
+} from "./graphql/queries";
 
 export type Collectable = {
   id: string;

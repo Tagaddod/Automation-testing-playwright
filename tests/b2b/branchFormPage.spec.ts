@@ -25,14 +25,10 @@ test.describe("B2B branch form page", () => {
     await expect(page).not.toHaveURL(/\/auth/);
   });
 
-  test(
-    "branch form page fields are visible",
-    { tag: ["@b2b", "@smoke", "@regression"] },
-    async () => {
-      await goToBranchFormStep(po, randomBranchName());
-      await po.getB2BBranchFormPage().assertPageVisible();
-    },
-  );
+  test("branch form page fields are visible", { tag: ["@b2b", "@regression"] }, async () => {
+    await goToBranchFormStep(po, randomBranchName());
+    await po.getB2BBranchFormPage().assertPageVisible();
+  });
 
   test(
     "fresh product checkbox is selected by default",
@@ -120,7 +116,7 @@ test.describe("B2B branch form page", () => {
   test(
     "create new client and branch with collectables and fresh product",
     {
-      tag: ["@b2b", "@smoke", "@regression", "@e2e"],
+      tag: ["@b2b", "@regression"],
     },
     async () => {
       await completeB2BCreateNewBranchFlow(

@@ -16,21 +16,17 @@ test.describe("GreenPan address page", () => {
     await goToAddressStep(po, randomPhoneNumber(), testdata.quantities.medium);
   });
 
-  test(
-    "address page fields are visible",
-    { tag: ["@greenpan", "@smoke", "@regression"] },
-    async () => {
-      const address = po.getGreenpanAddressPage();
-      await address.assertPageVisible();
-      await expect(address.streetNameInput).toBeVisible();
-      await expect(address.clientNameInput).toBeVisible();
-    },
-  );
+  test("address page fields are visible", { tag: ["@greenpan", "@regression"] }, async () => {
+    const address = po.getGreenpanAddressPage();
+    await address.assertPageVisible();
+    await expect(address.streetNameInput).toBeVisible();
+    await expect(address.clientNameInput).toBeVisible();
+  });
 
   test(
     "filling address proceeds to send request step",
     {
-      tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+      tag: ["@greenpan", "@regression"],
     },
     async () => {
       await po.getGreenpanAddressPage().completeAddressStep(testdata.addresses.cairo);

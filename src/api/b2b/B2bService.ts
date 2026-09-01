@@ -1,22 +1,19 @@
-import { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
+import { Channel, CountryCode } from "../enums";
+import type { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
 import {
   CREATE_BRANCH,
   CREATE_BUSINESS_CLIENT,
   CREATE_BUSINESS_REQUEST_V2,
 } from "./graphql/mutations";
 import {
-  GET_BRAND_TYPES_B2B_FORM,
   GET_BRANCH_FRESH_PRODUCTS_WEBFORM,
+  GET_BRAND_TYPES_B2B_FORM,
   GET_COLLECTABLES,
 } from "./graphql/queries";
-import { Channel, CountryCode } from "../enums";
-import type { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
-import { CREATE_BRANCH, CREATE_BUSINESS_CLIENT } from "./graphql/mutations";
-import { GET_BRAND_TYPES_B2B_FORM } from "./graphql/queries";
 
 export type BrandType = {
   id: string;
-  name: string; 
+  name: string;
 };
 
 export type CollectableMeasure = {
@@ -106,11 +103,8 @@ export class B2bService {
     }>(GET_BRAND_TYPES_B2B_FORM);
   }
 
-  getCollectables(
-    channels: Channel[] = [Channel.B2B],
-    countryCode: CountryCode = CountryCode.EG
-  ) {
-    return this.client.request<{
+  getCollectables(channels: Channel[] = [Channel.B2B], countryCode: CountryCode = CountryCode.EG) {
+    return this.client.execute<{
       getCollectables: Collectable[];
     }>(GET_COLLECTABLES, { channels, country_code: countryCode });
   }
@@ -127,13 +121,13 @@ export class B2bService {
   }
 
   getBranchFreshProducts(branchId: string | number) {
-    return this.client.request<{
+    return this.client.execute<{
       getBranchFreshProductsWebform: FreshProduct[];
     }>(GET_BRANCH_FRESH_PRODUCTS_WEBFORM, { branch_id: branchId });
   }
 
   createBranch(data: CreateBranchData) {
-    return this.client.request<{
+    return this.client.execute<{
       createBranchB2bForm: {
         id: string;
         name: string | null;
@@ -148,7 +142,7 @@ export class B2bService {
   }
 
   createBusinessRequest(data: CreateBusinessRequestData) {
-    return this.client.request<{
+    return this.client.execute<{
       createBusinessRequestB2bFormV2: {
         id: string;
         status: string | null;

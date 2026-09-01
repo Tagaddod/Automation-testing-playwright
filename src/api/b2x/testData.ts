@@ -1,6 +1,6 @@
 import { randomPhoneNumber, randomTraderName } from "../../utils/testdata";
 import { CountryCode, TraderType } from "../enums";
-import { CreateTraderData, CreateTraderRequestData } from "./B2xService";
+import type { CreateTraderData, CreateTraderRequestData } from "./B2xService";
 
 const LAT = "29.930406163389";
 const LNG = "31.893502392581";

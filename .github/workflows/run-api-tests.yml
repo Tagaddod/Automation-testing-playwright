@@ -12,24 +12,22 @@ on:
           - dev
           - staging
           - uat
-      platform:
-        description: Platform
-        required: true
-        default: b2b
-        type: choice
-        options:
-          - b2b
-          - warehouse
-          - b2x
-          - superapp
       suite:
-        description: Test suite tag (matched as @<suite> via --grep)
+        description: Test suite
         required: true
-        default: create business client
+        default: all-regression
         type: choice
         options:
-          - create business client
-          - regression
+          - all-regression
+          - webform-regression
+          - sales-app-regression
+          - warehouse-regression
+          - collector-regression
+          - create-trip-load-with-quality
+          - create-middle-mile-with-quality
+          - create-b2b-request
+          - create-b2x-request
+          - create-b2c-request
       execution_id:
         description: QA Dashboard execution ID (optional)
         required: false
@@ -53,6 +51,17 @@ jobs:
       ENV: ${{ inputs.env }}
       ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      WAREHOUSE_TRIP_ID: ${{ secrets.WAREHOUSE_TRIP_ID }}
+      WAREHOUSE_CHANNEL_TYPE: ${{ vars.WAREHOUSE_CHANNEL_TYPE }}
+      SALES_APP_EG_PHONE: ${{ secrets.SALES_APP_EG_PHONE }}
+      SALES_APP_EG_PASSWORD: ${{ secrets.SALES_APP_EG_PASSWORD }}
+      SALES_APP_EG_COUNTRY_CODE: ${{ secrets.SALES_APP_EG_COUNTRY_CODE }}
+      SALES_APP_SA_PHONE: ${{ secrets.SALES_APP_SA_PHONE }}
+      SALES_APP_SA_PASSWORD: ${{ secrets.SALES_APP_SA_PASSWORD }}
+      SALES_APP_SA_COUNTRY_CODE: ${{ secrets.SALES_APP_SA_COUNTRY_CODE }}
+      COLLECTOR_APP_PHONE: ${{ secrets.COLLECTOR_APP_PHONE }}
+      COLLECTOR_APP_PASSWORD: ${{ secrets.COLLECTOR_APP_PASSWORD }}
+      COLLECTOR_APP_COUNTRY_CODE: ${{ secrets.COLLECTOR_APP_COUNTRY_CODE }}
 
     steps:
       - uses: actions/checkout@v4
@@ -67,30 +76,66 @@ jobs:
       - name: Debug test parameters
         run: |
           echo "env=${{ inputs.env }}"
-          echo "platform=${{ inputs.platform }}"
           echo "suite=${{ inputs.suite }}"
           echo "execution_id=${{ inputs.execution_id }}"
 
-      - name: Validate platform
+      - name: Run Playwright API tests
         run: |
-          case "${{ inputs.platform }}" in
-            b2b|warehouse|b2x|superapp) ;;
+          set -euo pipefail
+          SUITE="${{ inputs.suite }}"
+          ENV_NAME="${{ inputs.env }}"
+
+          case "$SUITE" in
+            all-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @all-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@all-regression" --workers=1
+              ;;
+            webform-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @webform-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@webform-regression" --workers=1
+              ;;
+            sales-app-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @sales-app-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@sales-app-regression" --workers=1
+              ;;
+            warehouse-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @warehouse-regression --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@warehouse-regression" --workers=1
+              ;;
+            collector-regression)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @collector-regression --workers=1 --pass-with-no-tests"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@collector-regression" --workers=1 --pass-with-no-tests
+              ;;
+            create-trip-load-with-quality)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-trip-load-with-quality --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-trip-load-with-quality" --workers=1
+              ;;
+            create-middle-mile-with-quality)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-middle-mile-with-quality --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-middle-mile-with-quality" --workers=1
+              ;;
+            create-b2b-request)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-b2b-request --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-b2b-request" --workers=1
+              ;;
+            create-b2x-request)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-b2x-request --workers=1"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-b2x-request" --workers=1
+              ;;
+            create-b2c-request)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=api --grep @create-b2c-request --workers=1 --pass-with-no-tests"
+              ENV="${ENV_NAME}" npx playwright test --project=api --grep "@create-b2c-request" --workers=1 --pass-with-no-tests
+              ;;
             *)
-              echo "Invalid platform: ${{ inputs.platform }}. Must be one of: b2b, warehouse, b2x, superapp."
+              echo "Unknown suite: ${SUITE}"
               exit 1
               ;;
           esac
 
-      - name: Run Playwright API tests
-        run: |
-          SUITE_TAG="@${{ inputs.suite }}"
-          echo "Command: ENV=${{ inputs.env }} npx playwright test --project=api tests/api/${{ inputs.platform }} --grep \"${SUITE_TAG}\""
-          ENV="${{ inputs.env }}" npx playwright test --project=api "tests/api/${{ inputs.platform }}" --grep "${SUITE_TAG}"
-
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ inputs.platform }}-${{ inputs.env }}
+          name: playwright-report-api-${{ inputs.suite }}-${{ inputs.env }}
           path: |
             playwright-report/
             test-results/
@@ -245,7 +290,7 @@ jobs:
         if: always()
         run: |
           {
-            echo "## Playwright Report"
+            echo "## Playwright API Report"
             echo ""
             echo "Report published to GitHub Pages: [${{ steps.pages_url.outputs.url }}](${{ steps.pages_url.outputs.url }})"
             echo ""
@@ -254,7 +299,6 @@ jobs:
             echo "| Input | Value |"
             echo "| --- | --- |"
             echo "| Environment | \`${{ inputs.env }}\` |"
-            echo "| Platform | \`${{ inputs.platform }}\` |"
             echo "| Suite | \`${{ inputs.suite }}\` |"
             echo "| Run ID | \`${{ github.run_id }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"

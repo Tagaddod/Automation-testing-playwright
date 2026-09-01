@@ -9,11 +9,13 @@ import { URLs } from "../config/urls";
 /**
  * Auth profiles:
  * - admin: EMAIL → B2B/B2X UI setup + default API
+ * - customer-app: PHONE → B2C Customer App API only
  * - sales-app-*: PHONE → Sales App API only
  * - collector-app: PHONE → Collector App API only
  */
 export type AuthProfile =
   | "admin"
+  | "customer-app"
   | "sales-app-egypt"
   | "sales-app-saudi"
   | "sales-app-jordan"
@@ -22,6 +24,7 @@ export type AuthProfile =
 
 const TOKEN_PATHS: Record<AuthProfile, string> = {
   admin: "playwright/.auth/token.json", // legacy path used by auth.setup
+  "customer-app": "playwright/.auth/token-customer-app.json",
   "sales-app-egypt": "playwright/.auth/token-sales-app-egypt.json",
   "sales-app-saudi": "playwright/.auth/token-sales-app-saudi.json",
   "sales-app-jordan": "playwright/.auth/token-sales-app-jordan.json",
@@ -56,32 +59,14 @@ function requireValue(value: string, name: string): string {
   return value;
 }
 
-  const query = `
-        mutation {
-          login(email: "${ENV.ADMIN_EMAIL}", password: "${ENV.ADMIN_PASSWORD}", type: EMAIL) {
-            id
-            jwtToken
-          }
-        }
-      `;
-
-  // Staging occasionally resets the connection (ECONNRESET); retry a few times.
-  let response;
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 4; attempt++) {
-    try {
-      response = await api.post(URLs.graphql, { data: { query } });
-      break;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
-    }
-  }
-  if (!response) {
-    throw new Error(`Login request failed after retries: ${String(lastError)}`);
-  }
 function phoneCredentials(profile: Exclude<AuthProfile, "admin">): PhoneCredentials {
   switch (profile) {
+    case "customer-app":
+      return {
+        phone: requireValue(ENV.CUSTOMER_APP_PHONE, "CUSTOMER_APP_PHONE"),
+        password: requireValue(ENV.CUSTOMER_APP_PASSWORD, "CUSTOMER_APP_PASSWORD"),
+        countryCode: ENV.CUSTOMER_APP_COUNTRY_CODE || undefined,
+      };
     case "sales-app-egypt":
       // Sales Agent Egypt: phone/password from .env.
       // Do NOT send country_code on login (API rejects EG here; Postman loginGap omits it).
@@ -122,6 +107,9 @@ function loginEnvHint(profile: AuthProfile): string {
   if (profile === "admin") {
     return "Check ADMIN_EMAIL and ADMIN_PASSWORD in .env / .env.staging (do not hardcode credentials).";
   }
+  if (profile === "customer-app") {
+    return "Check CUSTOMER_APP_PHONE and CUSTOMER_APP_PASSWORD in .env / .env.staging.";
+  }
   if (profile === "sales-app-egypt") {
     return "Check SALES_APP_EG_PHONE and SALES_APP_EG_PASSWORD in .env / .env.staging.";
   }
@@ -139,7 +127,23 @@ function loginEnvHint(profile: AuthProfile): string {
 
 async function postLogin(query: string, profile: AuthProfile): Promise<{ token: string }> {
   const api = await request.newContext();
-  const response = await api.post(URLs.graphql, { data: { query } });
+
+  // Staging occasionally resets the connection (ECONNRESET); retry a few times.
+  let response;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      response = await api.post(URLs.graphql, { data: { query } });
+      break;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  if (!response) {
+    throw new Error(`Login request failed after retries: ${String(lastError)}`);
+  }
+
   const text = await response.text();
   const json = parseGraphqlResponse(text) as {
     data?: { login?: { jwtToken?: string } };

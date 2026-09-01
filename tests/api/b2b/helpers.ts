@@ -1,9 +1,6 @@
-import { expect } from "../../../src/fixtures/apiFixture";
 import type { ApiManager } from "../../../src/api/ApiManager";
-import {
-  buildBranchData,
-  buildBusinessClientData,
-} from "../../../src/api/b2b/testData";
+import { buildBranchData, buildBusinessClientData } from "../../../src/api/b2b/testData";
+import { expect } from "../../../src/fixtures/apiFixture";
 
 /**
  * Reusable B2B setup steps so each test can provision its own prerequisites
@@ -18,7 +15,7 @@ export async function createBusinessClient(api: ApiManager): Promise<string> {
   expect(brandTypeId, "No brand types returned from getBrandTypesB2bForm").toBeTruthy();
 
   const response = await api.b2b.createBusinessClient(
-    buildBusinessClientData({ brand_type_id: brandTypeId! })
+    buildBusinessClientData({ brand_type_id: brandTypeId! }),
   );
   expect(response.errors).toBeUndefined();
 
@@ -29,7 +26,7 @@ export async function createBusinessClient(api: ApiManager): Promise<string> {
 }
 
 export async function getFirstCollectable(
-  api: ApiManager
+  api: ApiManager,
 ): Promise<{ collectableId: string; measureId: string }> {
   const response = await api.b2b.getCollectables();
   expect(response.errors).toBeUndefined();
@@ -46,14 +43,14 @@ export async function getFirstCollectable(
 export async function createBranch(
   api: ApiManager,
   businessClientId: string,
-  collectableId: string
+  collectableId: string,
 ): Promise<string> {
   const response = await api.b2b.createBranch(
     buildBranchData({
       business_client_id: businessClientId,
       collectable_id: collectableId,
       sell_fresh_products: true,
-    })
+    }),
   );
   expect(response.errors).toBeUndefined();
 
@@ -65,18 +62,18 @@ export async function createBranch(
 
 export async function getFirstFreshProduct(
   api: ApiManager,
-  branchId: string
+  branchId: string,
 ): Promise<{ id: string }> {
   const response = await api.b2b.getBranchFreshProducts(branchId);
   expect(
     response.errors,
-    `getBranchFreshProductsWebform returned errors: ${JSON.stringify(response.errors)}`
+    `getBranchFreshProductsWebform returned errors: ${JSON.stringify(response.errors)}`,
   ).toBeUndefined();
 
   const freshProducts = response.data?.getBranchFreshProductsWebform;
   expect(
     freshProducts?.length,
-    "No fresh products returned from getBranchFreshProductsWebform"
+    "No fresh products returned from getBranchFreshProductsWebform",
   ).toBeTruthy();
 
   return freshProducts![0];

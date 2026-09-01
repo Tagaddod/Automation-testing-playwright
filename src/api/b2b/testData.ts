@@ -1,14 +1,11 @@
 import { randomBytes, randomInt } from "node:crypto";
+
 import { randomPhoneNumber } from "../../utils/testdata";
-import {
+import type {
   CreateBranchData,
   CreateBusinessClientData,
   CreateBusinessRequestData,
 } from "./B2bService";
-import { faker } from "@faker-js/faker";
-
-import { randomPhoneNumber } from "../../utils/testdata";
-import type { CreateBranchData, CreateBusinessClientData } from "./B2bService";
 
 const DAY_CONST = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
@@ -18,13 +15,6 @@ function pad(value: number): string {
 
 const LAT = "29.930406163389";
 const LNG = "31.893502392581";
-
-function randomSuffix(length = 6): string {
-  return Math.random()
-    .toString(36)
-    .slice(2, 2 + length)
-    .padEnd(length, "0");
-}
 
 export function buildBusinessClientData(input: {
   brand_type_id: string;

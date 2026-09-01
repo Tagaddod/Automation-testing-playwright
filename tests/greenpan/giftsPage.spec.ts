@@ -15,13 +15,9 @@ test.describe("GreenPan gifts page", () => {
       await goToGiftsStep(po, testdata.phones.validUser, testdata.quantities.medium);
     });
 
-    test(
-      "gifts page fields are visible",
-      { tag: ["@greenpan", "@smoke", "@regression"] },
-      async () => {
-        await po.getGreenpanGiftsPage().assertPageVisible();
-      },
-    );
+    test("gifts page fields are visible", { tag: ["@greenpan", "@regression"] }, async () => {
+      await po.getGreenpanGiftsPage().assertPageVisible();
+    });
 
     test(
       "remaining points match entered quantity before adding gifts",
@@ -37,7 +33,7 @@ test.describe("GreenPan gifts page", () => {
     test(
       "adding a gift deducts remaining points",
       {
-        tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+        tag: ["@greenpan", "@regression"],
       },
       async () => {
         const gifts = po.getGreenpanGiftsPage();
@@ -52,7 +48,7 @@ test.describe("GreenPan gifts page", () => {
     test(
       "next proceeds to send request for existing user",
       {
-        tag: ["@greenpan", "@regression", "@e2e"],
+        tag: ["@greenpan", "@regression"],
       },
       async () => {
         await po.getGreenpanGiftsPage().completeGiftsStep(0);

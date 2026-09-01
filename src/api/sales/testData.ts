@@ -93,7 +93,7 @@ export const SALES_SAUDI_TRADER_PHONE_PREFIXES = [
 /** Jordan mobile prefixes for createTrader local phones. */
 export const SALES_JORDAN_PHONE_PREFIXES = ["77", "78", "79"] as const;
 
-/** Jordan mobile prefixes for createBranch (+962) phones. */
+/** Jordan mobile prefixes for createBranch local phones (077|078|079). */
 export const SALES_JORDAN_BRANCH_PHONE_PREFIXES = ["077", "078", "079"] as const;
 
 /** GraphQL country_code for Vienna / Austria recurring-request flows. */
@@ -234,7 +234,7 @@ export function validJordanBranchVariables(
     price: 10,
     latitude: SALES_JORDAN_DEFAULT_LATITUDE,
     longitude: SALES_JORDAN_DEFAULT_LONGITUDE,
-    phone: randomJordanPhoneNumber(),
+    phone: randomJordanBranchPhoneNumber(),
     country_code: SALES_JORDAN_GRAPHQL_COUNTRY_CODE,
     ...overrides,
   });
@@ -275,14 +275,16 @@ export function randomJordanPhoneNumber(): string {
   return prefix + subscriberNumber;
 }
 
-/** Random Jordan mobile for createBranch: +962 + 077|078|079 + 6 digits. */
+/** Random Jordan mobile for createBranch: 077|078|079 + 7 digits (e.g. 0791234567), no +962. */
 export function randomJordanBranchPhoneNumber(): string {
   const prefix =
     SALES_JORDAN_BRANCH_PHONE_PREFIXES[
       Math.floor(Math.random() * SALES_JORDAN_BRANCH_PHONE_PREFIXES.length)
     ];
-  const subscriberNumber = Math.floor(100000 + Math.random() * 900000).toString();
-  return "+962" + prefix + subscriberNumber;
+  const subscriberNumber = Math.floor(Math.random() * 1e7)
+    .toString()
+    .padStart(7, "0");
+  return prefix + subscriberNumber;
 }
 
 /** Tomorrow as `YYYY-MM-DD 00:00:00` (local). */
@@ -346,7 +348,7 @@ export function validSaudiTraderVariables(
 ) {
   return {
     name: randomTraderName(),
-    phone: randomSaudiPhoneNumber(),
+    phone: randomSaudiLocalPhoneNumber(),
     vehicle_id: "2",
     latitude: SALES_SAUDI_DEFAULT_LATITUDE,
     longitude: SALES_SAUDI_DEFAULT_LONGITUDE,

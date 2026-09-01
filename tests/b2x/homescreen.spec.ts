@@ -13,25 +13,21 @@ test.describe("B2X home", () => {
     await expect(page).not.toHaveURL(/\/auth/);
   });
 
-  test("opens B2X trader search page", { tag: ["@b2x", "@smoke", "@e2e"] }, async ({ page }) => {
+  test("opens B2X trader search page", { tag: ["@b2x"] }, async ({ page }) => {
     const home = po.getB2XHomePage();
     await expect(home.searchTraderInput).toBeVisible();
     await expect(home.nextBTN).toBeVisible();
     await expect(page.getByRole("heading", { name: "ادخل اسم التاجر" })).toBeVisible();
   });
 
-  test(
-    "add new trader opens trader form",
-    { tag: ["@b2x", "@smoke", "@regression", "@e2e"] },
-    async () => {
-      await po.getB2XHomePage().addNewTrader(randomTraderName());
-      await expect(po.getB2XFormPage().phoneNumber).toBeVisible({ timeout: 30_000 });
-    },
-  );
+  test("add new trader opens trader form", { tag: ["@b2x", "@regression"] }, async () => {
+    await po.getB2XHomePage().addNewTrader(randomTraderName());
+    await expect(po.getB2XFormPage().phoneNumber).toBeVisible({ timeout: 30_000 });
+  });
 
   test(
     "search existing trader and proceed to collectables",
-    { tag: ["@b2x", "@regression", "@e2e"] },
+    { tag: ["@b2x", "@regression"] },
     async ({ page }) => {
       await po.getB2XHomePage().searchExistTrader(testdata.b2x.existingTraderName);
       await expect(page.getByRole("heading", { name: "أدخل الكميات" })).toBeVisible({

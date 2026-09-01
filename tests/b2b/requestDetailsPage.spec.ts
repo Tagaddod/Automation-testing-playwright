@@ -26,15 +26,11 @@ test.describe("B2B request details page", () => {
     await expect(page).not.toHaveURL(/\/auth/);
   });
 
-  test(
-    "request details page fields are visible",
-    { tag: ["@b2b", "@smoke", "@regression"] },
-    async () => {
-      await openRequestForBranchWithFp(po);
-      await po.getB2BRequestMaterialsPage().completeBothMaterialsStep(quantity);
-      await po.getB2BRequestDetailsPage().assertPageVisible();
-    },
-  );
+  test("request details page fields are visible", { tag: ["@b2b", "@regression"] }, async () => {
+    await openRequestForBranchWithFp(po);
+    await po.getB2BRequestMaterialsPage().completeBothMaterialsStep(quantity);
+    await po.getB2BRequestDetailsPage().assertPageVisible();
+  });
 
   test(
     "collectables only shows amount paid to customer",
@@ -70,7 +66,7 @@ test.describe("B2B request details page", () => {
   test(
     "both materials show pay to customer, client pay, and net total",
     {
-      tag: ["@b2b", "@smoke", "@regression", "@e2e"],
+      tag: ["@b2b", "@regression"],
     },
     async () => {
       await createBranchThenOpenRequest(po);
@@ -107,7 +103,7 @@ test.describe("B2B request details page", () => {
     },
   );
 
-  test("submit request shows success confirmation", { tag: ["@b2b", "@e2e"] }, async () => {
+  test("submit request shows success confirmation", { tag: ["@b2b"] }, async () => {
     await createBranchThenOpenRequest(po);
     await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
     await po.getB2BRequestDetailsPage().completeRequestDetailsStep();

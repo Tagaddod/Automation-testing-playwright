@@ -12,19 +12,15 @@ test.describe("GreenPan home page", () => {
     await openGreenpanHome(po);
   });
 
-  test(
-    "home page fields are visible",
-    { tag: ["@greenpan", "@smoke", "@regression"] },
-    async () => {
-      const home = po.getGreenpanHomePage();
-      await home.assertPageVisible();
-    },
-  );
+  test("home page fields are visible", { tag: ["@greenpan", "@regression"] }, async () => {
+    const home = po.getGreenpanHomePage();
+    await home.assertPageVisible();
+  });
 
   test(
     "valid phone proceeds to quantity step",
     {
-      tag: ["@greenpan", "@smoke", "@regression", "@e2e"],
+      tag: ["@greenpan", "@regression"],
     },
     async () => {
       await po.getGreenpanHomePage().completePhoneStep(testdata.phones.validNewUser);

@@ -13,6 +13,13 @@ export const ENV = {
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || "",
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || "",
 
+  /** B2C Customer App API (phone login) */
+  CUSTOMER_APP_PHONE: process.env.CUSTOMER_APP_PHONE || "",
+  CUSTOMER_APP_PASSWORD: process.env.CUSTOMER_APP_PASSWORD || "",
+  /** Optional ISO code, e.g. EG. Omitted when empty. */
+  CUSTOMER_APP_COUNTRY_CODE:
+    process.env.CUSTOMER_APP_GRAPHQL_COUNTRY_CODE || process.env.CUSTOMER_APP_COUNTRY_CODE || "",
+
   /** Sales App API — Egypt / Sales Agent Egypt (phone login) */
   SALES_APP_EG_PHONE: process.env.SALES_APP_EG_PHONE || "",
   SALES_APP_EG_PASSWORD: process.env.SALES_APP_EG_PASSWORD || "",

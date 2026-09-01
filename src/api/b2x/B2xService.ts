@@ -1,7 +1,8 @@
-import { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
+import type { TraderType } from "../enums";
+import { Channel, CountryCode } from "../enums";
+import type { GraphQLClient, GraphQLResponse } from "../GraphQLClient";
 import { CREATE_TRADER, CREATE_TRADER_REQUEST_V2 } from "./graphql/mutations";
 import { GET_COLLECTABLES } from "./graphql/queries";
-import { Channel, CountryCode, TraderType } from "../enums";
 
 export type CreateTraderData = {
   name: string;
@@ -64,13 +65,13 @@ export class B2xService {
   constructor(private readonly client: GraphQLClient) {}
 
   createTrader(data: CreateTraderData) {
-    return this.client.request<{
+    return this.client.execute<{
       createTrader: Trader;
     }>(CREATE_TRADER, data);
   }
 
   createTraderRequest(data: CreateTraderRequestData) {
-    return this.client.request<{
+    return this.client.execute<{
       createTraderRequestV2: {
         id: string;
         status: string | null;
@@ -83,11 +84,8 @@ export class B2xService {
     }>(CREATE_TRADER_REQUEST_V2, data);
   }
 
-  getCollectables(
-    channels: Channel[] = [Channel.B2X],
-    countryCode: CountryCode = CountryCode.EG
-  ) {
-    return this.client.request<{
+  getCollectables(channels: Channel[] = [Channel.B2X], countryCode: CountryCode = CountryCode.EG) {
+    return this.client.execute<{
       getCollectables: Collectable[];
     }>(GET_COLLECTABLES, { channels, country_code: countryCode });
   }

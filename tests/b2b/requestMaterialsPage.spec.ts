@@ -25,7 +25,7 @@ test.describe("B2B request materials page", () => {
 
   test(
     "materials page is visible after starting a request",
-    { tag: ["@b2b", "@smoke", "@regression"] },
+    { tag: ["@b2b", "@regression"] },
     async () => {
       await openRequestForBranchWithFp(po);
       await po.getB2BRequestMaterialsPage().assertPageVisible();
@@ -69,7 +69,7 @@ test.describe("B2B request materials page", () => {
 
   test(
     "create request with collectables only",
-    { tag: ["@b2b", "@smoke", "@regression", "@e2e"] },
+    { tag: ["@b2b", "@create-request", "@regression"] },
     async () => {
       await createBranchThenOpenRequest(po);
       await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
@@ -79,7 +79,7 @@ test.describe("B2B request materials page", () => {
 
   test(
     "create request with fresh products only",
-    { tag: ["@b2b", "@smoke", "@regression", "@e2e"] },
+    { tag: ["@b2b", "@create-request", "@regression"] },
     async () => {
       await createBranchThenOpenRequest(po);
       await po.getB2BRequestMaterialsPage().completeFreshProductOnlyStep(quantity);
@@ -90,7 +90,7 @@ test.describe("B2B request materials page", () => {
   test(
     "create request with fresh products and collectables",
     {
-      tag: ["@b2b", "@create b2b request", "@regression", "@e2e"],
+      tag: ["@b2b", "@create-request", "@regression"],
     },
     async () => {
       await createBranchThenOpenRequest(po);
@@ -102,7 +102,7 @@ test.describe("B2B request materials page", () => {
   test(
     "create request with multiple collectables and fresh products",
     {
-      tag: ["@b2b", "@regression", "@e2e"],
+      tag: ["@b2b", "@create-request", "@regression"],
     },
     async () => {
       await createBranchThenOpenRequest(po);
@@ -113,12 +113,19 @@ test.describe("B2B request materials page", () => {
     },
   );
 
-  test("full request flow from new branch creation", { tag: ["@b2b", "@e2e"] }, async () => {
-    const data = getB2bTestData();
-    await completeB2BCreateNewBranchFlow(po, data, branchWithCollectablesAndFreshProduct);
-    await po.getB2BBranchConfirmationPage().clickRegisterBusinessRequest();
-    await selectBranchForExistingClientRequest(po, data.branchName);
-    await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
-    await po.getB2BRequestDetailsPage().completeRequestDetailsStep();
-  });
+  test(
+    "full request flow from new branch creation",
+    { tag: ["@b2b", "@create-request"] },
+    async () => {
+      const data = getB2bTestData();
+      const ucoQuantityKg = 1000;
+      await completeB2BCreateNewBranchFlow(po, data, branchWithCollectablesAndFreshProduct);
+      await po.getB2BBranchConfirmationPage().clickRegisterBusinessRequest();
+      await selectBranchForExistingClientRequest(po, data.branchName);
+      await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(ucoQuantityKg);
+      const { requestId } = await po.getB2BRequestDetailsPage().completeRequestDetailsStep();
+      expect(requestId, "create request did not return an id").toBeTruthy();
+      console.warn(`Created B2B request id: ${requestId}`);
+    },
+  );
 });
