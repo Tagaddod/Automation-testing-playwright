@@ -265,7 +265,8 @@ jobs:
           </html>
           EOF
 
-          touch "$SITE/.nojekyll"
+          # After cd site/reports, write .nojekyll on the site root (not site/reports/site).
+          touch ../.nojekyll
 
       - name: Set report URL
         id: pages_url
