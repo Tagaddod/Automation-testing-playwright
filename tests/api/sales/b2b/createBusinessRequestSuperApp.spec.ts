@@ -1,4 +1,7 @@
-import { validBusinessRequestVariables } from "../../../../src/api/sales/testData";
+import {
+  BUSINESS_REQUEST_BATCH_COUNT,
+  validBusinessRequestBatchVariables,
+} from "../../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
@@ -12,24 +15,40 @@ test.describe(
       "Create Business Request SuperApp - Valid",
       { tag: ["@b2b request supperapp"] },
       async ({ salesAppEgyptApi }) => {
-        // const branchVariables = validBranchVariables();
-
-        // const responsebranch = await salesAppEgyptApi.sales.createBranch(branchVariables);
         const branchId = "387925296";
-        const businessRequestVariables = validBusinessRequestVariables(branchId);
-        const response =
-          await salesAppEgyptApi.sales.createBusinessRequestSuperApp(businessRequestVariables);
-        expect(
-          response.errors,
-          "createBusinessRequestSuperApp should succeed without GraphQL errors.",
-        ).toBeUndefined();
+        const payloads = validBusinessRequestBatchVariables(branchId);
+        const requestIds: string[] = [];
 
-        const created = response.data?.createBusinessRequestSuperApp;
-        expect(created, "createBusinessRequestSuperApp should return a request.").toBeDefined();
-        expect(created?.id, "A valid Business Request ID should be returned.").toBeTruthy();
+        for (const [index, businessRequestVariables] of payloads.entries()) {
+          const response =
+            await salesAppEgyptApi.sales.createBusinessRequestSuperApp(businessRequestVariables);
+
+          expect(
+            response.errors,
+            `createBusinessRequestSuperApp ${index + 1}/${payloads.length} should succeed without GraphQL errors.`,
+          ).toBeUndefined();
+
+          const created = response.data?.createBusinessRequestSuperApp;
+          expect(
+            created,
+            `createBusinessRequestSuperApp ${index + 1}/${payloads.length} should return a request.`,
+          ).toBeDefined();
+          expect(
+            created?.id,
+            `A valid Business Request ID should be returned for request ${index + 1}/${payloads.length}.`,
+          ).toBeTruthy();
+
+          requestIds.push(created!.id);
+        }
+
+        expect(
+          requestIds,
+          `${BUSINESS_REQUEST_BATCH_COUNT} business request IDs should be created.`,
+        ).toHaveLength(BUSINESS_REQUEST_BATCH_COUNT);
 
         saveApiResponse("businessRequestId", {
-          businessRequestId: created!.id,
+          businessRequestId: requestIds[requestIds.length - 1],
+          businessRequestIds: requestIds,
         });
       },
     );

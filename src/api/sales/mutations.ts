@@ -6,34 +6,38 @@ export const CREATE_BRANCH = `
     $longitude: String!
     $phone: String!
     $payment_type: PaymentType!
+    $street_name: String!
+    $building_number: String!
+    $apartment: Int!
+    $floor: Int!
+    $preferred_time: String!
     $country_code: String
   ) {
     createBranch(
       business_client_id: $business_client_id
       branch_collectables: $branch_collectables
+      payment_type: $payment_type
       latitude: $latitude
       longitude: $longitude
-      phone: $phone
-      payment_type: $payment_type
       country_code: $country_code
+      phone: $phone
+      street_name: $street_name
+      building_number: $building_number
+      apartment: $apartment
+      floor: $floor
+      preferred_time: $preferred_time
     ) {
       id
-      name
-      identification_card
       phone
-      address
-      address_notes
-      payment_type
-      longitude
-      latitude
-      job_role
-      manager_name
-      sign_image
       status
-      google_maps_id
       country_code
-      is_seasonal
       preferred_time
+      addresses {
+        street_name
+        building_number
+        apartment
+        floor
+      }
     }
   }
 `;

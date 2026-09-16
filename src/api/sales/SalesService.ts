@@ -21,6 +21,13 @@ export type Collectable = {
   name: string;
 };
 
+export type CreateSalesBranchAddress = {
+  street_name: string | null;
+  building_number: string | null;
+  apartment: number | string | null;
+  floor: number | string | null;
+};
+
 export type CreateSalesBranchData = {
   business_client_id: string | number;
   branch_collectables: Array<{ collectable_id: string | number; price: number }>;
@@ -28,27 +35,21 @@ export type CreateSalesBranchData = {
   longitude: string;
   phone: string;
   payment_type: string;
+  street_name: string;
+  building_number: string;
+  apartment: number;
+  floor: number;
+  preferred_time: string;
   country_code?: string;
 };
 
 export type CreateSalesBranchResult = {
   id: string;
-  name: string | null;
-  identification_card: string | null;
   phone: string | null;
-  address: string | null;
-  address_notes: string | null;
-  payment_type: string | null;
-  longitude: string | null;
-  latitude: string | null;
-  job_role: string | null;
-  manager_name: string | null;
-  sign_image: string | null;
   status: string | null;
-  google_maps_id: string | null;
   country_code: string | null;
-  is_seasonal: boolean | null;
   preferred_time: string | null;
+  addresses: CreateSalesBranchAddress[] | null;
 };
 
 export type CreateTraderSuperAppData = {
