@@ -60,6 +60,10 @@ export type CreateBranchData = {
   phone: string;
   payment_type: string;
   sell_fresh_products: boolean;
+  street_name: string;
+  building_number: string;
+  apartment: number;
+  floor: number;
 };
 
 export type CollectableRequestInput = {

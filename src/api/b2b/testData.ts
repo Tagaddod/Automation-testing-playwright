@@ -30,6 +30,10 @@ export function buildBusinessClientData(input: {
   };
 }
 
+function randomAlphanumeric(prefix: string): string {
+  return `${prefix}${randomBytes(3).toString("hex")}`;
+}
+
 export function buildBranchData(input: {
   business_client_id: string | number;
   collectable_id: string | number;
@@ -39,6 +43,10 @@ export function buildBranchData(input: {
   longitude?: string;
   payment_type?: string;
   sell_fresh_products?: boolean;
+  street_name?: string;
+  building_number?: string;
+  apartment?: number;
+  floor?: number;
 }): CreateBranchData {
   return {
     business_client_id: input.business_client_id,
@@ -53,6 +61,10 @@ export function buildBranchData(input: {
     phone: input.phone ?? randomPhoneNumber(),
     payment_type: input.payment_type ?? "CASH",
     sell_fresh_products: input.sell_fresh_products ?? true,
+    street_name: input.street_name ?? randomAlphanumeric("Street"),
+    building_number: input.building_number ?? randomAlphanumeric("Bldg"),
+    apartment: input.apartment ?? randomInt(1, 51),
+    floor: input.floor ?? randomInt(1, 21),
   };
 }
 

@@ -70,6 +70,10 @@ export const CREATE_BRANCH = `
     $phone: String!
     $payment_type: PaymentType!
     $sell_fresh_products: Boolean!
+    $street_name: String!
+    $building_number: String!
+    $apartment: Int!
+    $floor: Int!
   ) {
     createBranchB2bForm(
       business_client_id: $business_client_id
@@ -79,6 +83,10 @@ export const CREATE_BRANCH = `
       phone: $phone
       payment_type: $payment_type
       sell_fresh_products: $sell_fresh_products
+      street_name: $street_name
+      building_number: $building_number
+      apartment: $apartment
+      floor: $floor
     ) {
       id
       name
