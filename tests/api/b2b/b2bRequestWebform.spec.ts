@@ -213,9 +213,9 @@ test.describe("B2B GraphQL API", () => {
     "create business request webform",
     { tag: ["@all-regression", "@webform-regression", "@create-b2b-request"] },
     async ({ api }) => {
-      const branchId = "387925296";
-
+      const businessClientId = await createBusinessClient(api);
       const { collectableId, measureId } = await getFirstCollectable(api);
+      const branchId = await createBranch(api, businessClientId, collectableId);
       const freshProduct = await getFirstFreshProduct(api, branchId);
 
       const data = buildBusinessRequestData({

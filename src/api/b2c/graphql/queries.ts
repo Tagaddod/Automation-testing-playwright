@@ -40,6 +40,26 @@ export const GET_B2C_COLLECTABLES = `
   }
 `;
 
+export const GET_COMPENSATIONS = `
+  query GetCompensations($collectables: [CollectableInput!]!) {
+    getCompensations(collectables: $collectables) {
+      request_points
+      collectable_points
+      total_points
+      cash
+      available_gifts {
+        id
+        name
+        litres
+        giftType {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 export const GET_B2C_WEB_COLLECTABLES = `
   query GetB2cWebCollectables(
     $channels: [Channel!]!

@@ -8,6 +8,7 @@ import {
 import {
   GET_B2C_COLLECTABLES,
   GET_B2C_WEB_COLLECTABLES,
+  GET_COMPENSATIONS,
   GET_CURRENT_CUSTOMER,
 } from "./graphql/queries";
 
@@ -56,6 +57,21 @@ export type B2cCollectableInput = {
 export type SelectedGiftInput = {
   id: string | number;
   count: number;
+};
+
+export type B2cAvailableGift = {
+  id: string;
+  name: string | null;
+  litres: number | null;
+  giftType: { id: string; name: string | null } | null;
+};
+
+export type B2cCompensation = {
+  request_points: number | null;
+  collectable_points: number | null;
+  total_points: number | null;
+  cash: number | null;
+  available_gifts: B2cAvailableGift[] | null;
 };
 
 export type B2cRequest = {
@@ -122,6 +138,12 @@ export class B2cService {
         country_code: countryCode,
       },
     );
+  }
+
+  getCompensations(collectables: B2cCollectableInput[]) {
+    return this.client.execute<{ getCompensations: B2cCompensation }>(GET_COMPENSATIONS, {
+      collectables,
+    });
   }
 
   createCustomerRequest(data: CreateCustomerRequestData) {
