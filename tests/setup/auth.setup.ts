@@ -10,13 +10,13 @@ const AUTH_STATE_PATH = "playwright/.auth/user.json";
 /**
  * Runs once before B2B / API tests:
  * GraphQL login (existing apiLogin) → persist JWT + browser storageState.
- * save the browser session for b2b and b2x
+ * save the browser session for b2b and b2x.
+ * Greenpan UI tests auth in-page via admin token (no setup dependency).
  */
 setup("authenticate B2B and save storage state", async ({ page, token }) => {
   mkdirSync(dirname(AUTH_STATE_PATH), { recursive: true });
   saveAuthToken(token);
 
   await gotoAuthTokenPage(page, `${URLs.b2b.auth}${token}`);
-  await gotoAuthTokenPage(page, `${URLs.greenpan.auth}${token}`);
   await page.context().storageState({ path: AUTH_STATE_PATH });
 });
