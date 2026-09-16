@@ -12,6 +12,7 @@
     "format:check": "prettier . --check",
     "typecheck": "tsc --noEmit",
     "validate": "npm run typecheck && npm run lint && npm run format:check",
+    "test:install-browsers": "playwright install --with-deps",
     "prepare": "husky"
   },
   "repository": {
