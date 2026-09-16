@@ -15,7 +15,7 @@ test.describe("B2B home page", () => {
   test(
     "home page is visible with branch search and create branch action",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       await po.getB2BHomePage().assertHomePageVisible();
@@ -25,7 +25,7 @@ test.describe("B2B home page", () => {
   test(
     "create new branch opens business client step",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       await goToCreateBusinessClientStep(po);
@@ -35,7 +35,7 @@ test.describe("B2B home page", () => {
 
   test(
     "search non-existent branch shows empty results",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async ({ page }) => {
       const home = po.getB2BHomePage();
       await home.clickSearch();

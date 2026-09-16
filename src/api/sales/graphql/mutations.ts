@@ -8,7 +8,7 @@ export const CREATE_BRANCH = `
     $payment_type: PaymentType!
     $country_code: String
     $street_name: String!
-    $building_number: Int!
+    $building_number: String!
     $apartment: Int!
     $floor: Int!
   ) {

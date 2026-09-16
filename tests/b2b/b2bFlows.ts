@@ -88,25 +88,15 @@ export async function setupExistingClientWithFirstBranch(
   return { clientName: firstBranchData.branchName, clientId: result.clientId };
 }
 
-export async function goToBranchFormForExistingClient(
-  po: PoManager,
-  clientName: string,
-  clientId?: string,
-) {
-  const branchForm = po.getB2BBranchFormPage();
-
-  if (clientId) {
-    await branchForm.navigateToNewBranchForClient(clientId);
-    if (await branchForm.phoneInput.isVisible({ timeout: 30_000 }).catch(() => false)) {
-      await branchForm.assertPageVisible();
-      return;
-    }
-  }
-
+/**
+ * Always walks the client-selection step: deep-linking `/client/{id}/branch/new`
+ * renders an empty shell because the form needs the state from step 1.
+ */
+export async function goToBranchFormForExistingClient(po: PoManager, clientName: string) {
   await openB2BHome(po);
   await goToCreateBusinessClientStep(po);
   await po.getB2BCreateBusinessClientPage().completeExistingClientStep(clientName);
-  await branchForm.assertPageVisible();
+  await po.getB2BBranchFormPage().assertPageVisible();
 }
 
 export async function createBranchForExistingClient(
@@ -114,10 +104,10 @@ export async function createBranchForExistingClient(
   wasteOptions: B2BWasteTypeOptions,
   setupWasteOptions: B2BWasteTypeOptions = { freshProduct: true, usedOil: true },
 ) {
-  const { clientName, clientId } = await setupExistingClientWithFirstBranch(po, setupWasteOptions);
+  const { clientName } = await setupExistingClientWithFirstBranch(po, setupWasteOptions);
   const branchData = getB2bTestData();
 
-  await goToBranchFormForExistingClient(po, clientName, clientId);
+  await goToBranchFormForExistingClient(po, clientName);
   await po.getB2BBranchFormPage().fillForm(branchData, wasteOptions);
   await po.getB2BBranchFormPage().submit({ waitForSuccess: true });
   await po.getB2BBranchConfirmationPage().assertPageVisible();
@@ -169,7 +159,11 @@ export async function createBranchThenOpenRequest(
   await completeB2BCreateNewBranchFlow(po, branchData, wasteOptions);
   await po.getB2BBranchConfirmationPage().clickRegisterBusinessRequest();
   await selectBranchForExistingClientRequest(po, branchData.branchName);
-  await po.getB2BRequestMaterialsPage().waitForMaterialsLoaded();
+  const materials = po.getB2BRequestMaterialsPage();
+  if (await materials.createRequestButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await materials.clickCreateRequestButton();
+  }
+  await materials.waitForMaterialsLoaded();
 }
 
 export async function openRequestMaterialsForBranch(po: PoManager, branchName: string) {
@@ -187,8 +181,7 @@ export async function openRequestMaterialsForBranch(po: PoManager, branchName: s
 }
 
 export async function openRequestForBranchWithFp(po: PoManager) {
-  await po.getB2BHomePage().openBranchNewRequest(testdata.b2b.existingBranchWithFpId);
-  await po.getB2BRequestMaterialsPage().waitForMaterialsLoaded();
+  await createBranchThenOpenRequest(po, branchWithCollectablesAndFreshProduct);
 }
 
 export async function goToRequestDetailsStep(

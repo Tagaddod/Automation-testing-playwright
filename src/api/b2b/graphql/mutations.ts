@@ -74,6 +74,7 @@ export const CREATE_BRANCH = `
     $building_number: String!
     $apartment: Int!
     $floor: Int!
+    $country_code: String
   ) {
     createBranchB2bForm(
       business_client_id: $business_client_id
@@ -87,6 +88,7 @@ export const CREATE_BRANCH = `
       building_number: $building_number
       apartment: $apartment
       floor: $floor
+      country_code: $country_code
     ) {
       id
       name

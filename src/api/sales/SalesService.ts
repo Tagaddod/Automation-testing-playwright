@@ -30,7 +30,7 @@ export type CreateSalesBranchData = {
   payment_type: string;
   country_code?: string;
   street_name: string;
-  building_number: number;
+  building_number: string;
   apartment: number;
   floor: number;
 };

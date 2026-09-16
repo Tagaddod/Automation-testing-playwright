@@ -16,7 +16,7 @@ export class requestMaterialsPage {
 
   constructor(private page: Page) {
     this.stepLabel = page.getByText("خطوه 1 / 2");
-    this.pageHeading = page.getByRole("heading", { name: "أدخل الكميات" });
+    this.pageHeading = page.getByRole("heading", { name: /أدخل الكميات/ });
     this.createRequestButton = page.getByText("عمل طلب جديد");
     this.materialsGroup = page
       .getByRole("group", { name: "اختر المواد المطلوبة" })
@@ -62,12 +62,12 @@ export class requestMaterialsPage {
 
   async assertPageVisible() {
     await expect(this.pageHeading).toBeVisible({ timeout: 30_000 });
-    const hasMaterials = await this.materialsGroup.isVisible().catch(() => false);
-    const hasFreshProducts = await this.page
-      .getByRole("heading", { name: testdata.b2b.freshProductsSection })
-      .isVisible()
-      .catch(() => false);
-    expect(hasMaterials || hasFreshProducts).toBeTruthy();
+    // The group renders as disabled skeletons first, so retry until real materials arrive.
+    await expect(
+      this.materialsGroup
+        .or(this.page.getByRole("heading", { name: testdata.b2b.freshProductsSection }))
+        .first(),
+    ).toBeVisible({ timeout: 45_000 });
     await expect(this.nextButton).toBeVisible();
   }
 

@@ -12,36 +12,29 @@ export type GreenpanAddressData = {
   clientName: string;
 };
 
-/** Address step for new GreenPan users. */
+/** Agent address form: native `city` / `region` / `zone` selects behind the combobox UI. */
 export class addressPage {
-  readonly governorateDropdown: Locator;
-  readonly areaDropdown: Locator;
-  readonly districtDropdown: Locator;
+  readonly citySelect: Locator;
+  readonly regionSelect: Locator;
+  readonly zoneSelect: Locator;
   readonly streetNameInput: Locator;
   readonly buildingInput: Locator;
   readonly apartmentInput: Locator;
   readonly floorInput: Locator;
   readonly clientNameInput: Locator;
+  readonly landmarkInput: Locator;
   readonly addAddressButton: Locator;
 
   constructor(private page: Page) {
-    this.governorateDropdown = page
-      .locator('button[role="combobox"]')
-      .filter({ hasText: /المحافظة|اختر المحافظة/ })
-      .first();
-    this.areaDropdown = page
-      .locator('button[role="combobox"]')
-      .filter({ hasText: /المنطقة|اختر المنطقة/ })
-      .first();
-    this.districtDropdown = page
-      .locator('button[role="combobox"]')
-      .filter({ hasText: /الحي|اختر الحي/ })
-      .first();
+    this.citySelect = page.locator('select[name="city"]');
+    this.regionSelect = page.locator('select[name="region"]');
+    this.zoneSelect = page.locator('select[name="zone"]');
     this.streetNameInput = page.locator("#addAddressForm-street");
     this.buildingInput = page.locator("#addAddressForm-building");
     this.apartmentInput = page.locator("#addAddressForm-apartment");
     this.floorInput = page.locator("#addAddressForm-floor");
     this.clientNameInput = page.locator("#addAddressForm-customerName");
+    this.landmarkInput = page.getByText("أقرب علامة مميزة");
     this.addAddressButton = page.getByRole("button", { name: /إضافة عنوان/ });
   }
 
@@ -49,77 +42,92 @@ export class addressPage {
     await expect(this.page.getByRole("heading", { name: "إضافة عنوان" })).toBeVisible({
       timeout: 45_000,
     });
-    await expect(this.streetNameInput.or(this.addAddressButton).first()).toBeVisible();
+    await expect(this.streetNameInput).toBeVisible();
+    await expect(this.buildingInput).toBeVisible();
+    await expect(this.apartmentInput).toBeVisible();
+    await expect(this.floorInput).toBeVisible();
+    await expect(this.clientNameInput).toBeVisible();
+    await expect(this.landmarkInput).toBeVisible();
+    await expect(this.citySelect).toBeAttached();
+  }
+
+  private async selectByLabel(select: Locator, label: string) {
+    await expect(select).toBeEnabled({ timeout: 20_000 });
+    await expect
+      .poll(async () => select.locator("option").count(), { timeout: 20_000 })
+      .toBeGreaterThan(1);
+
+    const labels = (await select.locator("option").allTextContents()).map((text) => text.trim());
+    const match = labels.find((text) => text === label || text.includes(label));
+    if (!match) {
+      throw new Error(
+        `Address option "${label}" was not found. Available: ${labels.filter(Boolean).join(", ")}`,
+      );
+    }
+    await select.selectOption({ label: match });
   }
 
   async selectGovernorate(name: string) {
-    await this.selectComboboxOption(this.governorateDropdown, name);
+    await this.selectByLabel(this.citySelect, name);
   }
 
   async selectArea(name: string) {
-    await this.selectComboboxOption(this.areaDropdown, name);
+    await this.selectByLabel(this.regionSelect, name);
   }
 
   async selectDistrict(name: string) {
-    await this.selectComboboxOption(this.districtDropdown, name);
-  }
-
-  private async selectComboboxOption(combobox: Locator, name: string) {
-    await combobox.click();
-    await this.page.getByRole("listbox").getByRole("option", { name, exact: true }).click();
-  }
-
-  async enterStreetName(streetName: string) {
-    await this.streetNameInput.fill(streetName);
-  }
-
-  async enterBuilding(building: string) {
-    await this.buildingInput.fill(building);
-  }
-
-  async enterApartment(apartment: string) {
-    await this.apartmentInput.fill(apartment);
-  }
-
-  async enterFloor(floor: string) {
-    await this.floorInput.fill(floor);
-  }
-
-  async enterClientName(clientName: string) {
-    await this.clientNameInput.fill(clientName);
-  }
-
-  async submitAddress() {
-    await this.addAddressButton.click();
+    await this.selectByLabel(this.zoneSelect, name);
   }
 
   async fillAddress(data: GreenpanAddressData) {
     await this.selectGovernorate(data.governorate);
     await this.selectArea(data.area);
     await this.selectDistrict(data.district);
-    await this.enterStreetName(data.street);
-    await this.enterBuilding(data.building);
-    await this.enterApartment(data.apartment);
-    await this.enterFloor(data.floor);
-    await this.enterClientName(data.clientName);
+    await this.streetNameInput.fill(data.street);
+    await this.buildingInput.fill(data.building);
+    await this.apartmentInput.fill(data.apartment);
+    await this.floorInput.fill(data.floor);
+    await this.clientNameInput.fill(data.clientName);
+  }
+
+  async fillAddressWithoutStreet(data: GreenpanAddressData) {
+    await this.selectGovernorate(data.governorate);
+    await this.selectArea(data.area);
+    await this.selectDistrict(data.district);
+    await this.buildingInput.fill(data.building);
+    await this.apartmentInput.fill(data.apartment);
+    await this.floorInput.fill(data.floor);
+    await this.clientNameInput.fill(data.clientName);
+  }
+
+  async fillAddressWithoutClientName(data: GreenpanAddressData) {
+    await this.selectGovernorate(data.governorate);
+    await this.selectArea(data.area);
+    await this.selectDistrict(data.district);
+    await this.streetNameInput.fill(data.street);
+    await this.buildingInput.fill(data.building);
+    await this.apartmentInput.fill(data.apartment);
+    await this.floorInput.fill(data.floor);
   }
 
   async completeAddressStep(data: GreenpanAddressData) {
     await this.assertPageVisible();
     await this.fillAddress(data);
-    await this.submitAddress();
-
-    const addressError = this.page.getByRole("heading", { name: /حدث خطأ/ });
-    if (await addressError.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await this.submitAddress();
-    }
+    await this.addAddressButton.click();
 
     await expect(
-      this.page.getByRole("button", { name: "إرسال الطلب" }).or(addressError).first(),
+      this.page
+        .getByRole("button", { name: /إرسال الطلب/ })
+        .or(this.page.getByRole("heading", { name: /حدث خطأ/ })),
     ).toBeVisible({ timeout: 30_000 });
 
-    if (await addressError.isVisible().catch(() => false)) {
-      throw new Error("Address submit failed after retry");
+    if (
+      await this.page
+        .getByRole("heading", { name: /حدث خطأ/ })
+        .isVisible()
+        .catch(() => false)
+    ) {
+      throw new Error("Address submit failed");
     }
   }
 }

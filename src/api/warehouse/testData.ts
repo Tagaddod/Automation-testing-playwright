@@ -139,13 +139,13 @@ export function buildCreateMiddleMileTripInput(
   input: Partial<CreateMiddleMileTripInput> = {},
 ): CreateMiddleMileTripInput {
   return {
-    source_warehouse_id: input.source_warehouse_id ?? 60,
+    source_warehouse_id: input.source_warehouse_id ?? 3,
     destination_warehouse_id: input.destination_warehouse_id ?? 1,
     collectable_id: input.collectable_id ?? 1,
     truck_type: input.truck_type ?? "JUMBO",
     shipping_date: input.shipping_date ?? systemShippingDate(),
     notes: input.notes ?? "Priority shipment",
-    items: input.items ?? [{ channel_type: "B2B", quantity: 20 }],
+    items: input.items ?? [{ channel_type: "B2B", quantity: 5 }],
   };
 }
 
@@ -155,7 +155,7 @@ export function buildConfirmMiddleMileSendingLoadInput(input: {
 }): ConfirmMiddleMileSendingLoadInput {
   return {
     trip_load_id: input.trip_load_id,
-    net_weight: input.net_weight ?? 20,
+    net_weight: input.net_weight ?? 5,
   };
 }
 

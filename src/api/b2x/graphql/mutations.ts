@@ -62,6 +62,7 @@ export const CREATE_TRADER = `
     $vehicle_id: ID!
     $latitude: String!
     $longitude: String!
+    $collectables: [ID!]!
   ) {
     createTrader(
       name: $name
@@ -71,7 +72,7 @@ export const CREATE_TRADER = `
       has_warehouse: $has_warehouse
       vehicle_id: $vehicle_id
       pickup_address: { latitude: $latitude, longitude: $longitude }
-      collectables: ["1"]
+      collectables: $collectables
     ) {
       id
       name

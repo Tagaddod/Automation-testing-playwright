@@ -1,6 +1,15 @@
 import { randomBytes, randomInt } from "node:crypto";
 
 import { randomPhoneNumber } from "../../utils/testdata";
+import { CountryCode } from "../enums";
+import {
+  JORDAN_LATITUDE,
+  JORDAN_LONGITUDE,
+  randomJordanBranchPhone,
+  randomSaudiBranchPhone,
+  SAUDI_LATITUDE,
+  SAUDI_LONGITUDE,
+} from "../regionalContact";
 import type {
   CreateBranchData,
   CreateBusinessClientData,
@@ -47,6 +56,7 @@ export function buildBranchData(input: {
   building_number?: string;
   apartment?: number;
   floor?: number;
+  country_code?: string;
 }): CreateBranchData {
   return {
     business_client_id: input.business_client_id,
@@ -65,14 +75,39 @@ export function buildBranchData(input: {
     building_number: input.building_number ?? randomAlphanumeric("Bldg"),
     apartment: input.apartment ?? randomInt(1, 51),
     floor: input.floor ?? randomInt(1, 21),
+    ...(input.country_code ? { country_code: input.country_code } : {}),
   };
+}
+
+export function buildSaudiBranchData(
+  input: Parameters<typeof buildBranchData>[0],
+): CreateBranchData {
+  return buildBranchData({
+    ...input,
+    phone: input.phone ?? randomSaudiBranchPhone(),
+    latitude: input.latitude ?? SAUDI_LATITUDE,
+    longitude: input.longitude ?? SAUDI_LONGITUDE,
+    country_code: input.country_code ?? CountryCode.SA,
+  });
+}
+
+export function buildJordanBranchData(
+  input: Parameters<typeof buildBranchData>[0],
+): CreateBranchData {
+  return buildBranchData({
+    ...input,
+    phone: input.phone ?? randomJordanBranchPhone(),
+    latitude: input.latitude ?? JORDAN_LATITUDE,
+    longitude: input.longitude ?? JORDAN_LONGITUDE,
+    country_code: input.country_code ?? CountryCode.JO,
+  });
 }
 
 export function buildBusinessRequestData(input: {
   branch_id: string | number;
   collectable_id: string | number;
   measure_id: string | number;
-  fresh_product_id: string | number;
+  fresh_product_id?: string | number;
   count?: number;
   quantity?: number;
   notes?: string;
@@ -90,13 +125,15 @@ export function buildBusinessRequestData(input: {
         count: input.count ?? 2,
       },
     ],
-    fresh_products: [
-      {
-        fresh_product_id: input.fresh_product_id,
-        // Requirement: quantity must be greater than 0.
-        quantity: input.quantity ?? 1,
-      },
-    ],
+    fresh_products: input.fresh_product_id
+      ? [
+          {
+            fresh_product_id: input.fresh_product_id,
+            // Requirement: quantity must be greater than 0.
+            quantity: input.quantity ?? 1,
+          },
+        ]
+      : [],
     day_const: DAY_CONST[now.getDay()],
     date_time: {
       time: "3:00:00",

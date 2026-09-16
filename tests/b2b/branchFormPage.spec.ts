@@ -25,14 +25,37 @@ test.describe("B2B branch form page", () => {
     await expect(page).not.toHaveURL(/\/auth/);
   });
 
-  test("branch form page fields are visible", { tag: ["@b2b", "@regression"] }, async () => {
-    await goToBranchFormStep(po, randomBranchName());
-    await po.getB2BBranchFormPage().assertPageVisible();
-  });
+  test(
+    "branch form page fields are visible",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToBranchFormStep(po, randomBranchName());
+      await po.getB2BBranchFormPage().assertPageVisible();
+    },
+  );
+
+  test(
+    "address details can be filled after selecting a map location",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToBranchFormStep(po, randomBranchName());
+      const form = po.getB2BBranchFormPage();
+      const details = testdata.b2b.addressDetails;
+      await form.fillPhoneNumber(randomPhoneNumber());
+      await form.fillCountryCode();
+      await form.fillAddress(testdata.b2b.address);
+      await form.fillAddressDetails();
+      await expect(form.streetNameInput).toHaveValue(details.streetName);
+      await expect(form.buildingNumberInput).toHaveValue(details.buildingNumber);
+      await expect(form.apartmentInput).toHaveValue(details.apartment);
+      await expect(form.floorInput).toHaveValue(details.floor);
+      await expect(form.addressNotesInput).toHaveValue(details.notes);
+    },
+  );
 
   test(
     "fresh product checkbox is selected by default",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async () => {
       await goToBranchFormStep(po, randomBranchName());
       const form = po.getB2BBranchFormPage();
@@ -45,7 +68,7 @@ test.describe("B2B branch form page", () => {
 
   test(
     "should show error when phone number is invalid",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async ({ page }) => {
       await goToBranchFormStep(po, randomBranchName());
       const form = po.getB2BBranchFormPage();
@@ -56,26 +79,36 @@ test.describe("B2B branch form page", () => {
     },
   );
 
-  test("show error when country code is missing", { tag: ["@b2b", "@regression"] }, async () => {
-    await goToBranchFormStep(po, randomBranchName());
-    const form = po.getB2BBranchFormPage();
-    await form.fillPhoneNumber(randomPhoneNumber());
-    await form.submit();
-    await expect(form.countryCodeErrorMessage).toHaveText(testdata.b2b.errors.countryCodeRequired);
-  });
+  test(
+    "show error when country code is missing",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToBranchFormStep(po, randomBranchName());
+      const form = po.getB2BBranchFormPage();
+      await form.fillPhoneNumber(randomPhoneNumber());
+      await form.submit();
+      await expect(form.countryCodeErrorMessage).toHaveText(
+        testdata.b2b.errors.countryCodeRequired,
+      );
+    },
+  );
 
-  test("show error when address is missing", { tag: ["@b2b", "@regression"] }, async () => {
-    await goToBranchFormStep(po, randomBranchName());
-    const form = po.getB2BBranchFormPage();
-    await form.fillPhoneNumber(randomPhoneNumber());
-    await form.fillCountryCode();
-    await form.submit();
-    await expect(form.addressErrorMessage).toHaveText(testdata.b2b.errors.addressRequired);
-  });
+  test(
+    "show error when address is missing",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToBranchFormStep(po, randomBranchName());
+      const form = po.getB2BBranchFormPage();
+      await form.fillPhoneNumber(randomPhoneNumber());
+      await form.fillCountryCode();
+      await form.submit();
+      await expect(form.addressErrorMessage).toHaveText(testdata.b2b.errors.addressRequired);
+    },
+  );
 
   test(
     "show error when no collectables type is selected",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async () => {
       await goToBranchFormStep(po, randomBranchName());
       const form = po.getB2BBranchFormPage();
@@ -88,35 +121,43 @@ test.describe("B2B branch form page", () => {
     },
   );
 
-  test("show error when payment method is missing", { tag: ["@b2b", "@regression"] }, async () => {
-    await goToBranchFormStep(po, randomBranchName());
-    const form = po.getB2BBranchFormPage();
-    await form.fillPhoneNumber(randomPhoneNumber());
-    await form.fillCountryCode();
-    await form.fillAddress(testdata.b2b.address);
-    await form.configureWasteTypes(branchWithCollectablesAndFreshProduct);
-    await form.submit();
-    await expect(form.paymentMethodErrorMessage).toHaveText(
-      testdata.b2b.errors.paymentMethodRequired,
-    );
-  });
+  test(
+    "show error when payment method is missing",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToBranchFormStep(po, randomBranchName());
+      const form = po.getB2BBranchFormPage();
+      await form.fillPhoneNumber(randomPhoneNumber());
+      await form.fillCountryCode();
+      await form.fillAddress(testdata.b2b.address);
+      await form.configureWasteTypes(branchWithCollectablesAndFreshProduct);
+      await form.submit();
+      await expect(form.paymentMethodErrorMessage).toHaveText(
+        testdata.b2b.errors.paymentMethodRequired,
+      );
+    },
+  );
 
-  test("show error when branch photo is missing", { tag: ["@b2b", "@regression"] }, async () => {
-    await goToBranchFormStep(po, randomBranchName());
-    const form = po.getB2BBranchFormPage();
-    await form.fillPhoneNumber(randomPhoneNumber());
-    await form.fillCountryCode();
-    await form.fillAddress(testdata.b2b.address);
-    await form.configureWasteTypes(branchWithCollectablesAndFreshProduct);
-    await form.selectPaymentMethod();
-    await form.submit();
-    await expect(form.photoErrorMessage).toHaveText(testdata.b2b.errors.photoRequired);
-  });
+  test(
+    "show error when branch photo is missing",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToBranchFormStep(po, randomBranchName());
+      const form = po.getB2BBranchFormPage();
+      await form.fillPhoneNumber(randomPhoneNumber());
+      await form.fillCountryCode();
+      await form.fillAddress(testdata.b2b.address);
+      await form.configureWasteTypes(branchWithCollectablesAndFreshProduct);
+      await form.selectPaymentMethod();
+      await form.submit();
+      await expect(form.photoErrorMessage).toHaveText(testdata.b2b.errors.photoRequired);
+    },
+  );
 
   test(
     "create new client and branch with collectables and fresh product",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       await completeB2BCreateNewBranchFlow(

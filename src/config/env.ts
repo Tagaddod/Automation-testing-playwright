@@ -70,4 +70,10 @@ export const ENV = {
    */
   WAREHOUSE_TRIP_ID: process.env.WAREHOUSE_TRIP_ID || "34312",
   WAREHOUSE_CHANNEL_TYPE: process.env.WAREHOUSE_CHANNEL_TYPE || "B2X",
+
+  /**
+   * Optional JWT for GreenPan `/auth?token=` (same gap as B2B).
+   * When set, UI tests open the authenticated landing URL instead of the public home page.
+   */
+  GREENPAN_TOKEN: process.env.GREENPAN_TOKEN || "",
 };

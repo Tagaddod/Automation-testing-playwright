@@ -20,18 +20,22 @@ test.describe("B2B create business client page", () => {
     await expect(page).not.toHaveURL(/\/auth/);
   });
 
-  test("business client page fields are visible", { tag: ["@b2b", "@regression"] }, async () => {
-    await goToCreateBusinessClientStep(po);
-    const client = po.getB2BCreateBusinessClientPage();
-    await client.assertPageVisible();
-    await client.addNewClient(randomBranchName());
-    await client.assertNewClientFieldsVisible();
-  });
+  test(
+    "business client page fields are visible",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await goToCreateBusinessClientStep(po);
+      const client = po.getB2BCreateBusinessClientPage();
+      await client.assertPageVisible();
+      await client.addNewClient(randomBranchName());
+      await client.assertNewClientFieldsVisible();
+    },
+  );
 
   test(
     "add new client with english name and business type proceeds to form",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       const branchName = randomBranchName();
@@ -44,13 +48,13 @@ test.describe("B2B create business client page", () => {
   test(
     "select existing client proceeds to branch form",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
-      const { clientName, clientId } = await setupExistingClientWithFirstBranch(po);
+      const { clientName } = await setupExistingClientWithFirstBranch(po);
       const branchData = getB2bTestData();
 
-      await goToBranchFormForExistingClient(po, clientName, clientId);
+      await goToBranchFormForExistingClient(po, clientName);
       await po.getB2BBranchFormPage().fillForm(branchData, { freshProduct: true, usedOil: true });
       await po.getB2BBranchFormPage().submit({ waitForSuccess: true });
       await po.getB2BBranchConfirmationPage().assertPageVisible();
@@ -59,7 +63,7 @@ test.describe("B2B create business client page", () => {
 
   test(
     "english name is required for new client flow",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async () => {
       const branchName = randomBranchName();
       await goToCreateBusinessClientStep(po);

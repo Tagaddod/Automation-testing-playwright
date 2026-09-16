@@ -1,5 +1,13 @@
 import { randomPhoneNumber, randomTraderName } from "../../utils/testdata";
 import { CountryCode, TraderType } from "../enums";
+import {
+  JORDAN_LATITUDE,
+  JORDAN_LONGITUDE,
+  randomJordanLocalPhone,
+  randomSaudiLocalPhone,
+  SAUDI_LATITUDE,
+  SAUDI_LONGITUDE,
+} from "../regionalContact";
 import type { CreateTraderData, CreateTraderRequestData } from "./B2xService";
 
 const LAT = "29.930406163389";
@@ -24,6 +32,7 @@ export function buildTraderData(input?: {
   vehicle_id?: number;
   latitude?: string;
   longitude?: string;
+  collectables?: string[];
 }): CreateTraderData {
   return {
     name: input?.name ?? randomTraderName(),
@@ -34,8 +43,34 @@ export function buildTraderData(input?: {
     vehicle_id: input?.vehicle_id ?? 5,
     latitude: input?.latitude ?? LAT,
     longitude: input?.longitude ?? LNG,
-    collectables: ["1"],
+    collectables: input?.collectables ?? ["1"],
   };
+}
+
+export function buildSaudiTraderData(
+  input?: Parameters<typeof buildTraderData>[0],
+): CreateTraderData {
+  return buildTraderData({
+    ...input,
+    country_code: input?.country_code ?? CountryCode.SA,
+    phone: input?.phone ?? randomSaudiLocalPhone(),
+    latitude: input?.latitude ?? SAUDI_LATITUDE,
+    longitude: input?.longitude ?? SAUDI_LONGITUDE,
+    vehicle_id: input?.vehicle_id ?? 2,
+  });
+}
+
+export function buildJordanTraderData(
+  input?: Parameters<typeof buildTraderData>[0],
+): CreateTraderData {
+  return buildTraderData({
+    ...input,
+    country_code: input?.country_code ?? CountryCode.JO,
+    phone: input?.phone ?? randomJordanLocalPhone(),
+    latitude: input?.latitude ?? JORDAN_LATITUDE,
+    longitude: input?.longitude ?? JORDAN_LONGITUDE,
+    vehicle_id: input?.vehicle_id ?? 2,
+  });
 }
 
 export function buildTraderRequestData(input: {

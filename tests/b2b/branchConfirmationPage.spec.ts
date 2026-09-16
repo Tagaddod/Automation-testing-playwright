@@ -22,7 +22,7 @@ test.describe("B2B branch confirmation page", () => {
   test(
     "confirmation page is shown after successful branch creation",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       await completeB2BCreateNewBranchFlow(po, getB2bTestData());
@@ -35,7 +35,7 @@ test.describe("B2B branch confirmation page", () => {
   test(
     "register business request link opens materials step",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       const data = getB2bTestData();

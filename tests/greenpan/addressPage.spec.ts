@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { PoManager } from "../../src/core/PoManager";
-import { randomPhoneNumber } from "../../src/utils/testdata";
-import testdata from "../../src/utils/testdata.json";
+import { testdata } from "../../src/utils/testdata";
 import { goToAddressStep } from "./greenpanFlows";
 
 test.describe("GreenPan address page", () => {
@@ -12,24 +11,69 @@ test.describe("GreenPan address page", () => {
 
   test.beforeEach(async ({ page }) => {
     po = new PoManager(page);
-    // Use a fresh phone so the address step is shown (saved numbers skip it).
-    await goToAddressStep(po, randomPhoneNumber(), testdata.quantities.medium);
+    await goToAddressStep(po);
   });
 
-  test("address page fields are visible", { tag: ["@greenpan", "@regression"] }, async () => {
-    const address = po.getGreenpanAddressPage();
-    await address.assertPageVisible();
-    await expect(address.streetNameInput).toBeVisible();
-    await expect(address.clientNameInput).toBeVisible();
-  });
+  test(
+    "address page fields are visible",
+    { tag: ["@all-regression", "@greenpan-regression-UI"] },
+    async () => {
+      const address = po.getGreenpanAddressPage();
+      await address.assertPageVisible();
+      await expect(address.streetNameInput).toBeVisible();
+      await expect(address.clientNameInput).toBeVisible();
+      await expect(address.landmarkInput).toBeVisible();
+    },
+  );
+
+  test(
+    "empty address stays on the address step",
+    {
+      tag: ["@all-regression", "@greenpan-regression-UI"],
+    },
+    async ({ page }) => {
+      const address = po.getGreenpanAddressPage();
+      await address.addAddressButton.click();
+      await expect(page.getByRole("heading", { name: "إضافة عنوان" })).toBeVisible();
+      await expect(page).toHaveURL(/\/new\/address/);
+    },
+  );
+
+  test(
+    "address without street stays on the address step",
+    {
+      tag: ["@all-regression", "@greenpan-regression-UI"],
+    },
+    async ({ page }) => {
+      const address = po.getGreenpanAddressPage();
+      await address.fillAddressWithoutStreet(testdata.greenpan.address);
+      await address.addAddressButton.click();
+      await expect(page.getByRole("heading", { name: "إضافة عنوان" })).toBeVisible();
+      await expect(page).toHaveURL(/\/new\/address/);
+    },
+  );
+
+  test(
+    "address without client name stays on the address step",
+    {
+      tag: ["@all-regression", "@greenpan-regression-UI"],
+    },
+    async ({ page }) => {
+      const address = po.getGreenpanAddressPage();
+      await address.fillAddressWithoutClientName(testdata.greenpan.address);
+      await address.addAddressButton.click();
+      await expect(page.getByRole("heading", { name: "إضافة عنوان" })).toBeVisible();
+      await expect(page).toHaveURL(/\/new\/address/);
+    },
+  );
 
   test(
     "filling address proceeds to send request step",
     {
-      tag: ["@greenpan", "@regression"],
+      tag: ["@all-regression", "@greenpan-regression-UI"],
     },
     async () => {
-      await po.getGreenpanAddressPage().completeAddressStep(testdata.addresses.cairo);
+      await po.getGreenpanAddressPage().completeAddressStep(testdata.greenpan.address);
       await po.getGreenpanSendRequestPage().assertPageVisible();
     },
   );

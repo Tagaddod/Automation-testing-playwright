@@ -25,6 +25,12 @@ export class branchFormPage {
   readonly phoneInput: Locator;
   readonly countryCodeInput: Locator;
   readonly addressInput: Locator;
+  readonly streetNameInput: Locator;
+  readonly buildingNumberInput: Locator;
+  readonly apartmentInput: Locator;
+  readonly floorInput: Locator;
+  readonly confirmLocationButton: Locator;
+  readonly addressNotesInput: Locator;
   readonly paymentMethod: Locator;
   readonly preferredTime: Locator;
   readonly addBranchButton: Locator;
@@ -42,6 +48,12 @@ export class branchFormPage {
     this.phoneInput = page.locator("#primaryPhoneNumber");
     this.countryCodeInput = page.locator("#primaryCountryCode");
     this.addressInput = page.locator("#address");
+    this.streetNameInput = page.locator("#streetName");
+    this.buildingNumberInput = page.locator("#buildingNumber");
+    this.apartmentInput = page.locator("#apartmentNumber");
+    this.floorInput = page.locator("#floor");
+    this.confirmLocationButton = page.getByRole("button", { name: "تأكيد" });
+    this.addressNotesInput = page.locator("#addressNotes");
     this.paymentMethod = page.locator("#paymentMethod");
     this.preferredTime = page
       .locator(".ant-radio-button-wrapper")
@@ -82,6 +94,11 @@ export class branchFormPage {
   async assertPageVisible() {
     await expect(this.phoneInput).toBeVisible({ timeout: 30_000 });
     await expect(this.addressInput).toBeVisible();
+    await expect(this.streetNameInput).toBeVisible();
+    await expect(this.buildingNumberInput).toBeVisible();
+    await expect(this.apartmentInput).toBeVisible();
+    await expect(this.floorInput).toBeVisible();
+    await expect(this.addressNotesInput).toBeVisible();
     await expect(this.wasteTypesHeading).toBeVisible();
     await expect(this.addBranchButton).toBeVisible();
   }
@@ -126,6 +143,7 @@ export class branchFormPage {
     await this.fillPhoneNumber(data.phone);
     await this.fillCountryCode();
     await this.fillAddress(data.address);
+    await this.fillAddressDetails();
     if (data.branchName) {
       await this.fillBranchName(data.branchName);
     }
@@ -162,6 +180,20 @@ export class branchFormPage {
 
   async fillAddress(latLong: string) {
     await fillAddressLatLong(this.page, this.addressInput, latLong);
+    if (await this.confirmLocationButton.isEnabled().catch(() => false)) {
+      await this.confirmLocationButton.click();
+    }
+  }
+
+  /** Street, building, apartment, floor, and notes sit with the map location. */
+  async fillAddressDetails(details = testdata.b2b.addressDetails) {
+    await this.streetNameInput.fill(details.streetName);
+    await this.buildingNumberInput.fill(details.buildingNumber);
+    await this.apartmentInput.fill(details.apartment);
+    await this.floorInput.fill(details.floor);
+    if (details.notes) {
+      await this.addressNotesInput.fill(details.notes);
+    }
   }
 
   async selectPaymentMethod() {

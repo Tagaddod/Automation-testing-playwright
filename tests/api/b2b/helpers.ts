@@ -1,5 +1,6 @@
 import type { ApiManager } from "../../../src/api/ApiManager";
 import { buildBranchData, buildBusinessClientData } from "../../../src/api/b2b/testData";
+import { Channel, CountryCode } from "../../../src/api/enums";
 import { expect } from "../../../src/fixtures/apiFixture";
 
 /**
@@ -27,8 +28,9 @@ export async function createBusinessClient(api: ApiManager): Promise<string> {
 
 export async function getFirstCollectable(
   api: ApiManager,
+  countryCode: CountryCode = CountryCode.EG,
 ): Promise<{ collectableId: string; measureId: string }> {
-  const response = await api.b2b.getCollectables();
+  const response = await api.b2b.getCollectables([Channel.B2B], countryCode);
   expect(response.errors).toBeUndefined();
 
   const collectable = response.data?.getCollectables?.[0];

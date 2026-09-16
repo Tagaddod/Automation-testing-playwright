@@ -1,6 +1,7 @@
-import type { Locator, Page } from "@playwright/test";
+import type { Locator, Page, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
 
+import { signBranchServiceContract } from "../../utils/signBranchServiceContract";
 import { testdata } from "../../utils/testdata";
 
 export type B2BPriceSummaryExpectation = {
@@ -27,8 +28,8 @@ export class requestDetailsPage {
     this.pageHeading = page.getByText("تفاصيل التجميع");
     this.pickupDateInput = page.locator('input[id="pickupDate"]');
     this.notesInput = page.locator("#notes");
-    this.submitButton = page.getByRole("button", { name: "إرسال الطلب" });
-    this.dawnPickupTime = page.getByText("الفجر");
+    this.submitButton = page.getByRole("button", { name: /إرسال الطلب|جاري الإرسال/ });
+    this.dawnPickupTime = page.getByRole("radio", { name: /الفجر/ });
     this.totalPriceHeading = page.getByText(testdata.b2b.priceLabels.totalPrice);
     this.payToCustomerLabel = page.getByText(testdata.b2b.priceLabels.payToCustomer, {
       exact: true,
@@ -37,9 +38,9 @@ export class requestDetailsPage {
       exact: true,
     });
     this.totalLabel = page.getByText(testdata.b2b.priceLabels.total, { exact: true });
-    this.successHeading = page.getByRole("heading", {
-      name: testdata.b2b.confirmation.requestSuccessHeading,
-    });
+    this.successHeading = page
+      .getByRole("heading", { name: /تم تسجيل الطلب|تم إرسال الطلب/ })
+      .or(page.getByText(testdata.b2b.confirmation.requestSuccessHeading, { exact: true }));
   }
 
   amountNearLabel(label: string): Locator {
@@ -55,7 +56,7 @@ export class requestDetailsPage {
   async assertPageVisible() {
     await expect(this.pageHeading).toBeVisible({ timeout: 15_000 });
     await expect(this.pickupDateInput).toBeVisible();
-    await expect(this.submitButton).toBeVisible();
+    await expect(this.submitButton.last()).toBeVisible();
     await expect(this.totalPriceHeading).toBeVisible();
   }
 
@@ -103,43 +104,80 @@ export class requestDetailsPage {
   }
 
   async submit() {
-    await this.submitButton.click();
+    const tagged = this.page
+      .locator('[tag-test-id="create-new-request-form-submit-button"]')
+      .filter({ visible: true });
+    const button = (await tagged.count())
+      ? tagged.first()
+      : this.page.getByRole("button", { name: "إرسال الطلب" }).filter({ visible: true }).first();
+    await button.scrollIntoViewIfNeeded();
+    await button.click({ force: true });
+  }
+
+  async waitForSubmitToFinish() {
+    await expect(this.page.getByRole("button", { name: /جاري الإرسال/ }))
+      .toBeHidden({
+        timeout: 90_000,
+      })
+      .catch(() => undefined);
+  }
+
+  async dismissNetworkError() {
+    const toast = this.page.getByText("Network Error");
+    if (
+      await toast
+        .first()
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await this.page
+        .getByRole("img", { name: "close-circle" })
+        .first()
+        .click({ force: true })
+        .catch(() => undefined);
+      await expect(toast.first())
+        .toBeHidden({ timeout: 5_000 })
+        .catch(() => undefined);
+    }
   }
 
   async selectPickupTime() {
-    await this.page.keyboard.press("Escape");
-    await this.dawnPickupTime.click({ force: true });
+    await this.page
+      .locator(".ant-picker-dropdown:not(.ant-picker-dropdown-hidden)")
+      .waitFor({ state: "hidden", timeout: 3_000 })
+      .catch(() => undefined);
+
+    const morning = this.page.getByRole("radio", { name: /صباحاً ٦/ });
+    const label = morning.locator("xpath=ancestor::label[1]");
+    if ((await label.count()) > 0) {
+      await label.click();
+    } else {
+      await this.page.getByText("صباحاً", { exact: true }).click();
+    }
+    await expect(morning).toBeChecked({ timeout: 10_000 });
   }
 
-  async fillPickupDate() {
+  /** Picks a future day: today combined with the dawn slot is already in the past and is rejected. */
+  async fillPickupDate(daysFromToday = 1) {
     const pickerInput = this.pickupDateInput;
     await pickerInput.scrollIntoViewIfNeeded();
     await pickerInput.click({ force: true });
+
+    const target = new Date();
+    target.setDate(target.getDate() + daysFromToday);
+    const isoDate = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, "0")}-${String(target.getDate()).padStart(2, "0")}`;
 
     const picker = this.page.locator(".ant-picker-dropdown:not(.ant-picker-dropdown-hidden)");
     await expect(picker)
       .toBeVisible({ timeout: 10_000 })
       .catch(() => undefined);
 
-    const todayButton = picker.getByText("اليوم");
-    if (await todayButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await todayButton.click();
+    const dayCell = picker.locator(`td[title="${isoDate}"]:not(.ant-picker-cell-disabled)`).first();
+    if (await dayCell.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      await dayCell.click();
     } else {
-      const todayCell = picker
-        .locator(
-          "td.ant-picker-cell-today, td.ant-picker-cell-in-view:not(.ant-picker-cell-disabled)",
-        )
-        .first();
-      if (await todayCell.isVisible({ timeout: 2_000 }).catch(() => false)) {
-        await todayCell.click();
-      } else {
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, "0");
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const year = today.getFullYear();
-        await pickerInput.fill(`${day}/${month}/${year}`);
-        await pickerInput.press("Enter");
-      }
+      await pickerInput.fill(isoDate);
+      await pickerInput.press("Enter");
     }
 
     await expect(pickerInput).not.toHaveValue("", { timeout: 10_000 });
@@ -153,21 +191,76 @@ export class requestDetailsPage {
     }
 
     let requestId: string | undefined;
-    const captureRequestId = async (response: import("@playwright/test").Response) => {
-      if (!response.url().includes("graphql") || response.request().method() !== "POST") {
+    let lastGraphqlBody = "";
+    let lastRequestPayload = "";
+
+    const relayCreateRequest = async (route: Route) => {
+      const postData = route.request().postData() ?? "";
+      if (route.request().method() !== "POST" || !/createBusinessRequest/i.test(postData)) {
+        await route.continue();
         return;
       }
-      const body = await response.text().catch(() => "");
-      const captured = extractCreatedRequestId(body);
-      if (captured) requestId = captured;
+
+      lastRequestPayload = postData.slice(0, 2000);
+      try {
+        const response = await route.fetch({ timeout: 90_000 });
+        const body = await response.text();
+        lastGraphqlBody = body.slice(0, 2000);
+        requestId = requestId ?? extractCreatedRequestId(body);
+        await route.fulfill({
+          status: response.status(),
+          contentType: response.headers()["content-type"] ?? "application/json",
+          body,
+        });
+      } catch (error) {
+        lastGraphqlBody = `relay failed: ${String(error)}`;
+        await route.continue();
+      }
     };
 
-    this.page.on("response", captureRequestId);
+    await this.page.route("**/graphql", relayCreateRequest);
     try {
-      await this.submit();
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await this.dismissNetworkError();
+        await this.submit();
+        await this.waitForSubmitToFinish();
+
+        if (await this.successHeading.isVisible().catch(() => false)) {
+          break;
+        }
+
+        if (/CONTRACT_MISSING/i.test(lastGraphqlBody)) {
+          const branchId = this.page.url().match(/\/branch\/(\d+)/)?.[1];
+          if (!branchId) {
+            throw new Error(`CONTRACT_MISSING and no branch id in URL=${this.page.url()}`);
+          }
+          await signBranchServiceContract(branchId);
+          await this.dismissNetworkError();
+          continue;
+        }
+
+        if (
+          await this.page
+            .getByText("Network Error")
+            .first()
+            .isVisible()
+            .catch(() => false)
+        ) {
+          await this.dismissNetworkError();
+          continue;
+        }
+
+        break;
+      }
+
       await expect(this.successHeading).toBeVisible({ timeout: 90_000 });
+    } catch (error) {
+      throw new Error(
+        `Submit did not show success. URL=${this.page.url()} payload=${lastRequestPayload || "(none)"} GraphQL=${lastGraphqlBody || "(none)"} Original=${String(error)}`,
+        { cause: error },
+      );
     } finally {
-      this.page.off("response", captureRequestId);
+      await this.page.unroute("**/graphql", relayCreateRequest);
     }
 
     requestId =

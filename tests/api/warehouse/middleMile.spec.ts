@@ -37,8 +37,16 @@ function pickInboundTripLoadId(
   return inbound!.id;
 }
 
-async function runSendingFlow(wh: WarehouseService) {
-  const createPayload = buildCreateMiddleMileTripInput();
+async function runSendingFlow(
+  wh: WarehouseService,
+  options: {
+    items?: Array<{ channel_type: string; quantity: number }>;
+    sendingNetWeight?: number;
+  } = {},
+) {
+  const items = options.items ?? [{ channel_type: "B2B", quantity: 5 }];
+  const sendingNetWeight = options.sendingNetWeight ?? 5;
+  const createPayload = buildCreateMiddleMileTripInput({ items });
   const createTrip = await wh.createMiddleMileTrip(createPayload);
   logStep("createMiddleMileTrip", createPayload, createTrip);
   expect(createTrip.errors).toBeUndefined();
@@ -53,6 +61,7 @@ async function runSendingFlow(wh: WarehouseService) {
 
   const confirmLoadPayload = buildConfirmMiddleMileSendingLoadInput({
     trip_load_id: sendingTripLoadId!,
+    net_weight: sendingNetWeight,
   });
   const confirmLoad = await wh.confirmMiddleMileSendingLoad(confirmLoadPayload);
   logStep("confirmMiddleMileSendingLoad", confirmLoadPayload, confirmLoad);
@@ -143,12 +152,12 @@ async function prepareInboundAfterFirstScale(wh: WarehouseService) {
   return { middleMileTripId, tripLoadId, firstScaleId: firstScaleId!, firstScaleAmount };
 }
 
-test.describe("Warehouse GraphQL API — Middle mile", () => {
+test.describe("Warehouse GraphQL API — Middle mile", { tag: ["@warehouse-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test(
     "sending only — create, start send, confirm load, confirm sending",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId, sendingTripLoadId } = await runSendingFlow(wh);
@@ -161,7 +170,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "sending then receiving with scales only (no sample/quality)",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId } = await runSendingFlow(wh);
@@ -197,7 +206,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "reject verify when sample confirmation code is wrong",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { tripLoadId } = await prepareInboundAfterFirstScale(wh);
@@ -224,7 +233,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "reject quality when sample was never verified",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { tripLoadId } = await prepareInboundAfterFirstScale(wh);
@@ -248,7 +257,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "delete sample confirmation then regenerate and complete quality flow",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { tripLoadId, firstScaleId, firstScaleAmount } =
@@ -304,7 +313,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "create multi-item middle mile trip",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const createPayload = buildCreateMiddleMileTripInput({
@@ -328,7 +337,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "receiving scales with third scale deductibles",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const deductibles = 25;
@@ -363,7 +372,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "reject sample before first scale on inbound load",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId } = await runSendingFlow(wh);
@@ -382,7 +391,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "reject second scale before first scale on inbound load",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId } = await runSendingFlow(wh);
@@ -403,7 +412,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "reject quality before first scale on inbound load",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId } = await runSendingFlow(wh);
@@ -424,17 +433,20 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "add middle mile receiving load after start receiving",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
-      const { middleMileTripId } = await runSendingFlow(wh);
+      const { middleMileTripId } = await runSendingFlow(wh, {
+        items: [{ channel_type: "B2B", quantity: 5 }],
+        sendingNetWeight: 5,
+      });
       await startReceivingInbound(wh, middleMileTripId);
 
       const addPayload = buildAddMiddleMileReceivingLoadInput({
         middle_mile_trip_id: middleMileTripId,
-        // Must match an item channel on the trip (default create uses B2X)
-        channel_type: "B2X",
-        net_weight: 200,
+        // Must match an item channel on the trip (default create uses B2B)
+        channel_type: "B2B",
+        net_weight: 5,
       });
       const added = await wh.addMiddleMileReceivingLoad(addPayload);
       logStep("addMiddleMileReceivingLoad", addPayload, added);
@@ -454,7 +466,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "confirm middle mile receiving load and receiving trip",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId } = await runSendingFlow(wh);
@@ -488,7 +500,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "delete inbound trip load after start receiving",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { middleMileTripId } = await runSendingFlow(wh);
@@ -508,7 +520,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
   for (const productType of ["PRODUCT_2", "ACIDIC_OIL"] as const) {
     test(
       `receiving quality with product_type ${productType}`,
-      { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+      { tag: ["@all-regression", "@warehouse-regression"] },
       async ({ api }) => {
         const wh = api.warehouse;
         const { tripLoadId } = await prepareInboundAfterFirstScale(wh);
@@ -541,7 +553,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "receiving quality with all fields including optional s/cl/p/unsaponifiable",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { tripLoadId } = await prepareInboundAfterFirstScale(wh);
@@ -582,7 +594,7 @@ test.describe("Warehouse GraphQL API — Middle mile", () => {
 
   test(
     "receiving quality without optional fields then update them",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-middle-mile-with-quality"] },
+    { tag: ["@all-regression", "@warehouse-regression"] },
     async ({ api }) => {
       const wh = api.warehouse;
       const { tripLoadId } = await prepareInboundAfterFirstScale(wh);

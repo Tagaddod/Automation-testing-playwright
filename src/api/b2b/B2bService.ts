@@ -64,6 +64,7 @@ export type CreateBranchData = {
   building_number: string;
   apartment: number;
   floor: number;
+  country_code?: string;
 };
 
 export type CollectableRequestInput = {

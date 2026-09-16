@@ -1,9 +1,10 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
+import { ENV } from "../../config/env";
 import { URLs } from "../../config/urls";
 
-/** Landing step: phone entry and start request. */
+/** Agent landing: `/auth?token=` → `/agent` phone step. */
 export class greenpanHomePage {
   readonly phoneInput: Locator;
   readonly startRequestButton: Locator;
@@ -13,15 +14,28 @@ export class greenpanHomePage {
 
   constructor(private page: Page) {
     this.phoneInput = page.locator("#phoneForm-phone");
-    this.startRequestButton = page.getByRole("button", { name: "ابدأ الطلب" });
+    this.startRequestButton = page
+      .locator('button[type="submit"]')
+      .filter({ hasText: /التالي|ابدأ الطلب/ });
     this.phoneErrorMessage = page.locator("#phoneForm-phone-error");
-    this.heroText = page.getByText(/بدلي الزيت المستعمل بهدايا/);
+    this.heroText = page.getByRole("heading", { name: /ماترميش زيت القلي|بدلي الزيت المستعمل/ });
     this.oopsHeading = page.getByRole("heading", { name: "Oops!" });
+  }
+
+  private landingUrl() {
+    return ENV.GREENPAN_TOKEN ? `${URLs.greenpan.auth}${ENV.GREENPAN_TOKEN}` : URLs.greenpan.base;
   }
 
   async open() {
     for (let attempt = 0; attempt < 4; attempt++) {
-      await this.page.goto(URLs.greenpan.base, { waitUntil: "domcontentloaded" });
+      await this.page.goto(this.landingUrl(), { waitUntil: "domcontentloaded" });
+
+      if (ENV.GREENPAN_TOKEN) {
+        await this.page
+          .waitForURL((url) => !url.href.includes("/auth?token="), { timeout: 30_000 })
+          .catch(() => undefined);
+      }
+
       await this.page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => undefined);
 
       if (await this.phoneInput.isVisible({ timeout: 10_000 }).catch(() => false)) {

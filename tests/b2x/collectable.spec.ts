@@ -22,7 +22,7 @@ test.describe("B2X collectables", () => {
 
   test(
     "add collectable with price and quantity",
-    { tag: ["@b2x", "@regression"] },
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
     async ({ page }) => {
       const collectable = po.getB2XCollectablePage();
 
@@ -34,7 +34,7 @@ test.describe("B2X collectables", () => {
 
   test(
     "collectable materials are visible on collectables page",
-    { tag: ["@b2x", "@regression"] },
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
     async () => {
       await expect(po.getB2XCollectablePage().materialsGroup).toBeVisible();
       await expect(
@@ -43,26 +43,34 @@ test.describe("B2X collectables", () => {
     },
   );
 
-  test("increase first quantity updates count", { tag: ["@b2x", "@regression"] }, async () => {
-    const collectable = po.getB2XCollectablePage();
+  test(
+    "increase first quantity updates count",
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
+    async () => {
+      const collectable = po.getB2XCollectablePage();
 
-    await collectable.addCollectable(0);
-    await collectable.increaseQuantity(3, 0);
-    await expect(collectable.usedOilQuantityInput(0)).toHaveValue("3");
-  });
+      await collectable.addCollectable(0);
+      await collectable.increaseQuantity(3, 0);
+      await expect(collectable.usedOilQuantityInput(0)).toHaveValue("3");
+    },
+  );
 
-  test("decrease first quantity updates count", { tag: ["@b2x", "@regression"] }, async () => {
-    const collectable = po.getB2XCollectablePage();
+  test(
+    "decrease first quantity updates count",
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
+    async () => {
+      const collectable = po.getB2XCollectablePage();
 
-    await collectable.addCollectable(0);
-    await collectable.increaseQuantity(3, 0);
-    await collectable.decreaseQuantity(1, 0);
-    await expect(collectable.usedOilQuantityInput(0)).toHaveValue("2");
-  });
+      await collectable.addCollectable(0);
+      await collectable.increaseQuantity(3, 0);
+      await collectable.decreaseQuantity(1, 0);
+      await expect(collectable.usedOilQuantityInput(0)).toHaveValue("2");
+    },
+  );
 
   test(
     "cannot proceed without adding collectable",
-    { tag: ["@b2x", "@regression"] },
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
     async ({ page }) => {
       await po.getB2XCollectablePage().clickNext();
       await expect(page.getByRole("heading", { name: "أدخل الكميات" })).toBeVisible();
@@ -71,7 +79,7 @@ test.describe("B2X collectables", () => {
 
   test(
     "cannot proceed without price per kilo",
-    { tag: ["@b2x", "@regression"] },
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
     async ({ page }) => {
       const collectable = po.getB2XCollectablePage();
 
@@ -82,26 +90,34 @@ test.describe("B2X collectables", () => {
     },
   );
 
-  test("cannot proceed with zero quantity", { tag: ["@b2x", "@regression"] }, async ({ page }) => {
-    const collectable = po.getB2XCollectablePage();
+  test(
+    "cannot proceed with zero quantity",
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
+    async ({ page }) => {
+      const collectable = po.getB2XCollectablePage();
 
-    await collectable.addCollectable(0);
-    await collectable.fillPricePerKilo(testdata.b2x.pricePerKilo, 0);
-    await collectable.clickNext();
-    await expect(page.getByRole("heading", { name: "أدخل الكميات" })).toBeVisible();
-  });
+      await collectable.addCollectable(0);
+      await collectable.fillPricePerKilo(testdata.b2x.pricePerKilo, 0);
+      await collectable.clickNext();
+      await expect(page.getByRole("heading", { name: "أدخل الكميات" })).toBeVisible();
+    },
+  );
 
-  test("collect with only one collectable", { tag: ["@b2x", "@regression"] }, async ({ page }) => {
-    const collectable = po.getB2XCollectablePage();
+  test(
+    "collect with only one collectable",
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
+    async ({ page }) => {
+      const collectable = po.getB2XCollectablePage();
 
-    await collectable.fillCollectableBlock(testdata.b2x.pricePerKilo, 1, 0);
-    await collectable.clickNext();
-    await expect(page.getByText("تفاصيل التجميع")).toBeVisible({ timeout: 30_000 });
-  });
+      await collectable.fillCollectableBlock(testdata.b2x.pricePerKilo, 1, 0);
+      await collectable.clickNext();
+      await expect(page.getByText("تفاصيل التجميع")).toBeVisible({ timeout: 30_000 });
+    },
+  );
 
   test(
     "collect with more than one collectable",
-    { tag: ["@b2x", "@regression"] },
+    { tag: ["@all-regression", "@b2x-regression-UI"] },
     async ({ page }) => {
       const data = getB2xTestData();
       await goToTraderForm(po, data.traderName);

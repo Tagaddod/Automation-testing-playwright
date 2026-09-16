@@ -1,25 +1,45 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
-/** Quantity step: how many kilos of used oil. */
+import { testdata } from "../../utils/testdata";
+
+/** Agent quantity step: "معاك كام كيلو؟" */
 export class quantityPage {
   readonly quantityInput: Locator;
   readonly questionText: Locator;
-  readonly rewardsText: Locator;
+  readonly nextButton: Locator;
+  readonly minQuantityError: Locator;
+  readonly containersInput: Locator;
+  readonly barrelsInput: Locator;
 
   constructor(private page: Page) {
-    this.quantityInput = page.locator("#quantityForm-quantity");
+    this.quantityInput = page
+      .locator("#agentOilQuantityForm-oilQuantity")
+      .or(page.getByPlaceholder("ادخل الكمية"));
     this.questionText = page.getByText(/معاك كام كيلو/);
-    this.rewardsText = page.getByText(/هتكسب.*نقط تبدلهم بهدايا/);
+    this.nextButton = page.locator('button[type="submit"]').filter({ hasText: "التالي" });
+    this.minQuantityError = page.getByText(testdata.greenpan.errors.quantityBelowMinimum);
+    this.containersInput = page.locator("#agentOilQuantityForm-containers");
+    this.barrelsInput = page.locator("#agentOilQuantityForm-barrels");
   }
 
   async assertPageVisible() {
     await expect(this.quantityInput).toBeVisible({ timeout: 45_000 });
     await expect(this.questionText.or(this.quantityInput).first()).toBeVisible();
+    await expect(this.containersInput).toBeVisible();
+    await expect(this.barrelsInput).toBeVisible();
   }
 
-  async enterQuantity(quantity: number) {
+  async enterQuantity(quantity: number | string) {
     await this.quantityInput.fill(String(quantity));
+  }
+
+  async fillContainers(count: number) {
+    await this.containersInput.fill(String(count));
+  }
+
+  async fillBarrels(count: number) {
+    await this.barrelsInput.fill(String(count));
   }
 
   async increaseQuantity(by = 1) {
@@ -36,8 +56,13 @@ export class quantityPage {
     return Number(await this.quantityInput.inputValue());
   }
 
+  async proceed() {
+    await this.nextButton.click();
+  }
+
   async completeQuantityStep(quantity: number) {
     await this.assertPageVisible();
     await this.enterQuantity(quantity);
+    await this.proceed();
   }
 }

@@ -22,7 +22,7 @@ function wrongChannelForTrip(channelType: string): string {
   return channelType.toUpperCase() === "B2X" ? "B2B" : "B2X";
 }
 
-test.describe("Warehouse GraphQL API — trip load", () => {
+test.describe("Warehouse GraphQL API — trip load", { tag: ["@warehouse-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test(
@@ -169,7 +169,14 @@ test.describe("Warehouse GraphQL API — trip load", () => {
 
   test(
     "create trip load then scales, sample code, and quality",
-    { tag: ["@all-regression", "@warehouse-regression", "@create-trip-load-with-quality"] },
+    {
+      tag: [
+        "@all-regression",
+        "@warehouse-regression",
+        "@create-trip-load-with-quality",
+        "@Recive-collection-Trip",
+      ],
+    },
     async ({ api }) => {
       const { tripId, channelType } = tripLoadEnv();
       test.skip(!tripId, "Set WAREHOUSE_TRIP_ID to a valid trip id");

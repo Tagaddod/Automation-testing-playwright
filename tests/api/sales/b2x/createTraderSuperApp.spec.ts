@@ -10,7 +10,7 @@ import {
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("CreateTraderSuperApp", () => {
+test.describe("CreateTraderSuperApp", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test(

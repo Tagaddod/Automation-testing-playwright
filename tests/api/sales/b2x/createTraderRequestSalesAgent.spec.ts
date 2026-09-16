@@ -10,12 +10,19 @@ import {
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("CreateTraderRequestSalesAgent", () => {
+test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ mode: "serial", timeout: 180_000 });
 
   test(
     "CreateTraderRequestSalesAgent - Valid",
-    { tag: ["@all-regression", "@sales-app-regression", "@create-b2x-request"] },
+    {
+      tag: [
+        "@all-regression",
+        "@sales-app-regression",
+        "@create-b2x-request",
+        "@create-b2x-request-API",
+      ],
+    },
     async ({ salesAppEgyptApi }) => {
       const traderVariables = validTraderVariables();
       const traderResponse = await salesAppEgyptApi.sales.createTraderSuperApp(traderVariables);

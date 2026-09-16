@@ -19,12 +19,12 @@ on:
         type: choice
         options:
           - all-regression
-          - b2b-regression
-          - b2x-regression
-          - greenpan-regression
-          - create-b2b-request
-          - create-b2x-request
-          - create-b2c-request
+          - b2b-regression-UI
+          - b2x-regression-UI
+          - greenpan-regression-UI
+          - create-b2b-request-UI
+          - create-b2x-request-UI
+          - create-b2c-request-UI
       execution_id:
         description: QA Dashboard execution ID (optional)
         required: false
@@ -74,32 +74,32 @@ jobs:
 
           case "$SUITE" in
             all-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --project=b2x --project=greenpan --grep @regression"
-              ENV="${ENV_NAME}" npx playwright test --project=b2b --project=b2x --project=greenpan --grep "@regression"
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --project=b2x --project=greenpan --project=b2c --grep @all-regression"
+              ENV="${ENV_NAME}" npx playwright test --project=b2b --project=b2x --project=greenpan --project=b2c --grep "@all-regression"
               ;;
-            b2b-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --grep @regression"
-              ENV="${ENV_NAME}" npx playwright test --project=b2b --grep "@regression"
+            b2b-regression | b2b-regression-UI)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --grep @b2b-regression-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=b2b --grep "@b2b-regression-UI"
               ;;
-            b2x-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2x --grep @regression"
-              ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@regression"
+            b2x-regression | b2x-regression-UI)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2x --grep @b2x-regression-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@b2x-regression-UI"
               ;;
-            greenpan-regression)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=greenpan --grep @regression"
-              ENV="${ENV_NAME}" npx playwright test --project=greenpan --grep "@regression"
+            greenpan-regression | greenpan-regression-UI)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=greenpan --grep @greenpan-regression-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=greenpan --grep "@greenpan-regression-UI"
               ;;
-            create-b2b-request)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --grep @create-request"
-              ENV="${ENV_NAME}" npx playwright test --project=b2b --grep "@create-request"
+            create-b2b-request | create-b2b-request-UI)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2b --grep @create-b2b-request-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=b2b --grep "@create-b2b-request-UI"
               ;;
-            create-b2x-request)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2x --grep @create-request"
-              ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@create-request"
+            create-b2x-request | create-b2x-request-UI)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2x --grep @create-b2x-request-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@create-b2x-request-UI"
               ;;
-            create-b2c-request)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2c --project=greenpan --grep @create-request"
-              ENV="${ENV_NAME}" npx playwright test --project=b2c --project=greenpan --grep "@create-request"
+            create-b2c-request | create-b2c-request-UI)
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2c --project=greenpan --grep @create-b2c-request-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=b2c --project=greenpan --grep "@create-b2c-request-UI"
               ;;
             *)
               echo "Unknown suite: ${SUITE}"

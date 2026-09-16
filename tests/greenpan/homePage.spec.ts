@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { PoManager } from "../../src/core/PoManager";
-import testdata from "../../src/utils/testdata.json";
+import { randomPhoneNumber, testdata } from "../../src/utils/testdata";
 import { openGreenpanHome } from "./greenpanFlows";
 
 test.describe("GreenPan home page", () => {
@@ -12,24 +12,45 @@ test.describe("GreenPan home page", () => {
     await openGreenpanHome(po);
   });
 
-  test("home page fields are visible", { tag: ["@greenpan", "@regression"] }, async () => {
-    const home = po.getGreenpanHomePage();
-    await home.assertPageVisible();
-  });
+  test(
+    "home page fields are visible",
+    { tag: ["@all-regression", "@greenpan-regression-UI"] },
+    async () => {
+      const home = po.getGreenpanHomePage();
+      await home.assertPageVisible();
+    },
+  );
 
   test(
     "valid phone proceeds to quantity step",
     {
-      tag: ["@greenpan", "@regression"],
+      tag: ["@all-regression", "@greenpan-regression-UI"],
     },
     async () => {
-      await po.getGreenpanHomePage().completePhoneStep(testdata.phones.validNewUser);
+      await po.getGreenpanHomePage().completePhoneStep(randomPhoneNumber());
       await po.getGreenpanQuantityPage().assertPageVisible();
     },
   );
 
-  test("invalid phone shows error message", { tag: ["@greenpan", "@regression"] }, async () => {
-    await po.getGreenpanHomePage().enterPhoneNumber(testdata.phones.invalidUser);
-    await expect(po.getGreenpanHomePage().phoneErrorMessage).toBeVisible();
-  });
+  test(
+    "empty phone shows required error",
+    { tag: ["@all-regression", "@greenpan-regression-UI"] },
+    async () => {
+      await po.getGreenpanHomePage().enterPhoneNumber("");
+      await expect(po.getGreenpanHomePage().phoneErrorMessage).toHaveText(
+        testdata.greenpan.errors.phoneRequired,
+      );
+    },
+  );
+
+  test(
+    "invalid phone shows error message",
+    { tag: ["@all-regression", "@greenpan-regression-UI"] },
+    async () => {
+      await po.getGreenpanHomePage().enterPhoneNumber(testdata.greenpan.phones.invalid);
+      await expect(po.getGreenpanHomePage().phoneErrorMessage).toHaveText(
+        testdata.greenpan.errors.phoneInvalid,
+      );
+    },
+  );
 });

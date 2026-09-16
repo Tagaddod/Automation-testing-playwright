@@ -31,7 +31,7 @@ export default defineConfig({
     {
       name: "b2b",
       dependencies: ["setup"],
-      testMatch: "b2b/**/*.spec.ts",
+      testMatch: /\/tests\/b2b\/.*\.spec\.ts$/,
       fullyParallel: false,
       timeout: 180_000,
       use: {
@@ -40,11 +40,11 @@ export default defineConfig({
     },
     {
       name: "b2c",
-      testMatch: "b2c/**/*.spec.ts",
+      testMatch: /\/tests\/b2c\/.*\.spec\.ts$/,
     },
     {
       name: "greenpan",
-      testMatch: "greenpan/**/*.spec.ts",
+      testMatch: /\/tests\/greenpan\/.*\.spec\.ts$/,
       fullyParallel: false,
       retries: 2,
       timeout: 180_000,
@@ -52,8 +52,7 @@ export default defineConfig({
     {
       name: "b2x",
       dependencies: ["setup"],
-      // Anchor at tests/b2x only — a string glob becomes **/b2x/** and would also match api/sales/b2x.
-      testMatch: /^b2x\/.*\.spec\.ts$/,
+      testMatch: /\/tests\/b2x\/.*\.spec\.ts$/,
       fullyParallel: false,
       timeout: 180_000,
       use: {

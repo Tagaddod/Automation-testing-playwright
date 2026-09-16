@@ -64,37 +64,17 @@ export const SALES_JORDAN_DEFAULT_LONGITUDE = "35.9106";
 export const SALES_JORDAN_COLLECTABLE_ID = 3;
 export const SALES_JORDAN_MEASURE_ID = 4;
 
-/** Saudi mobile prefixes for createBranch local phones (50–59). */
-export const SALES_SAUDI_PHONE_PREFIXES = [
-  "50",
-  "51",
-  "52",
-  "53",
-  "54",
-  "55",
-  "56",
-  "57",
-  "58",
-  "59",
-] as const;
+/** Saudi STC prefix used by createTrader / createBranch. */
+export const SALES_SAUDI_PHONE_PREFIXES = ["50"] as const;
 
 /** Saudi mobile prefixes for createTrader (+966) phones. */
-export const SALES_SAUDI_TRADER_PHONE_PREFIXES = [
-  "50",
-  "53",
-  "54",
-  "55",
-  "56",
-  "57",
-  "58",
-  "59",
-] as const;
+export const SALES_SAUDI_TRADER_PHONE_PREFIXES = SALES_SAUDI_PHONE_PREFIXES;
 
-/** Jordan mobile prefixes for createTrader local phones. */
-export const SALES_JORDAN_PHONE_PREFIXES = ["77", "78", "79"] as const;
+/** Jordan mobile prefix for createTrader local phones. */
+export const SALES_JORDAN_PHONE_PREFIXES = ["79"] as const;
 
-/** Jordan mobile prefixes for createBranch local phones (077|078|079). */
-export const SALES_JORDAN_BRANCH_PHONE_PREFIXES = ["077", "078", "079"] as const;
+/** Jordan mobile prefix for createBranch local phones (079). */
+export const SALES_JORDAN_BRANCH_PHONE_PREFIXES = ["079"] as const;
 
 /** GraphQL country_code for Vienna / Austria recurring-request flows. */
 export const SALES_VIENNA_GRAPHQL_COUNTRY_CODE = "AT";
@@ -139,6 +119,10 @@ export function buildSalesBranchData(input: {
   latitude?: string;
   longitude?: string;
   payment_type?: string;
+  street_name?: string;
+  building_number?: string;
+  apartment?: number;
+  floor?: number;
 }): CreateSalesBranchData {
   return {
     business_client_id: input.business_client_id ?? SALES_APP_EG_BUSINESS_CLIENT_ID,
@@ -152,6 +136,10 @@ export function buildSalesBranchData(input: {
     longitude: input.longitude ?? DEFAULT_LNG,
     phone: input.phone ?? randomPhoneNumber(),
     payment_type: input.payment_type ?? "CASH",
+    street_name: input.street_name ?? "Test Street",
+    building_number: input.building_number ?? "1",
+    apartment: input.apartment ?? 1,
+    floor: input.floor ?? 1,
   };
 }
 
@@ -167,7 +155,7 @@ export function validBranchVariables(
     payment_type: string;
     country_code: string;
     street_name: string;
-    building_number: number;
+    building_number: string;
     apartment: number;
     floor: number;
   }> = {},
@@ -182,7 +170,7 @@ export function validBranchVariables(
     payment_type = "CASH",
     country_code,
     street_name = "Test Street",
-    building_number = 1,
+    building_number = "1",
     apartment = 1,
     floor = 1,
   } = overrides;
@@ -221,7 +209,7 @@ export function validSaudiBranchVariables(
     price: 10,
     latitude: SALES_SAUDI_BRANCH_LATITUDE,
     longitude: SALES_SAUDI_BRANCH_LONGITUDE,
-    phone: randomSaudiLocalPhoneNumber(),
+    phone: randomSaudiBranchPhoneNumber(),
     country_code: SALES_SAUDI_GRAPHQL_COUNTRY_CODE,
     ...overrides,
   });
@@ -271,15 +259,22 @@ export function randomSaudiPhoneNumber(): string {
   return "+966" + prefix + subscriberNumber;
 }
 
-/** Random Saudi local mobile for createBranch: e.g. 551234563 (50–59 + 7 digits, no +966). */
+/** Random Saudi local mobile for createTrader: e.g. 501234567 (50 + 7 digits, no +966). */
 export function randomSaudiLocalPhoneNumber(): string {
   const prefix =
     SALES_SAUDI_PHONE_PREFIXES[Math.floor(Math.random() * SALES_SAUDI_PHONE_PREFIXES.length)];
-  const subscriberNumber = Math.floor(1000000 + Math.random() * 9000000).toString();
+  const subscriberNumber = Math.floor(Math.random() * 1e7)
+    .toString()
+    .padStart(7, "0");
   return prefix + subscriberNumber;
 }
 
-/** Random Jordan mobile for createTrader: 77|78|79 + 7 digits (e.g. 791234567). */
+/** Random Saudi mobile for createBranch: 05X + 7 digits (e.g. 0551234567), no +966. */
+export function randomSaudiBranchPhoneNumber(): string {
+  return `0${randomSaudiLocalPhoneNumber()}`;
+}
+
+/** Random Jordan mobile for createTrader: 79 + 7 digits (e.g. 791234567). */
 export function randomJordanPhoneNumber(): string {
   const prefix =
     SALES_JORDAN_PHONE_PREFIXES[Math.floor(Math.random() * SALES_JORDAN_PHONE_PREFIXES.length)];
@@ -287,7 +282,7 @@ export function randomJordanPhoneNumber(): string {
   return prefix + subscriberNumber;
 }
 
-/** Random Jordan mobile for createBranch: 077|078|079 + 7 digits (e.g. 0791234567), no +962. */
+/** Random Jordan mobile for createBranch: 079 + 7 digits (e.g. 0791234567), no +962. */
 export function randomJordanBranchPhoneNumber(): string {
   const prefix =
     SALES_JORDAN_BRANCH_PHONE_PREFIXES[
@@ -502,6 +497,30 @@ export function validBusinessRequestVariables(
     collection_time: "10:00",
     ...overrides,
   };
+}
+
+/** Valid CreateBusinessRequestSuperApp defaults for Sales Saudi. */
+export function validSaudiBusinessRequestVariables(
+  branchId: string,
+  overrides: Partial<CreateBusinessRequestSuperAppData> = {},
+): CreateBusinessRequestSuperAppData {
+  return validBusinessRequestVariables(branchId, {
+    collectable_id: SALES_SAUDI_COLLECTABLE_ID,
+    measure_id: SALES_SAUDI_MEASURE_ID,
+    ...overrides,
+  });
+}
+
+/** Valid CreateBusinessRequestSuperApp defaults for Sales Jordan. */
+export function validJordanBusinessRequestVariables(
+  branchId: string,
+  overrides: Partial<CreateBusinessRequestSuperAppData> = {},
+): CreateBusinessRequestSuperAppData {
+  return validBusinessRequestVariables(branchId, {
+    collectable_id: SALES_JORDAN_COLLECTABLE_ID,
+    measure_id: SALES_JORDAN_MEASURE_ID,
+    ...overrides,
+  });
 }
 
 /**

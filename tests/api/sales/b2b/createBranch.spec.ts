@@ -10,7 +10,7 @@ import {
 import { requireSavedBranchId, saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("Create Branch", () => {
+test.describe("Create Branch", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test(
