@@ -98,8 +98,8 @@ jobs:
               ENV="${ENV_NAME}" npx playwright test --project=b2x --grep "@create-b2x-request-UI"
               ;;
             create-b2c-request | create-b2c-request-UI)
-              echo "Command: ENV=${ENV_NAME} npx playwright test --project=b2c --project=greenpan --grep @create-b2c-request-UI"
-              ENV="${ENV_NAME}" npx playwright test --project=b2c --project=greenpan --grep "@create-b2c-request-UI"
+              echo "Command: ENV=${ENV_NAME} npx playwright test --project=greenpan --grep @create-b2c-request-UI"
+              ENV="${ENV_NAME}" npx playwright test --project=greenpan --grep "@create-b2c-request-UI"
               ;;
             *)
               echo "Unknown suite: ${SUITE}"

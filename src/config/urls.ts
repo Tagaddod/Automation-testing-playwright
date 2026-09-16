@@ -10,7 +10,7 @@ export const URLs = {
   graphql: current.GRAPHQL_URL,
 
   greenpan: {
-    base: current.GREENPAN_BASE_URL,
+    base: `${current.GREENPAN_BASE_URL}/agent`,
     auth: `${current.GREENPAN_BASE_URL}/auth?token=`,
   },
 

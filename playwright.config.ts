@@ -40,14 +40,22 @@ export default defineConfig({
     },
     {
       name: "b2c",
+      dependencies: ["setup"],
       testMatch: /\/tests\/b2c\/.*\.spec\.ts$/,
+      use: {
+        storageState: "playwright/.auth/user.json",
+      },
     },
     {
       name: "greenpan",
+      dependencies: ["setup"],
       testMatch: /\/tests\/greenpan\/.*\.spec\.ts$/,
       fullyParallel: false,
       retries: 2,
       timeout: 180_000,
+      use: {
+        storageState: "playwright/.auth/user.json",
+      },
     },
     {
       name: "b2x",
