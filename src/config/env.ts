@@ -56,4 +56,23 @@ export const ENV = {
   /** Optional defaults for admin B2B createBranch API test */
   BUSINESS_CLIENT_ID: process.env.BUSINESS_CLIENT_ID || "",
   COLLECTABLE_ID: process.env.COLLECTABLE_ID || "",
+
+  /**
+   * REST create-trips URL override. Empty means use URLs.createTrips
+   * (per-environment default from environments.ts).
+   */
+  TRIPS_API_URL: process.env.TRIPS_API_URL || "",
+
+  /**
+   * create-trips only (TripService header: sibling-server-api-key).
+   * Not used for GraphQL. Never log this value.
+   * Read from process.env at call time so .env is not snapshotted empty.
+   */
+  get SIBLING_SERVER_API_KEY(): string {
+    return (process.env.SIBLING_SERVER_API_KEY || "").trim();
+  },
 };
+
+export function hasSiblingServerApiKey(): boolean {
+  return Boolean(ENV.SIBLING_SERVER_API_KEY);
+}

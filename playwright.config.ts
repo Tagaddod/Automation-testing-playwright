@@ -31,7 +31,7 @@ export default defineConfig({
     {
       name: "b2b",
       dependencies: ["setup"],
-      testMatch: "b2b/**/*.spec.ts",
+      testMatch: /^b2b\/.*\.spec\.ts$/,
       fullyParallel: false,
       timeout: 180_000,
       use: {
@@ -96,11 +96,30 @@ export default defineConfig({
       // Sales (non-b2x/non-b2b-flow) + other API specs.
       name: "api-other",
       dependencies: ["api-sales-business-request"],
-      testMatch: /api\/(?!sales\/b2x\/|sales\/b2b\/).*\.spec\.ts$/,
+      testMatch: /api\/(?!sales\/b2x\/|sales\/b2b\/|sales\/trip\/|collector\/).*\.spec\.ts$/,
       fullyParallel: false,
     },
     {
-      // `--project=api` runs dependencies in order (B2X → Sales B2B flow → other API).
+      name: "collector-trip",
+      testMatch: "api/trips/createTrips.spec.ts",
+      fullyParallel: false,
+      timeout: 180_000,
+    },
+    {
+      name: "collector",
+      testMatch: "api/collector/collectRequest.spec.ts",
+      fullyParallel: false,
+      timeout: 180_000,
+    },
+    {
+      // After GraphQL create-request tests so requestId.json + businessRequestId.json exist.
+      name: "trips",
+      dependencies: ["api-b2x-request", "api-sales-business-request"],
+      testMatch: "trips/**/*.spec.ts",
+      fullyParallel: false,
+    },
+    {
+      // `--project=api` runs dependencies in order (B2X → Sales B2B flow → other API → trips).
       name: "api",
       dependencies: [
         "api-b2x",
@@ -109,6 +128,7 @@ export default defineConfig({
         "api-sales-sign-contract",
         "api-sales-business-request",
         "api-other",
+        "trips",
       ],
       testMatch: /a^/,
     },

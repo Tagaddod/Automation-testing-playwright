@@ -9,6 +9,9 @@ const current = ENVIRONMENTS[ENV.ENVIRONMENT as EnvKeys];
 export const URLs = {
   graphql: current.GRAPHQL_URL,
 
+  /** REST create-trips. TRIPS_API_URL overrides the per-environment default. */
+  createTrips: process.env.TRIPS_API_URL || current.CREATE_TRIPS_URL,
+
   greenpan: {
     base: current.GREENPAN_BASE_URL,
     auth: `${current.GREENPAN_BASE_URL}/auth?token=`,
