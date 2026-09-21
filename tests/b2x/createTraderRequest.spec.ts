@@ -12,7 +12,7 @@ import {
 test.describe("B2X create trader request", () => {
   test(
     "create full trader request end to end (no warehouse)",
-    { tag: ["@b2x", "@smoke", "@e2e"] },
+    { tag: ["@all-regression", "@b2x-regression-UI", "@create-b2x-request-UI"] },
     async ({ page }) => {
       const po = new PoManager(page);
       const data = getB2xTestData();
@@ -29,7 +29,7 @@ test.describe("B2X create trader request", () => {
 
   test(
     "create full trader request with warehouse",
-    { tag: ["@b2x", "@regression", "@e2e"] },
+    { tag: ["@all-regression", "@b2x-regression-UI", "@create-b2x-request-UI"] },
     async ({ page }) => {
       const po = new PoManager(page);
       const data = getB2xTestData();
@@ -46,7 +46,7 @@ test.describe("B2X create trader request", () => {
 
   test(
     "create request for existing trader",
-    { tag: ["@b2x", "@regression", "@e2e"] },
+    { tag: ["@all-regression", "@b2x-regression-UI", "@create-b2x-request-UI"] },
     async ({ page }) => {
       const po = new PoManager(page);
       const data = getB2xTestData();
@@ -65,7 +65,7 @@ test.describe("B2X create trader request", () => {
 
   test(
     "create request with warehouse trader and notes",
-    { tag: ["@b2x", "@regression", "@e2e"] },
+    { tag: ["@all-regression", "@b2x-regression-UI", "@create-b2x-request-UI"] },
     async ({ page }) => {
       const po = new PoManager(page);
       const data = await goToCollectablesStepWithWarehouse(po);

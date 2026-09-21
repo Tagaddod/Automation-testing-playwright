@@ -14,11 +14,12 @@ export class createBusinessClientPage {
   readonly clientNameErrorMessage: Locator;
   readonly englishNameErrorMessage: Locator;
   readonly businessTypeErrorMessage: Locator;
+  readonly businessTypeSelection: Locator;
 
   constructor(private page: Page) {
     this.stepLabel = page.getByText("خطوه 1 / 2");
     this.pageHeading = page.getByRole("heading", { name: "اختر العميل" });
-    this.clientSearchInput = page.getByPlaceholder("ابحث بإسم البيزنس");
+    this.clientSearchInput = page.locator("#nameAR");
     this.addNewClientButton = page.locator('span:has-text("إضافة عميل جديد")');
     this.englishNameInput = page.locator("#nameEN");
     this.businessTypeSelector = page.locator(
@@ -31,8 +32,12 @@ export class createBusinessClientPage {
     this.englishNameErrorMessage = page.locator(
       ".ant-form-item:has(#nameEN) .ant-form-item-explain-error",
     );
-    this.businessTypeErrorMessage = page.locator(
-      ".ant-form-item:has(#brandTypeId) .ant-form-item-explain-error",
+    this.businessTypeErrorMessage = page
+      .locator(".ant-form-item")
+      .filter({ hasText: "نوع البيزنس" })
+      .locator(".ant-form-item-explain-error");
+    this.businessTypeSelection = page.locator(
+      ".ant-form-item:has(#brandTypeId) .ant-select-selection-item",
     );
   }
 
@@ -51,6 +56,8 @@ export class createBusinessClientPage {
   async addNewClient(branchName: string) {
     await this.clientSearchInput.fill(branchName);
     await this.addNewClientButton.click();
+    await expect(this.englishNameInput).toBeVisible({ timeout: 15_000 });
+    await this.englishNameInput.click();
   }
 
   async fillEnglishName(englishName: string) {
@@ -58,64 +65,68 @@ export class createBusinessClientPage {
   }
 
   async selectBusinessType(businessType = testdata.b2b.defaultBusinessType) {
-    await this.businessTypeSelector.scrollIntoViewIfNeeded();
-    await this.businessTypeSelector.click();
-
     const dropdown = this.page.locator("div.ant-select-dropdown:not(.ant-select-dropdown-hidden)");
-    await expect(dropdown.last()).toBeVisible({ timeout: 15_000 });
+    const loadingArrow = this.page.locator(
+      ".ant-form-item:has(#brandTypeId) .ant-select-arrow-loading",
+    );
 
-    const typedOption = dropdown
-      .last()
-      .locator(".ant-select-item-option")
-      .filter({ hasText: businessType })
-      .first();
-    const fallbackOption = dropdown.last().locator(".ant-select-item-option").first();
-    if (!(await fallbackOption.count())) {
-      await this.businessTypeSelector.focus();
-      await this.page.keyboard.press("ArrowDown");
-      await this.page.keyboard.press("Enter");
-      await expect(this.businessTypeErrorMessage).toBeHidden({ timeout: 15_000 });
-      return;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.businessTypeSelector.scrollIntoViewIfNeeded();
+      await this.businessTypeSelector.click();
+
+      await expect(dropdown.last()).toBeVisible({ timeout: 15_000 });
+      await expect(loadingArrow)
+        .toHaveCount(0, { timeout: 20_000 })
+        .catch(() => undefined);
+      await expect(dropdown.last().locator(".ant-select-item-option").first()).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const search = this.page.locator(".ant-form-item:has(#brandTypeId) #brandTypeId");
+      await expect(search).toBeVisible({ timeout: 10_000 });
+      await search.fill("");
+      await search.pressSequentially(businessType, { delay: 60 });
+      await expect(loadingArrow)
+        .toHaveCount(0, { timeout: 20_000 })
+        .catch(() => undefined);
+
+      const option = dropdown
+        .last()
+        .locator(".ant-select-item-option")
+        .filter({ hasText: businessType })
+        .first();
+      await expect(option).toBeVisible({ timeout: 15_000 });
+      await option.click();
+
+      if (
+        await this.businessTypeSelection
+          .getByText(businessType, { exact: true })
+          .isVisible({ timeout: 5_000 })
+          .catch(() => false)
+      ) {
+        return;
+      }
     }
 
-    const option = (await typedOption.count()) ? typedOption : fallbackOption;
-
-    await option.waitFor({ state: "attached", timeout: 15_000 });
-    try {
-      await option.click({ force: true });
-    } catch (err) {
-      if (this.page.isClosed()) throw err;
-      await this.businessTypeSelector.focus();
-      await this.page.keyboard.press("ArrowDown");
-      await this.page.keyboard.press("Enter");
-    }
-
-    await expect(this.businessTypeErrorMessage).toBeHidden({ timeout: 15_000 });
+    await expect(this.businessTypeSelection).toHaveText(businessType, { timeout: 10_000 });
   }
 
   async selectExistingClient(businessName: string) {
     await this.clientSearchInput.click();
-    await this.clientSearchInput.fill(businessName);
+    await this.clientSearchInput.fill("");
+    await this.clientSearchInput.pressSequentially(businessName, { delay: 40 });
+    await expect(this.clientSearchInput).toHaveValue(businessName, { timeout: 10_000 });
 
-    await expect(this.page.locator('[id^="nameAR_list_"]').first()).toBeAttached({
-      timeout: 15_000,
-    });
-
-    const portalOption = this.page
+    const option = this.page
       .locator("div.ant-select-dropdown:not(.ant-select-dropdown-hidden)")
       .last()
       .locator(".ant-select-item-option")
       .filter({ hasText: businessName })
       .first();
-
-    if (await portalOption.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await portalOption.click({ force: true });
-    } else {
-      await this.clientSearchInput.press("ArrowDown");
-      await this.clientSearchInput.press("Enter");
-    }
-
-    await this.page.keyboard.press("Escape");
+    await expect(option).toBeVisible({ timeout: 20_000 });
+    await option.click({ force: true });
+    await expect(this.clientSearchInput).toHaveValue(businessName, { timeout: 10_000 });
+    await expect(this.clientNameErrorMessage).toBeHidden({ timeout: 10_000 });
   }
 
   async clickNext() {
@@ -129,7 +140,9 @@ export class createBusinessClientPage {
     await this.assertNewClientFieldsVisible();
     await this.fillEnglishName(branchName);
     await this.selectBusinessType();
+    await expect(this.clientNameErrorMessage).toBeHidden({ timeout: 5_000 });
     await this.clickNext();
+    await expect(this.page.locator("#primaryPhoneNumber")).toBeVisible({ timeout: 30_000 });
   }
 
   async assertEnglishNameRequired() {
@@ -141,10 +154,6 @@ export class createBusinessClientPage {
   async completeExistingClientStep(clientName: string) {
     await this.assertPageVisible();
     await this.selectExistingClient(clientName);
-    await expect(this.clientNameErrorMessage).toBeHidden({ timeout: 10_000 });
-    await expect(
-      this.page.locator(".ant-form-item:has(#nameAR) .ant-select-selection-item"),
-    ).toBeVisible({ timeout: 10_000 });
     await this.clickNext();
     await expect(this.page.locator("#primaryPhoneNumber")).toBeVisible({ timeout: 30_000 });
   }

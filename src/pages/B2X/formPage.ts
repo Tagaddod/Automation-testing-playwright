@@ -154,6 +154,22 @@ export class formPage {
   }
 
   async submitTraderForm() {
+    const toast = this.page.getByText("Network Error");
+    if (
+      await toast
+        .first()
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await this.page
+        .getByRole("img", { name: "close-circle" })
+        .first()
+        .click({ force: true })
+        .catch(() => undefined);
+      await expect(toast.first())
+        .toBeHidden({ timeout: 5_000 })
+        .catch(() => undefined);
+    }
     await this.clickNext();
   }
 

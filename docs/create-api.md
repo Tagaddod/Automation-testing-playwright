@@ -7,16 +7,31 @@ API automation in this repo is GraphQL-based and mirrors the UI layering:
 
 ## 1. Where things live
 
-| Piece                | Path                                             |
-| -------------------- | ------------------------------------------------ |
-| Fixture              | `src/fixtures/apiFixture.ts`                     |
-| Facade               | `src/api/ApiManager.ts`                          |
-| B2B service          | `src/api/b2b/B2bService.ts`                      |
-| GraphQL documents    | `src/api/b2b/graphql/mutations.ts`, `queries.ts` |
-| Payload builders     | `src/api/b2b/testData.ts`                        |
-| Response dump helper | `src/api/saveApiResponse.ts`                     |
-| Specs                | `tests/api/b2b/*.spec.ts`                        |
-| Playwright project   | `--project=api`                                  |
+Every domain module uses the same layout:
+
+```
+src/api/{domain}/
+  {Domain}Service.ts      # GraphQL methods + domain types
+  testData.ts             # payload builders
+  graphql/
+    mutations.ts
+    queries.ts
+
+tests/api/{domain}/
+  *.spec.ts
+  helpers.ts              # optional shared setup
+```
+
+| Piece                | Path                                                                            |
+| -------------------- | ------------------------------------------------------------------------------- |
+| Fixture              | `src/fixtures/apiFixture.ts`                                                    |
+| Facade               | `src/api/ApiManager.ts` → `api.b2b` / `api.b2x` / `api.sales` / `api.warehouse` |
+| Shared enums         | `src/api/enums.ts`                                                              |
+| Response dump helper | `src/api/saveApiResponse.ts`                                                    |
+| Domains              | `b2b`, `b2x`, `sales`, `warehouse` (all lowercase)                              |
+| Specs                | `tests/api/{domain}/*.spec.ts`                                                  |
+| Sales domain split   | `tests/api/sales/b2b/`, `tests/api/sales/b2x/` (Sales App flows)                |
+| Playwright project   | `--project=api` (or a domain project like `api-other`)                          |
 
 ## 2. Auth for API tests
 

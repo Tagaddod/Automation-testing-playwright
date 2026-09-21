@@ -27,6 +27,17 @@ export function saveApiResponse(name: string, payload: unknown): string {
   return filePath;
 }
 
+/** Read a previously saved API response so later endpoints/tests can reuse it. */
+export function readApiResponse<T = unknown>(name: string): T | undefined {
+  const filePath = getApiResponsePath(name);
+  if (!existsSync(filePath)) return undefined;
+  try {
+    return JSON.parse(readFileSync(filePath, "utf-8")) as T;
+  } catch {
+    return undefined;
+  }
+}
+
 export type SavedBranchIdPayload = {
   branchId?: string;
   phone?: string;

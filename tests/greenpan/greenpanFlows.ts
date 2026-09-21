@@ -2,9 +2,12 @@ import { expect } from "@playwright/test";
 
 import type { PoManager } from "../../src/core/PoManager";
 import type { GreenpanAddressData } from "../../src/pages/greenpan/addressPage";
-import { randomPhoneNumber } from "../../src/utils/testdata";
-import testdata from "../../src/utils/testdata.json";
+import { randomPhoneNumber, testdata } from "../../src/utils/testdata";
 
+/**
+ * Agent webform after `/auth?token=`:
+ * /agent (phone) → quantity → address → /agent/:id/request/:id/new/order → success
+ */
 async function recoverFromOops(po: PoManager) {
   const page = po.getPage();
   const oops = page.getByRole("heading", { name: "Oops!" });
@@ -21,103 +24,69 @@ export async function openGreenpanHome(po: PoManager) {
   await po.getGreenpanHomePage().assertPageVisible();
 }
 
-export async function goToQuantityStep(po: PoManager, phone: string) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    await openGreenpanHome(po);
-    await po.getGreenpanHomePage().completePhoneStep(phone);
+export async function goToQuantityStep(po: PoManager, phone = randomPhoneNumber()) {
+  let currentPhone = phone;
 
-    if (
-      await po
-        .getGreenpanQuantityPage()
-        .quantityInput.isVisible({ timeout: 20_000 })
-        .catch(() => false)
-    ) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await openGreenpanHome(po);
+    await po.getGreenpanHomePage().completePhoneStep(currentPhone);
+
+    const quantityInput = po.getGreenpanQuantityPage().quantityInput;
+    const activeHeading = po.getPage().getByRole("heading", { name: /الطلبات النشطة/ });
+    await expect(quantityInput.or(activeHeading).first())
+      .toBeVisible({ timeout: 20_000 })
+      .catch(() => undefined);
+
+    if (await activeHeading.isVisible().catch(() => false)) {
+      currentPhone = randomPhoneNumber();
+      continue;
+    }
+
+    if (await quantityInput.isVisible().catch(() => false)) {
       await po.getGreenpanQuantityPage().assertPageVisible();
-      return;
+      return currentPhone;
     }
 
     if (await recoverFromOops(po)) {
+      currentPhone = randomPhoneNumber();
       continue;
     }
+
+    currentPhone = randomPhoneNumber();
   }
 
   await po.getGreenpanQuantityPage().assertPageVisible();
-}
-
-export async function goToGiftsStep(
-  po: PoManager,
-  phone = testdata.phones.validUser,
-  quantity = testdata.quantities.medium,
-) {
-  await goToQuantityStep(po, phone);
-  await po.getGreenpanQuantityPage().completeQuantityStep(quantity);
-  await expect(po.getGreenpanQuantityPage().rewardsText).toBeVisible({ timeout: 20_000 });
-  await po.getGreenpanGiftsPage().assertPageVisible();
+  return currentPhone;
 }
 
 export async function goToAddressStep(
   po: PoManager,
-  phone = randomPhoneNumber(),
-  quantity = testdata.quantities.medium,
+  quantity = testdata.greenpan.quantities.valid,
 ) {
-  await goToGiftsStep(po, phone, quantity);
-  await po.getGreenpanGiftsPage().completeGiftsStep(0);
-
-  const page = po.getPage();
-  const addressHeading = page.getByRole("heading", { name: "إضافة عنوان" });
-  const send = po.getGreenpanSendRequestPage();
-
-  await expect(addressHeading.or(send.sendRequestButton).first()).toBeVisible({
-    timeout: 45_000,
-  });
-
-  if (await send.sendRequestButton.isVisible().catch(() => false)) {
-    throw new Error(
-      `Expected address step for new phone ${phone}, but reached send-request step (phone may already exist).`,
-    );
-  }
-
+  const usedPhone = await goToQuantityStep(po);
+  await po.getGreenpanQuantityPage().completeQuantityStep(quantity);
   await po.getGreenpanAddressPage().assertPageVisible();
+  return usedPhone;
 }
 
-export async function goToSendRequestStepForExistingUser(
+export async function goToSendRequestStep(
   po: PoManager,
-  phone = testdata.phones.validUser,
-  quantity = testdata.quantities.medium,
+  address: GreenpanAddressData = testdata.greenpan.address,
+  quantity = testdata.greenpan.quantities.valid,
 ) {
-  await goToGiftsStep(po, phone, quantity);
-  await po.getGreenpanGiftsPage().completeGiftsStep(0);
-  await po.getGreenpanSendRequestPage().assertPageVisible();
-}
-
-export async function goToSendRequestStepForNewUser(
-  po: PoManager,
-  address: GreenpanAddressData = testdata.addresses.cairo,
-  phone = randomPhoneNumber(),
-  quantity = testdata.quantities.medium,
-) {
-  await goToAddressStep(po, phone, quantity);
+  const usedPhone = await goToAddressStep(po, quantity);
   await po.getGreenpanAddressPage().completeAddressStep(address);
   await po.getGreenpanSendRequestPage().assertPageVisible();
+  return usedPhone;
 }
 
-export async function completeGreenpanRequestForExistingUser(
+export async function completeGreenpanRequest(
   po: PoManager,
-  phone = testdata.phones.validUser,
-  quantity = testdata.quantities.medium,
+  address: GreenpanAddressData = testdata.greenpan.address,
+  quantity = testdata.greenpan.quantities.valid,
 ) {
-  await goToSendRequestStepForExistingUser(po, phone, quantity);
+  const usedPhone = await goToSendRequestStep(po, address, quantity);
   await po.getGreenpanSendRequestPage().completeSendRequestStep();
   await po.getGreenpanRequestSuccessPage().assertPageVisible();
-}
-
-export async function completeGreenpanRequestForNewUser(
-  po: PoManager,
-  address: GreenpanAddressData = testdata.addresses.cairo,
-  phone = randomPhoneNumber(),
-  quantity = testdata.quantities.medium,
-) {
-  await goToSendRequestStepForNewUser(po, address, phone, quantity);
-  await po.getGreenpanSendRequestPage().completeSendRequestStep();
-  await po.getGreenpanRequestSuccessPage().assertPageVisible();
+  return usedPhone;
 }

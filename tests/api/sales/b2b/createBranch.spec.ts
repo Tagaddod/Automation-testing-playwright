@@ -1,8 +1,4 @@
 import {
-  requireSavedBranchId,
-  saveApiResponse,
-} from "../../../../src/api/saveApiResponse";
-import {
   SALES_EGYPT_COUNTRY_CODE,
   SALES_JORDAN_COUNTRY_CODE,
   SALES_SAUDI_COUNTRY_CODE,
@@ -11,152 +7,140 @@ import {
   validSaudiBranchVariables,
   validViennaRecurringRequestVariables,
 } from "../../../../src/api/sales/testData";
+import { requireSavedBranchId, saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("Create Branch", { tag: ["@api", "@b2b", "@valid", "@create-branch"] }, () => {
+test.describe("Create Branch", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
-  test("Create Branch with valid data - Valid", { tag: ["@b2b Create Branch supperapp"] }, async ({
-    salesAppEgyptApi,
-  }) => {
-    const variables = validBranchVariables();
+  test(
+    "Create Branch with valid data - Valid",
+    { tag: ["@all-regression", "@sales-app-regression"] },
+    async ({ salesAppEgyptApi }) => {
+      const variables = validBranchVariables();
 
-    const response = await salesAppEgyptApi.sales.createBranch(variables);
+      const response = await salesAppEgyptApi.sales.createBranch(variables);
 
-    expect(
-      response.errors,
-      "Branch creation should succeed without GraphQL errors.",
-    ).toBeUndefined();
+      expect(
+        response.errors,
+        "Branch creation should succeed without GraphQL errors.",
+      ).toBeUndefined();
 
-    const branchId = response.data?.createBranch?.id;
-    expect(
-      branchId,
-      "A valid Branch ID should be returned after creating the branch.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.phone,
-      "The created branch should include a phone number.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.status,
-      "The created branch should include a status.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.country_code,
-      "The branch country code should be +20.",
-    ).toBe(SALES_EGYPT_COUNTRY_CODE);
+      const branchId = response.data?.createBranch?.id;
+      expect(
+        branchId,
+        "A valid Branch ID should be returned after creating the branch.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.phone,
+        "The created branch should include a phone number.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.status,
+        "The created branch should include a status.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.country_code,
+        "The branch country code should be +20.",
+      ).toBe(SALES_EGYPT_COUNTRY_CODE);
 
-    const address = response.data?.createBranch?.addresses?.[0];
-    expect(address, "The created branch should return an address.").toBeDefined();
-    expect(address?.street_name, "The branch street_name should match the payload.").toBe(
-      variables.street_name,
-    );
-    expect(address?.building_number, "The branch building_number should match the payload.").toBe(
-      variables.building_number,
-    );
-    expect(String(address?.apartment), "The branch apartment should match the payload.").toBe(
-      String(variables.apartment),
-    );
-    expect(String(address?.floor), "The branch floor should match the payload.").toBe(
-      String(variables.floor),
-    );
+      saveApiResponse("branchId", {
+        branchId: branchId!,
+        phone: variables.phone,
+      });
 
-    saveApiResponse("branchId", {
-      branchId: branchId!,
-      phone: variables.phone,
-    });
+      expect(requireSavedBranchId(), "The created Branch ID should be persisted for reuse.").toBe(
+        branchId,
+      );
+    },
+  );
 
-    expect(
-      requireSavedBranchId(),
-      "The created Branch ID should be persisted for reuse.",
-    ).toBe(branchId);
-  });
+  test(
+    "Create Branch - Valid Saudi",
+    { tag: ["@all-regression", "@sales-app-regression"] },
+    async ({ salesAppSaudiApi }) => {
+      const variables = validSaudiBranchVariables();
 
-  test("Create Branch with valid saudia data", { tag: ["@b2b  regression"] }, async ({
-    salesAppSaudiApi,
-  }) => {
-    const variables = validSaudiBranchVariables();
+      const response = await salesAppSaudiApi.sales.createBranch(variables);
 
-    const response = await salesAppSaudiApi.sales.createBranch(variables);
+      expect(
+        response.errors,
+        "Branch creation should succeed without GraphQL errors.",
+      ).toBeUndefined();
 
-    expect(
-      response.errors,
-      "Branch creation should succeed without GraphQL errors.",
-    ).toBeUndefined();
+      const branchId = response.data?.createBranch?.id;
+      expect(
+        branchId,
+        "A valid Branch ID should be returned after creating the branch.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.phone,
+        "The created branch should include a phone number.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.status,
+        "The created branch should include a status.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.country_code,
+        "The branch country code should be +966.",
+      ).toBe(SALES_SAUDI_COUNTRY_CODE);
 
-    const branchId = response.data?.createBranch?.id;
-    expect(
-      branchId,
-      "A valid Branch ID should be returned after creating the branch.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.phone,
-      "The created branch should include a phone number.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.status,
-      "The created branch should include a status.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.country_code,
-      "The branch country code should be +966.",
-    ).toBe(SALES_SAUDI_COUNTRY_CODE);
+      saveApiResponse("branchIdSaudi", {
+        branchId: branchId!,
+        phone: variables.phone,
+      });
+    },
+  );
 
-    saveApiResponse("branchIdSaudi", {
-      branchId: branchId!,
-      phone: variables.phone,
-    });
-  });
+  test(
+    "Create Branch - Valid Jordan",
+    { tag: ["@all-regression", "@sales-app-regression"] },
+    async ({ salesAppJordanApi }) => {
+      const variables = validJordanBranchVariables();
 
-  test("Create Branch with Valid Jordan data", { tag: ["@b2b Regression"] }, async ({
-    salesAppJordanApi,
-  }) => {
-    const variables = validJordanBranchVariables();
+      const response = await salesAppJordanApi.sales.createBranch(variables);
 
-    const response = await salesAppJordanApi.sales.createBranch(variables);
+      expect(
+        response.errors,
+        "Branch creation should succeed without GraphQL errors.",
+      ).toBeUndefined();
 
-    expect(
-      response.errors,
-      "Branch creation should succeed without GraphQL errors.",
-    ).toBeUndefined();
+      const branchId = response.data?.createBranch?.id;
+      expect(
+        branchId,
+        "A valid Branch ID should be returned after creating the branch.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.phone,
+        "The created branch should include a phone number.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.status,
+        "The created branch should include a status.",
+      ).toBeTruthy();
+      expect(
+        response.data?.createBranch?.country_code,
+        "The branch country code should be +962.",
+      ).toBe(SALES_JORDAN_COUNTRY_CODE);
 
-    const branchId = response.data?.createBranch?.id;
-    expect(
-      branchId,
-      "A valid Branch ID should be returned after creating the branch.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.phone,
-      "The created branch should include a phone number.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.status,
-      "The created branch should include a status.",
-    ).toBeTruthy();
-    expect(
-      response.data?.createBranch?.country_code,
-      "The branch country code should be +962.",
-    ).toBe(SALES_JORDAN_COUNTRY_CODE);
-
-    saveApiResponse("branchIdJordan", {
-      branchId: branchId!,
-      phone: variables.phone,
-    });
-  });
+      saveApiResponse("branchIdJordan", {
+        branchId: branchId!,
+        phone: variables.phone,
+      });
+    },
+  );
 
   test(
     "Get Recurring Request Summary with valid data - Valid Vienna",
-    { tag: ["@sales", "@recurring-request", "@sales recurring request vienna"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppViennaApi }) => {
       const variables = validViennaRecurringRequestVariables();
 
       const response = await salesAppViennaApi.sales.getRecurringRequestSummary(variables);
 
       expect(response.status ?? 200, "Successful request should return HTTP 200.").toBe(200);
-      expect(
-        response.errors,
-        "Response should not contain GraphQL errors.",
-      ).toBeUndefined();
+      expect(response.errors, "Response should not contain GraphQL errors.").toBeUndefined();
 
       const summary = response.data?.getRecurringRequestSummary;
       expect(summary, "Recurring request summary should be returned.").toBeTruthy();

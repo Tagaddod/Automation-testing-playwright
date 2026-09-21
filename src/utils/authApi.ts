@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
+import type { Page } from "@playwright/test";
 import { request } from "@playwright/test";
 
 import { ENV } from "../config/env";
@@ -9,11 +10,13 @@ import { URLs } from "../config/urls";
 /**
  * Auth profiles:
  * - admin: EMAIL → B2B/B2X UI setup + default API
+ * - customer-app: PHONE → B2C Customer App API only
  * - sales-app-*: PHONE → Sales App API only
  * - collector-app: PHONE → Collector App API only
  */
 export type AuthProfile =
   | "admin"
+  | "customer-app"
   | "sales-app-egypt"
   | "sales-app-saudi"
   | "sales-app-jordan"
@@ -22,6 +25,7 @@ export type AuthProfile =
 
 const TOKEN_PATHS: Record<AuthProfile, string> = {
   admin: "playwright/.auth/token.json", // legacy path used by auth.setup
+  "customer-app": "playwright/.auth/token-customer-app.json",
   "sales-app-egypt": "playwright/.auth/token-sales-app-egypt.json",
   "sales-app-saudi": "playwright/.auth/token-sales-app-saudi.json",
   "sales-app-jordan": "playwright/.auth/token-sales-app-jordan.json",
@@ -58,6 +62,12 @@ function requireValue(value: string, name: string): string {
 
 function phoneCredentials(profile: Exclude<AuthProfile, "admin">): PhoneCredentials {
   switch (profile) {
+    case "customer-app":
+      return {
+        phone: requireValue(ENV.CUSTOMER_APP_PHONE, "CUSTOMER_APP_PHONE"),
+        password: requireValue(ENV.CUSTOMER_APP_PASSWORD, "CUSTOMER_APP_PASSWORD"),
+        countryCode: ENV.CUSTOMER_APP_COUNTRY_CODE || undefined,
+      };
     case "sales-app-egypt":
       // Sales Agent Egypt: phone/password from .env.
       // Do NOT send country_code on login (API rejects EG here; Postman loginGap omits it).
@@ -98,6 +108,9 @@ function loginEnvHint(profile: AuthProfile): string {
   if (profile === "admin") {
     return "Check ADMIN_EMAIL and ADMIN_PASSWORD in .env / .env.staging (do not hardcode credentials).";
   }
+  if (profile === "customer-app") {
+    return "Check CUSTOMER_APP_PHONE and CUSTOMER_APP_PASSWORD in .env / .env.staging.";
+  }
   if (profile === "sales-app-egypt") {
     return "Check SALES_APP_EG_PHONE and SALES_APP_EG_PASSWORD in .env / .env.staging.";
   }
@@ -115,7 +128,23 @@ function loginEnvHint(profile: AuthProfile): string {
 
 async function postLogin(query: string, profile: AuthProfile): Promise<{ token: string }> {
   const api = await request.newContext();
-  const response = await api.post(URLs.graphql, { data: { query } });
+
+  // Staging occasionally resets the connection (ECONNRESET); retry a few times.
+  let response;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      response = await api.post(URLs.graphql, { data: { query } });
+      break;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  if (!response) {
+    throw new Error(`Login request failed after retries: ${String(lastError)}`);
+  }
+
   const text = await response.text();
   const json = parseGraphqlResponse(text) as {
     data?: { login?: { jwtToken?: string } };
@@ -225,4 +254,27 @@ export async function getAuthToken(profile: AuthProfile = "admin"): Promise<stri
   const { token } = await apiLogin(profile);
   saveAuthToken(token, profile);
   return token;
+}
+
+/** `/auth?token=` → app route; retries staging Network Error like B2B setup. */
+export async function gotoAuthTokenPage(page: Page, authUrl: string) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await page.goto(authUrl, { waitUntil: "domcontentloaded" });
+
+    const networkError = page.getByRole("heading", { name: "Network Error" });
+    if (await networkError.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await page.getByRole("button", { name: "retry" }).click();
+    }
+
+    try {
+      await page.waitForURL((url) => !url.href.includes("/auth?token="), { timeout: 30_000 });
+      return;
+    } catch {
+      if (attempt === 2) {
+        throw new Error(
+          "Auth redirect failed after 3 attempts (Network Error or timeout on staging).",
+        );
+      }
+    }
+  }
 }

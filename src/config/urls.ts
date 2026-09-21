@@ -13,7 +13,7 @@ export const URLs = {
   createTrips: process.env.TRIPS_API_URL || current.CREATE_TRIPS_URL,
 
   greenpan: {
-    base: current.GREENPAN_BASE_URL,
+    base: `${current.GREENPAN_BASE_URL}/agent`,
     auth: `${current.GREENPAN_BASE_URL}/auth?token=`,
   },
 

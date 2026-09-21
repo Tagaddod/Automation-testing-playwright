@@ -34,12 +34,9 @@ export const SALES_SAUDI_COUNTRY_CODE = "+966";
 /** GraphQL country_code input for Saudi createTraderSuperApp. */
 export const SALES_SAUDI_GRAPHQL_COUNTRY_CODE = "SA";
 
-/** Default Sales Egypt create-branch coordinates (Mokattam). */
-export const SALES_EGYPT_DEFAULT_LATITUDE = "30.0444";
-export const SALES_EGYPT_DEFAULT_LONGITUDE = "31.2357";
-
-/** Preferred collection time sent by createBranch SuperApp payload. */
-export const SALES_EGYPT_PREFERRED_TIME = "صباحاَ";
+/** Default Sales Egypt create-branch coordinates. */
+export const SALES_EGYPT_DEFAULT_LATITUDE = DEFAULT_LAT;
+export const SALES_EGYPT_DEFAULT_LONGITUDE = DEFAULT_LNG;
 
 /** Hardcoded Sales Saudi create-trader coordinates. */
 export const SALES_SAUDI_DEFAULT_LATITUDE = "24.718594538080318";
@@ -67,37 +64,17 @@ export const SALES_JORDAN_DEFAULT_LONGITUDE = "35.9106";
 export const SALES_JORDAN_COLLECTABLE_ID = 3;
 export const SALES_JORDAN_MEASURE_ID = 4;
 
-/** Saudi mobile prefixes for createBranch local phones (50–59). */
-export const SALES_SAUDI_PHONE_PREFIXES = [
-  "50",
-  "51",
-  "52",
-  "53",
-  "54",
-  "55",
-  "56",
-  "57",
-  "58",
-  "59",
-] as const;
+/** Saudi STC prefix used by createTrader / createBranch. */
+export const SALES_SAUDI_PHONE_PREFIXES = ["50"] as const;
 
 /** Saudi mobile prefixes for createTrader (+966) phones. */
-export const SALES_SAUDI_TRADER_PHONE_PREFIXES = [
-  "50",
-  "53",
-  "54",
-  "55",
-  "56",
-  "57",
-  "58",
-  "59",
-] as const;
+export const SALES_SAUDI_TRADER_PHONE_PREFIXES = SALES_SAUDI_PHONE_PREFIXES;
 
-/** Jordan mobile prefixes for createTrader local phones (e.g. 790007788). */
+/** Jordan mobile prefix for createTrader local phones. */
 export const SALES_JORDAN_PHONE_PREFIXES = ["79"] as const;
 
-/** Jordan mobile prefixes for createBranch (+962) phones. */
-export const SALES_JORDAN_BRANCH_PHONE_PREFIXES = ["077", "078", "079"] as const;
+/** Jordan mobile prefix for createBranch local phones (079). */
+export const SALES_JORDAN_BRANCH_PHONE_PREFIXES = ["079"] as const;
 
 /** GraphQL country_code for Vienna / Austria recurring-request flows. */
 export const SALES_VIENNA_GRAPHQL_COUNTRY_CODE = "AT";
@@ -142,6 +119,10 @@ export function buildSalesBranchData(input: {
   latitude?: string;
   longitude?: string;
   payment_type?: string;
+  street_name?: string;
+  building_number?: string;
+  apartment?: number;
+  floor?: number;
 }): CreateSalesBranchData {
   return {
     business_client_id: input.business_client_id ?? SALES_APP_EG_BUSINESS_CLIENT_ID,
@@ -151,16 +132,14 @@ export function buildSalesBranchData(input: {
         price: input.price ?? Math.floor(Math.random() * 50) + 1,
       },
     ],
-    latitude: input.latitude ?? SALES_EGYPT_DEFAULT_LATITUDE,
-    longitude: input.longitude ?? SALES_EGYPT_DEFAULT_LONGITUDE,
+    latitude: input.latitude ?? DEFAULT_LAT,
+    longitude: input.longitude ?? DEFAULT_LNG,
     phone: input.phone ?? randomPhoneNumber(),
     payment_type: input.payment_type ?? "CASH",
-    street_name: "Mokattam Street 9",
-    building_number: "12C",
-    apartment: 4,
-    floor: 3,
-    preferred_time: SALES_EGYPT_PREFERRED_TIME,
-    country_code: SALES_EGYPT_GRAPHQL_COUNTRY_CODE,
+    street_name: input.street_name ?? "Test Street",
+    building_number: input.building_number ?? "1",
+    apartment: input.apartment ?? 1,
+    floor: input.floor ?? 1,
   };
 }
 
@@ -175,27 +154,25 @@ export function validBranchVariables(
     phone: string;
     payment_type: string;
     country_code: string;
-    apartment: number;
-    floor: number;
     street_name: string;
     building_number: string;
-    preferred_time: string;
+    apartment: number;
+    floor: number;
   }> = {},
 ): CreateSalesBranchData {
   const {
     collectable_id = 1,
-    price = 10.5,
+    price = 10,
     business_client_id = SALES_CREATE_BRANCH_BUSINESS_CLIENT_ID,
-    latitude = SALES_EGYPT_DEFAULT_LATITUDE,
-    longitude = SALES_EGYPT_DEFAULT_LONGITUDE,
+    latitude = DEFAULT_LAT,
+    longitude = DEFAULT_LNG,
     phone = randomPhoneNumber(),
     payment_type = "CASH",
-    country_code = SALES_EGYPT_GRAPHQL_COUNTRY_CODE,
-    apartment = 4,
-    floor = 3,
-    street_name = "Mokattam Street 9",
-    building_number = "12C",
-    preferred_time = SALES_EGYPT_PREFERRED_TIME,
+    country_code,
+    street_name = "Test Street",
+    building_number = "1",
+    apartment = 1,
+    floor = 1,
   } = overrides;
 
   return {
@@ -209,8 +186,7 @@ export function validBranchVariables(
     building_number,
     apartment,
     floor,
-    preferred_time,
-    country_code,
+    ...(country_code ? { country_code } : {}),
   };
 }
 
@@ -258,7 +234,7 @@ export function validJordanBranchVariables(
     price: 10,
     latitude: SALES_JORDAN_DEFAULT_LATITUDE,
     longitude: SALES_JORDAN_DEFAULT_LONGITUDE,
-    phone: randomJordanPhoneNumber(),
+    phone: randomJordanBranchPhoneNumber(),
     country_code: SALES_JORDAN_GRAPHQL_COUNTRY_CODE,
     ...overrides,
   });
@@ -283,35 +259,38 @@ export function randomSaudiPhoneNumber(): string {
   return "+966" + prefix + subscriberNumber;
 }
 
-/** Random Saudi local mobile for createBranch: e.g. 551234563 (50–59 + 7 digits, no +966). */
+/** Random Saudi local mobile: e.g. 501234567 (+966 stripped, not 050…). */
 export function randomSaudiLocalPhoneNumber(): string {
+  return randomSaudiPhoneNumber().replace(/^\+966/, "");
+}
+
+/** Random Saudi mobile for createBranch: 05X + 7 digits (e.g. 0551234567), no +966. */
+export function randomSaudiBranchPhoneNumber(): string {
+  return `0${randomSaudiLocalPhoneNumber()}`;
+}
+
+/** Random Jordan mobile for createTrader: 79 + 7 digits (e.g. 791234567). */
+export function randomJordanPhoneNumber(): string {
   const prefix =
-    SALES_SAUDI_PHONE_PREFIXES[Math.floor(Math.random() * SALES_SAUDI_PHONE_PREFIXES.length)];
+    SALES_JORDAN_PHONE_PREFIXES[Math.floor(Math.random() * SALES_JORDAN_PHONE_PREFIXES.length)];
   const subscriberNumber = Math.floor(1000000 + Math.random() * 9000000).toString();
   return prefix + subscriberNumber;
 }
 
-/** Random Jordan mobile for createTrader: 79 + 7 digits (e.g. 790007788). */
-export function randomJordanPhoneNumber(): string {
-  const prefix = SALES_JORDAN_PHONE_PREFIXES[0];
-  const subscriberNumber = Math.floor(Math.random() * 10_000_000)
-    .toString()
-    .padStart(7, "0");
-  return `${prefix}${subscriberNumber}`;
-}
-
-/** Random Jordan mobile for createBranch: +962 + 077|078|079 + 6 digits. */
+/** Random Jordan mobile for createBranch: 079 + 7 digits (e.g. 0791234567), no +962. */
 export function randomJordanBranchPhoneNumber(): string {
   const prefix =
     SALES_JORDAN_BRANCH_PHONE_PREFIXES[
       Math.floor(Math.random() * SALES_JORDAN_BRANCH_PHONE_PREFIXES.length)
     ];
-  const subscriberNumber = Math.floor(100000 + Math.random() * 900000).toString();
-  return "+962" + prefix + subscriberNumber;
+  const subscriberNumber = Math.floor(Math.random() * 1e7)
+    .toString()
+    .padStart(7, "0");
+  return prefix + subscriberNumber;
 }
 
-function pad2(value: number): string {
-  return String(value).padStart(2, "0");
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
 }
 
 function localNow(d = new Date()) {
@@ -342,7 +321,7 @@ export function nowCollectionTime(): string {
   return `${hh}:${mi}`;
 }
 
-/** Today at the current run time so the date stays today and is not treated as past. */
+/** Today at the current run time (not midnight). */
 export function todayEveningCollectionDate(): string {
   return nowCollectionDateTime();
 }
@@ -408,7 +387,7 @@ export function validSaudiTraderVariables(
 ) {
   return {
     name: randomTraderName(),
-    phone: randomSaudiPhoneNumber(),
+    phone: randomSaudiLocalPhoneNumber(),
     vehicle_id: "2",
     latitude: SALES_SAUDI_DEFAULT_LATITUDE,
     longitude: SALES_SAUDI_DEFAULT_LONGITUDE,
@@ -462,7 +441,7 @@ export function validTraderRequestVariables(
     measure_id: 2,
     count: 10,
     price: 10.12,
-    collection_date: nowCollectionDateTime(),
+    collection_date: futureCollectionDate(),
     ...overrides,
   };
 }
@@ -546,28 +525,33 @@ export function validBusinessRequestVariables(
     measure_id: 2,
     count: 10,
     price: 10,
-    collection_date: todayCollectionDate(),
-    collection_time: nowCollectionTime(),
+    collection_date: futureCollectionDate(1),
+    collection_time: "10:00",
     ...overrides,
   };
 }
 
-export const BUSINESS_REQUEST_BATCH_COUNT = 10;
-
-/**
- * Ten createBusinessRequestSuperApp payloads for today, collection times 08:00–17:00.
- */
-export function validBusinessRequestBatchVariables(
+/** Valid CreateBusinessRequestSuperApp defaults for Sales Saudi. */
+export function validSaudiBusinessRequestVariables(
   branchId: string,
-  count = BUSINESS_REQUEST_BATCH_COUNT,
-): CreateBusinessRequestSuperAppData[] {
-  const today = todayCollectionDate();
-  return Array.from({ length: count }, (_, index) => {
-    const collectionTime = `${String(8 + index).padStart(2, "0")}:00`;
-    return validBusinessRequestVariables(branchId, {
-      collection_date: today,
-      collection_time: collectionTime,
-    });
+  overrides: Partial<CreateBusinessRequestSuperAppData> = {},
+): CreateBusinessRequestSuperAppData {
+  return validBusinessRequestVariables(branchId, {
+    collectable_id: SALES_SAUDI_COLLECTABLE_ID,
+    measure_id: SALES_SAUDI_MEASURE_ID,
+    ...overrides,
+  });
+}
+
+/** Valid CreateBusinessRequestSuperApp defaults for Sales Jordan. */
+export function validJordanBusinessRequestVariables(
+  branchId: string,
+  overrides: Partial<CreateBusinessRequestSuperAppData> = {},
+): CreateBusinessRequestSuperAppData {
+  return validBusinessRequestVariables(branchId, {
+    collectable_id: SALES_JORDAN_COLLECTABLE_ID,
+    measure_id: SALES_JORDAN_MEASURE_ID,
+    ...overrides,
   });
 }
 
@@ -691,7 +675,7 @@ export const INVALID_BRANCH_COORDINATES = {
   longitude: "500",
 } as const;
 
-/** Today's collection date and current run time used by valid createTraderRequestSalesAgent scenarios. */
+/** Fixed collection date used by valid createTraderRequestSalesAgent scenarios. */
 export const VALID_TRADER_REQUEST_COLLECTION_DATE = nowCollectionDateTime();
 
 /** Expected backend validation message substrings for Sales API negative tests. */

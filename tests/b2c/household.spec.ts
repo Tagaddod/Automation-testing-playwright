@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("Navigate to B2C household page", async ({ page }) => {
+test("Navigate to B2C household page", { tag: ["@all-regression"] }, async ({ page }) => {
   await page.goto("/household");
 
   await expect(page).toHaveURL(/.*household/);

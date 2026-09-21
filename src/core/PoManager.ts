@@ -12,8 +12,6 @@ import { formPage } from "../pages/B2X/formPage";
 import { requestDetailsPage as b2xRequestDetailsPage } from "../pages/B2X/requestDetailsPage";
 import { traderRegistrationSuccessPage } from "../pages/B2X/traderRegistrationSuccessPage";
 import { addressPage } from "../pages/greenpan/addressPage";
-import { bundlePackagePage } from "../pages/greenpan/bundlePackagePage";
-import { giftsPage } from "../pages/greenpan/giftsPage";
 import { greenpanHomePage } from "../pages/greenpan/homePage";
 import { quantityPage } from "../pages/greenpan/quantityPage";
 import { requestSuccessPage } from "../pages/greenpan/requestSuccessPage";
@@ -22,9 +20,7 @@ import { sendRequestPage } from "../pages/greenpan/sendRequestPage";
 export class PoManager {
   private page: Page;
   private greenpanHome?: greenpanHomePage;
-  private greenpanBundlePackage?: bundlePackagePage;
   private greenpanQuantity?: quantityPage;
-  private greenpanGifts?: giftsPage;
   private addressPage?: addressPage;
   private sendRequest?: sendRequestPage;
   private greenpanRequestSuccess?: requestSuccessPage;
@@ -58,21 +54,9 @@ export class PoManager {
     return this.getGreenpanHomePage();
   }
 
-  getGreenpanBundlePackagePage() {
-    if (!this.greenpanBundlePackage) {
-      this.greenpanBundlePackage = new bundlePackagePage(this.page);
-    }
-    return this.greenpanBundlePackage;
-  }
-
   getGreenpanQuantityPage() {
     if (!this.greenpanQuantity) this.greenpanQuantity = new quantityPage(this.page);
     return this.greenpanQuantity;
-  }
-
-  getGreenpanGiftsPage() {
-    if (!this.greenpanGifts) this.greenpanGifts = new giftsPage(this.page);
-    return this.greenpanGifts;
   }
 
   getGreenpanAddressPage() {

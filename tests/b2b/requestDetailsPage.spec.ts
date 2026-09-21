@@ -7,7 +7,6 @@ import {
   calculateNetTotal,
   calculateUsedOilTotal,
   createBranchThenOpenRequest,
-  goToRequestDetailsStep,
   openB2BHome,
   openRequestForBranchWithFp,
   readFreshProductUnitPrice,
@@ -28,7 +27,7 @@ test.describe("B2B request details page", () => {
 
   test(
     "request details page fields are visible",
-    { tag: ["@b2b", "@smoke", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async () => {
       await openRequestForBranchWithFp(po);
       await po.getB2BRequestMaterialsPage().completeBothMaterialsStep(quantity);
@@ -38,7 +37,7 @@ test.describe("B2B request details page", () => {
 
   test(
     "collectables only shows amount paid to customer",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async () => {
       await createBranchThenOpenRequest(po);
       await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
@@ -53,7 +52,7 @@ test.describe("B2B request details page", () => {
 
   test(
     "fresh products only shows amount client will pay",
-    { tag: ["@b2b", "@regression"] },
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
     async () => {
       await createBranchThenOpenRequest(po);
       const unitPrice = await readFreshProductUnitPrice(po);
@@ -70,7 +69,7 @@ test.describe("B2B request details page", () => {
   test(
     "both materials show pay to customer, client pay, and net total",
     {
-      tag: ["@b2b", "@smoke", "@regression", "@e2e"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
       await createBranchThenOpenRequest(po);
@@ -92,10 +91,11 @@ test.describe("B2B request details page", () => {
   test(
     "price summary remains visible after selecting pickup date and time",
     {
-      tag: ["@b2b", "@regression"],
+      tag: ["@all-regression", "@b2b-regression-UI"],
     },
     async () => {
-      await goToRequestDetailsStep(po, testdata.b2b.existingBranchWithFpId, "both", quantity);
+      await createBranchThenOpenRequest(po);
+      await po.getB2BRequestMaterialsPage().completeBothMaterialsStep(quantity);
       const details = po.getB2BRequestDetailsPage();
 
       await details.fillPickupDate();
@@ -107,9 +107,13 @@ test.describe("B2B request details page", () => {
     },
   );
 
-  test("submit request shows success confirmation", { tag: ["@b2b", "@e2e"] }, async () => {
-    await createBranchThenOpenRequest(po);
-    await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
-    await po.getB2BRequestDetailsPage().completeRequestDetailsStep();
-  });
+  test(
+    "submit request shows success confirmation",
+    { tag: ["@all-regression", "@b2b-regression-UI"] },
+    async () => {
+      await createBranchThenOpenRequest(po);
+      await po.getB2BRequestMaterialsPage().completeUsedOilOnlyStep(quantity);
+      await po.getB2BRequestDetailsPage().completeRequestDetailsStep();
+    },
+  );
 });

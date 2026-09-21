@@ -13,6 +13,13 @@ export const ENV = {
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || "",
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || "",
 
+  /** B2C Customer App API (phone login) */
+  CUSTOMER_APP_PHONE: process.env.CUSTOMER_APP_PHONE || "",
+  CUSTOMER_APP_PASSWORD: process.env.CUSTOMER_APP_PASSWORD || "",
+  /** Optional ISO code, e.g. EG. Omitted when empty. */
+  CUSTOMER_APP_COUNTRY_CODE:
+    process.env.CUSTOMER_APP_GRAPHQL_COUNTRY_CODE || process.env.CUSTOMER_APP_COUNTRY_CODE || "",
+
   /** Sales App API — Egypt / Sales Agent Egypt (phone login) */
   SALES_APP_EG_PHONE: process.env.SALES_APP_EG_PHONE || "",
   SALES_APP_EG_PASSWORD: process.env.SALES_APP_EG_PASSWORD || "",
@@ -71,6 +78,13 @@ export const ENV = {
   get SIBLING_SERVER_API_KEY(): string {
     return (process.env.SIBLING_SERVER_API_KEY || "").trim();
   },
+
+  /**
+   * Collection trip used by warehouse trip-load (scale + quality) tests.
+   * Staging default: B2X collection trip 34312.
+   */
+  WAREHOUSE_TRIP_ID: process.env.WAREHOUSE_TRIP_ID || "34312",
+  WAREHOUSE_CHANNEL_TYPE: process.env.WAREHOUSE_CHANNEL_TYPE || "B2X",
 };
 
 export function hasSiblingServerApiKey(): boolean {

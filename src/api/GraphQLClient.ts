@@ -106,7 +106,8 @@ export class GraphQLClient {
     const requestBody: GraphQLRequestBody = { query, variables };
 
     const response = await this.context.post(URLs.graphql, {
-      data: requestBody,
+      data: { query, variables },
+      timeout: 60_000,
     });
 
     const status = response.status();

@@ -1,5 +1,6 @@
 import { test as base } from "@playwright/test";
 
+import { ENVIRONMENTS } from "../config/environments";
 import { apiLogin } from "../utils/authApi";
 
 type MyFixtures = {
@@ -18,8 +19,9 @@ export const test = base.extend<MyFixtures>({
 
 // 👇 نعمل override للـ context
 test.beforeEach(async ({ context }) => {
+  const env = (process.env.ENV || "staging") as keyof typeof ENVIRONMENTS;
   await context.grantPermissions([], {
-    origin: "https://dev-greenpan.tagaddod.com",
+    origin: ENVIRONMENTS[env].GREENPAN_BASE_URL,
   });
 });
 

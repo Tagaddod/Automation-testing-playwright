@@ -2,17 +2,21 @@ import {
   SIGNED_CONTRACT_STATUS,
   validBranchVariables,
   validBusinessRequestVariables,
+  validJordanBranchVariables,
+  validJordanBusinessRequestVariables,
+  validSaudiBranchVariables,
+  validSaudiBusinessRequestVariables,
   validSignContractVariables,
 } from "../../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
 
-test.describe("SignContractSuperApp", { tag: ["@api", "@b2b", "@valid", "@sign-contract"] }, () => {
+test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ mode: "serial", timeout: 180_000 });
 
   test(
     "Sign Contract SuperApp with Valid data",
-    { tag: ["@b2b sign contract supperapp"] },
+    { tag: ["@all-regression", "@sales-app-regression"] },
     async ({ salesAppEgyptApi }) => {
       const branchVariables = validBranchVariables();
       const branchResponse = await salesAppEgyptApi.sales.createBranch(branchVariables);
@@ -76,6 +80,112 @@ test.describe("SignContractSuperApp", { tag: ["@api", "@b2b", "@valid", "@sign-c
 
       saveApiResponse("businessRequestId", {
         businessRequestId: created!.id,
+      });
+    },
+  );
+
+  test(
+    "Sign Contract SuperApp - Valid Saudi",
+    { tag: ["@all-regression", "@sales-app-regression"] },
+    async ({ salesAppSaudiApi }) => {
+      const branchResponse = await salesAppSaudiApi.sales.createBranch(validSaudiBranchVariables());
+      expect(
+        branchResponse.errors,
+        "Saudi branch creation should succeed without GraphQL errors.",
+      ).toBeUndefined();
+
+      const branchId = branchResponse.data?.createBranch?.id;
+      expect(branchId, "A valid Saudi Branch ID should be returned.").toBeTruthy();
+
+      const signResponse = await salesAppSaudiApi.sales.signContractSuperApp(
+        validSignContractVariables(branchId!),
+      );
+      expect(
+        signResponse.errors,
+        "The Saudi contract should be signed without GraphQL errors.",
+      ).toBeUndefined();
+
+      const signed = signResponse.data?.signContractSuperApp;
+      expect(
+        signed?.id,
+        "The signed Saudi contract should return a valid contract ID.",
+      ).toBeTruthy();
+      expect(
+        signed?.branch_id,
+        "The signed Saudi contract should belong to the created branch.",
+      ).toBe(branchId);
+      expect(signed?.status, "The Saudi contract should have an active status.").toBe(
+        SIGNED_CONTRACT_STATUS,
+      );
+
+      const businessResponse = await salesAppSaudiApi.sales.createBusinessRequestSuperApp(
+        validSaudiBusinessRequestVariables(branchId!),
+      );
+      expect(
+        businessResponse.errors,
+        "createBusinessRequestSuperApp (Saudi) should succeed without GraphQL errors.",
+      ).toBeUndefined();
+      expect(
+        businessResponse.data?.createBusinessRequestSuperApp?.id,
+        "A valid Saudi Business Request ID should be returned.",
+      ).toBeTruthy();
+
+      saveApiResponse("businessRequestIdSaudi", {
+        businessRequestId: businessResponse.data!.createBusinessRequestSuperApp!.id,
+      });
+    },
+  );
+
+  test(
+    "Sign Contract SuperApp - Valid Jordan",
+    { tag: ["@all-regression", "@sales-app-regression"] },
+    async ({ salesAppJordanApi }) => {
+      const branchResponse = await salesAppJordanApi.sales.createBranch(
+        validJordanBranchVariables(),
+      );
+      expect(
+        branchResponse.errors,
+        "Jordan branch creation should succeed without GraphQL errors.",
+      ).toBeUndefined();
+
+      const branchId = branchResponse.data?.createBranch?.id;
+      expect(branchId, "A valid Jordan Branch ID should be returned.").toBeTruthy();
+
+      const signResponse = await salesAppJordanApi.sales.signContractSuperApp(
+        validSignContractVariables(branchId!),
+      );
+      expect(
+        signResponse.errors,
+        "The Jordan contract should be signed without GraphQL errors.",
+      ).toBeUndefined();
+
+      const signed = signResponse.data?.signContractSuperApp;
+      expect(
+        signed?.id,
+        "The signed Jordan contract should return a valid contract ID.",
+      ).toBeTruthy();
+      expect(
+        signed?.branch_id,
+        "The signed Jordan contract should belong to the created branch.",
+      ).toBe(branchId);
+      expect(signed?.status, "The Jordan contract should have an active status.").toBe(
+        SIGNED_CONTRACT_STATUS,
+      );
+
+      const businessResponse = await salesAppJordanApi.sales.createBusinessRequestSuperApp(
+        validJordanBusinessRequestVariables(branchId!),
+      );
+      expect(
+        businessResponse.errors,
+        "createBusinessRequestSuperApp (Jordan) should succeed without GraphQL errors.",
+      ).toBeUndefined();
+      expect(
+        businessResponse.data?.createBusinessRequestSuperApp?.id,
+        "A valid Jordan Business Request ID should be returned.",
+      ).toBeTruthy();
+
+      saveApiResponse("businessRequestIdJordan", {
+        businessRequestId: businessResponse.data!.createBusinessRequestSuperApp!.id,
       });
     },
   );

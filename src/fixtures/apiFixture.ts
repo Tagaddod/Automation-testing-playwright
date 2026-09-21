@@ -11,6 +11,9 @@ type ApiFixtures = {
   /** Admin API client (default) */
   api: ApiManager;
 
+  customerAppToken: string;
+  customerAppApi: ApiManager;
+
   salesAppEgyptApi: ApiManager;
 
   salesAppSaudiToken: string;
@@ -45,6 +48,7 @@ type ApiWorkerFixtures = {
 /**
  * API fixtures:
  * - `api` / `token` → admin EMAIL (backward compatible)
+ * - `customerAppApi` → B2C Customer App phone login
  * - `salesAppEgyptApi` / `salesAppSaudiApi` / `salesAppJordanApi` / `salesAppViennaApi` → Sales App phone login
  * - `collectorAppApi` → Collector App phone login
  *
@@ -66,6 +70,17 @@ export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
 
   api: async ({ token }, use) => {
     const client = await GraphQLClient.create(token);
+    const api = new ApiManager(client);
+    await use(api);
+    await api.dispose();
+  },
+
+  customerAppToken: async ({}, use) => {
+    await use(await getAuthToken("customer-app"));
+  },
+
+  customerAppApi: async ({ customerAppToken }, use) => {
+    const client = await GraphQLClient.create(customerAppToken);
     const api = new ApiManager(client);
     await use(api);
     await api.dispose();

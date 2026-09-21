@@ -20,22 +20,75 @@ export const CREATE_BUSINESS_CLIENT = `
   }
 `;
 
+export const CREATE_BUSINESS_REQUEST_V2 = `
+  mutation CreateBusinessRequestB2bFormV2(
+    $branch_id: ID!
+    $collectables: [CollectableInput!]
+    $fresh_products: [FreshProductInput]
+    $day_const: String
+    $date_time: DateTimeObject
+    $notes: String
+  ) {
+    createBusinessRequestB2bFormV2(
+      branch_id: $branch_id
+      collectables: $collectables
+      fresh_products: $fresh_products
+      day_const: $day_const
+      date_time: $date_time
+      notes: $notes
+    ) {
+      id
+      status
+      collection_date
+      notes
+      net_uco_quantity
+      created_at
+      collection_time
+      currency
+      compensation
+      selling_total
+      net_compensation
+      flow_type
+      requestFreshProducts {
+        id
+        quantity
+        freshProduct {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 export const CREATE_BRANCH = `
-  mutation CreateBranch(
+  mutation CreateBranchB2bForm(
     $business_client_id: ID!
-    $branch_collectables: BranchCollectableInput!
+    $branch_collectables: [BranchCollectableInput!]!
     $latitude: String!
     $longitude: String!
     $phone: String!
     $payment_type: PaymentType!
+    $sell_fresh_products: Boolean!
+    $street_name: String!
+    $building_number: String!
+    $apartment: Int!
+    $floor: Int!
+    $country_code: String
   ) {
-    createBranch(
+    createBranchB2bForm(
       business_client_id: $business_client_id
       branch_collectables: $branch_collectables
       latitude: $latitude
       longitude: $longitude
       phone: $phone
       payment_type: $payment_type
+      sell_fresh_products: $sell_fresh_products
+      street_name: $street_name
+      building_number: $building_number
+      apartment: $apartment
+      floor: $floor
+      country_code: $country_code
     ) {
       id
       name
@@ -44,6 +97,7 @@ export const CREATE_BRANCH = `
       latitude
       longitude
       status
+      sell_fresh_products
     }
   }
 `;
