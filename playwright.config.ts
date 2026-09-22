@@ -88,19 +88,34 @@ export default defineConfig({
       fullyParallel: false,
     },
     {
-      // Warehouse specs only need WAREHOUSE_TRIP_ID — no Sales setup.
       name: "api-warehouse",
       testMatch: /api\/warehouse\/.*\.spec\.ts$/,
       fullyParallel: false,
     },
     {
-      // Webform (admin-token) + any future API spec outside sales/warehouse.
       name: "api-other",
-      testMatch: /api\/(?!sales\/b2x\/|sales\/b2b\/|warehouse\/).*\.spec\.ts$/,
+      testMatch: /api\/(?!sales\/b2x\/|sales\/b2b\/|warehouse\/|collector\/|trips\/).*\.spec\.ts$/,
       fullyParallel: false,
     },
     {
-      // `--project=api` fans out to every API project, so one suite tag can span them.
+      name: "collector-trip",
+      testMatch: "api/trips/createTrips.spec.ts",
+      fullyParallel: false,
+      timeout: 180_000,
+    },
+    {
+      name: "collector",
+      testMatch: "api/collector/collectRequest.spec.ts",
+      fullyParallel: false,
+      timeout: 180_000,
+    },
+    {
+      name: "trips",
+      dependencies: ["api-b2x-request", "api-sales-business-request"],
+      testMatch: "trips/**/*.spec.ts",
+      fullyParallel: false,
+    },
+    {
       name: "api",
       dependencies: [
         "api-b2x",
@@ -110,6 +125,9 @@ export default defineConfig({
         "api-sales-business-request",
         "api-warehouse",
         "api-other",
+        "collector-trip",
+        "collector",
+        "trips",
       ],
       testMatch: /a^/,
     },

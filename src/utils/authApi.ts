@@ -185,12 +185,30 @@ async function loginWithEmail(email: string, password: string, profile: AuthProf
 
 /**
  * Phone login for Sales / Collector apps.
- * Mutation: login(phone, password, type: PHONE[, country_code])
+ * Collector uses Postman loginGap (phone + PHONE, no country_code).
  */
 async function loginWithPhone(
   { phone, password, countryCode }: PhoneCredentials,
   profile: AuthProfile,
 ) {
+  if (profile === "collector-app") {
+    return postLogin(
+      `
+    mutation loginGap {
+      login(
+        phone: "${phone}"
+        password: "${password}"
+        type: PHONE
+      ) {
+        id
+        jwtToken
+      }
+    }
+  `,
+      profile,
+    );
+  }
+
   const countryArg = countryCode ? `, country_code: "${countryCode}"` : "";
   return postLogin(
     `

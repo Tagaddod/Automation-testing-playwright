@@ -2,6 +2,7 @@ import { expect, test as base } from "@playwright/test";
 
 import { ApiManager } from "../api/ApiManager";
 import { GraphQLClient } from "../api/GraphQLClient";
+import { TripService } from "../api/trips/TripService";
 import { getAuthToken } from "../utils/authApi";
 
 type ApiFixtures = {
@@ -26,6 +27,11 @@ type ApiFixtures = {
 
   collectorAppToken: string;
   collectorAppApi: ApiManager;
+
+  /**
+   * create-trips only (sibling-server-api-key). No GraphQL JWT login.
+   */
+  tripsApi: TripService;
 
   /**
    * Auto-attaches the last GraphQL request/response to the HTML report.
@@ -78,6 +84,12 @@ export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
     const api = new ApiManager(client);
     await use(api);
     await api.dispose();
+  },
+
+  tripsApi: async ({}, use) => {
+    const trips = new TripService();
+    await use(trips);
+    await trips.dispose();
   },
 
   salesAppEgyptToken: [

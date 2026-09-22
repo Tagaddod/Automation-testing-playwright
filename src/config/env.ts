@@ -65,9 +65,28 @@ export const ENV = {
   COLLECTABLE_ID: process.env.COLLECTABLE_ID || "",
 
   /**
+   * REST create-trips URL override. Empty means use URLs.createTrips
+   * (per-environment default from environments.ts).
+   */
+  TRIPS_API_URL: process.env.TRIPS_API_URL || "",
+
+  /**
+   * create-trips only (TripService header: sibling-server-api-key).
+   * Not used for GraphQL. Never log this value.
+   * Read from process.env at call time so .env is not snapshotted empty.
+   */
+  get SIBLING_SERVER_API_KEY(): string {
+    return (process.env.SIBLING_SERVER_API_KEY || "").trim();
+  },
+
+  /**
    * Collection trip used by warehouse trip-load (scale + quality) tests.
    * Staging default: B2X collection trip 34312.
    */
   WAREHOUSE_TRIP_ID: process.env.WAREHOUSE_TRIP_ID || "34312",
   WAREHOUSE_CHANNEL_TYPE: process.env.WAREHOUSE_CHANNEL_TYPE || "B2X",
 };
+
+export function hasSiblingServerApiKey(): boolean {
+  return Boolean(ENV.SIBLING_SERVER_API_KEY);
+}
