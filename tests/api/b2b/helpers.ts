@@ -1,5 +1,6 @@
 import type { ApiManager } from "../../../src/api/ApiManager";
 import { buildBranchData, buildBusinessClientData } from "../../../src/api/b2b/testData";
+import { fetchFirstCollectableWithMeasure } from "../../../src/api/collectableHelpers";
 import { Channel, CountryCode } from "../../../src/api/enums";
 import { expect } from "../../../src/fixtures/apiFixture";
 
@@ -29,17 +30,14 @@ export async function createBusinessClient(api: ApiManager): Promise<string> {
 export async function getFirstCollectable(
   api: ApiManager,
   countryCode: CountryCode = CountryCode.EG,
+  channel: Channel.B2B | Channel.B2X = Channel.B2B,
 ): Promise<{ collectableId: string; measureId: string }> {
-  const response = await api.b2b.getCollectables([Channel.B2B], countryCode);
-  expect(response.errors).toBeUndefined();
-
-  const collectable = response.data?.getCollectables?.[0];
-  expect(collectable?.id, "No collectables returned from getCollectables").toBeTruthy();
-
-  const measureId = collectable?.measures?.[0]?.id;
-  expect(measureId, "No measures returned for the first collectable").toBeTruthy();
-
-  return { collectableId: collectable!.id, measureId: measureId! };
+  try {
+    return await fetchFirstCollectableWithMeasure(api, channel, countryCode);
+  } catch (error) {
+    expect(error, String(error)).toBeUndefined();
+    throw error;
+  }
 }
 
 export async function createBranch(

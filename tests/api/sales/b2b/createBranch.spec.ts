@@ -1,3 +1,4 @@
+import { Channel, CountryCode } from "../../../../src/api/enums";
 import {
   SALES_EGYPT_COUNTRY_CODE,
   SALES_JORDAN_COUNTRY_CODE,
@@ -9,6 +10,7 @@ import {
 } from "../../../../src/api/sales/testData";
 import { requireSavedBranchId, saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
+import { getFirstCollectableWithMeasure } from "../helpers";
 
 test.describe("Create Branch", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
@@ -16,8 +18,13 @@ test.describe("Create Branch", { tag: ["@sales-app-regression"] }, () => {
   test(
     "Create Branch with valid data - Valid",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppEgyptApi }) => {
-      const variables = validBranchVariables();
+    async ({ api, salesAppEgyptApi }) => {
+      const { collectableId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.EG,
+      );
+      const variables = validBranchVariables({ collectable_id: collectableId });
 
       const response = await salesAppEgyptApi.sales.createBranch(variables);
 
@@ -58,8 +65,13 @@ test.describe("Create Branch", { tag: ["@sales-app-regression"] }, () => {
   test(
     "Create Branch - Valid Saudi",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppSaudiApi }) => {
-      const variables = validSaudiBranchVariables();
+    async ({ api, salesAppSaudiApi }) => {
+      const { collectableId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.SA,
+      );
+      const variables = validSaudiBranchVariables({ collectable_id: collectableId });
 
       const response = await salesAppSaudiApi.sales.createBranch(variables);
 
@@ -96,8 +108,13 @@ test.describe("Create Branch", { tag: ["@sales-app-regression"] }, () => {
   test(
     "Create Branch - Valid Jordan",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppJordanApi }) => {
-      const variables = validJordanBranchVariables();
+    async ({ api, salesAppJordanApi }) => {
+      const { collectableId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.JO,
+      );
+      const variables = validJordanBranchVariables({ collectable_id: collectableId });
 
       const response = await salesAppJordanApi.sales.createBranch(variables);
 

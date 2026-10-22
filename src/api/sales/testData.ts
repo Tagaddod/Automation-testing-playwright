@@ -46,7 +46,7 @@ export const SALES_SAUDI_DEFAULT_LONGITUDE = "46.67802396464344";
 export const SALES_SAUDI_BRANCH_LATITUDE = "24.718594538080318";
 export const SALES_SAUDI_BRANCH_LONGITUDE = "46.67802396464344";
 
-/** Saudi collectable / measure used by createTrader + createTraderRequest. */
+/** Legacy defaults for negative tests; happy-path Sales specs resolve IDs via getCollectables. */
 export const SALES_SAUDI_COLLECTABLE_ID = 1;
 export const SALES_SAUDI_MEASURE_ID = 3;
 
@@ -60,7 +60,7 @@ export const SALES_JORDAN_GRAPHQL_COUNTRY_CODE = "JO";
 export const SALES_JORDAN_DEFAULT_LATITUDE = "31.9539";
 export const SALES_JORDAN_DEFAULT_LONGITUDE = "35.9106";
 
-/** Jordan collectable / measure used by createTrader + createTraderRequest. */
+/** Legacy defaults for negative tests; happy-path Sales specs resolve IDs via getCollectables. */
 export const SALES_JORDAN_COLLECTABLE_ID = 3;
 export const SALES_JORDAN_MEASURE_ID = 4;
 

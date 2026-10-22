@@ -1,3 +1,4 @@
+import { Channel, CountryCode } from "../../../../src/api/enums";
 import {
   validBranchVariables,
   validBusinessRequestVariables,
@@ -9,6 +10,7 @@ import {
 } from "../../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
+import { getFirstCollectableWithMeasure } from "../helpers";
 
 test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
@@ -23,10 +25,17 @@ test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] 
         "@create-b2b-request-API",
       ],
     },
-    async ({ salesAppEgyptApi }) => {
+    async ({ api, salesAppEgyptApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.EG,
+      );
       // A fresh branch avoids "Branch has already an active request"; the backend
       // also rejects the request unless that branch has a signed contract.
-      const branchResponse = await salesAppEgyptApi.sales.createBranch(validBranchVariables());
+      const branchResponse = await salesAppEgyptApi.sales.createBranch(
+        validBranchVariables({ collectable_id: collectableId }),
+      );
       expect(
         branchResponse.errors,
         "Branch creation should succeed without GraphQL errors.",
@@ -43,7 +52,10 @@ test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] 
         "The contract should be signed without GraphQL errors.",
       ).toBeUndefined();
 
-      const businessRequestVariables = validBusinessRequestVariables(branchId!);
+      const businessRequestVariables = validBusinessRequestVariables(branchId!, {
+        collectable_id: collectableId,
+        measure_id: measureId,
+      });
       const response =
         await salesAppEgyptApi.sales.createBusinessRequestSuperApp(businessRequestVariables);
       expect(
@@ -64,8 +76,15 @@ test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] 
   test(
     "Create Business Request SuperApp - Valid Saudi",
     { tag: ["@all-regression", "@sales-app-regression", "@create-b2b-request"] },
-    async ({ salesAppSaudiApi }) => {
-      const branchResponse = await salesAppSaudiApi.sales.createBranch(validSaudiBranchVariables());
+    async ({ api, salesAppSaudiApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.SA,
+      );
+      const branchResponse = await salesAppSaudiApi.sales.createBranch(
+        validSaudiBranchVariables({ collectable_id: collectableId }),
+      );
       expect(
         branchResponse.errors,
         "Saudi branch creation should succeed without GraphQL errors.",
@@ -83,7 +102,10 @@ test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] 
       ).toBeUndefined();
 
       const response = await salesAppSaudiApi.sales.createBusinessRequestSuperApp(
-        validSaudiBusinessRequestVariables(branchId!),
+        validSaudiBusinessRequestVariables(branchId!, {
+          collectable_id: collectableId,
+          measure_id: measureId,
+        }),
       );
       expect(
         response.errors,
@@ -102,9 +124,14 @@ test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] 
   test(
     "Create Business Request SuperApp - Valid Jordan",
     { tag: ["@all-regression", "@sales-app-regression", "@create-b2b-request"] },
-    async ({ salesAppJordanApi }) => {
+    async ({ api, salesAppJordanApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.JO,
+      );
       const branchResponse = await salesAppJordanApi.sales.createBranch(
-        validJordanBranchVariables(),
+        validJordanBranchVariables({ collectable_id: collectableId }),
       );
       expect(
         branchResponse.errors,
@@ -123,7 +150,10 @@ test.describe("CreateBusinessRequestSuperApp", { tag: ["@sales-app-regression"] 
       ).toBeUndefined();
 
       const response = await salesAppJordanApi.sales.createBusinessRequestSuperApp(
-        validJordanBusinessRequestVariables(branchId!),
+        validJordanBusinessRequestVariables(branchId!, {
+          collectable_id: collectableId,
+          measure_id: measureId,
+        }),
       );
       expect(
         response.errors,

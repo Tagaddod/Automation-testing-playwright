@@ -1,3 +1,4 @@
+import { Channel, CountryCode } from "../../../../src/api/enums";
 import {
   VALID_TRADER_REQUEST_COLLECTION_DATE,
   validJordanTraderRequestVariables,
@@ -9,6 +10,7 @@ import {
 } from "../../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
+import { getFirstCollectableWithMeasure } from "../helpers";
 
 test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ mode: "serial", timeout: 180_000 });
@@ -23,8 +25,13 @@ test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] 
         "@create-b2x-request-API",
       ],
     },
-    async ({ salesAppEgyptApi }) => {
-      const traderVariables = validTraderVariables();
+    async ({ api, salesAppEgyptApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2X,
+        CountryCode.EG,
+      );
+      const traderVariables = validTraderVariables({ collectable_id: collectableId });
       const traderResponse = await salesAppEgyptApi.sales.createTraderSuperApp(traderVariables);
 
       expect(
@@ -36,6 +43,8 @@ test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] 
       expect(traderId, "A valid Trader ID should be returned.").toBeTruthy();
 
       const variables = validTraderRequestVariables(traderId!, {
+        collectable_id: collectableId,
+        measure_id: measureId,
         collection_date: VALID_TRADER_REQUEST_COLLECTION_DATE,
       });
 
@@ -62,8 +71,13 @@ test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] 
   test(
     "CreateTraderRequestSalesAgent - Valid Saudi",
     { tag: ["@all-regression", "@sales-app-regression", "@create-b2x-request"] },
-    async ({ salesAppSaudiApi }) => {
-      const traderVariables = validSaudiTraderVariables();
+    async ({ api, salesAppSaudiApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2X,
+        CountryCode.SA,
+      );
+      const traderVariables = validSaudiTraderVariables({ collectable_id: collectableId });
       const traderResponse = await salesAppSaudiApi.sales.createTraderSuperApp(traderVariables);
 
       expect(
@@ -75,6 +89,8 @@ test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] 
       expect(traderId, "A valid Trader ID should be returned.").toBeTruthy();
 
       const variables = validSaudiTraderRequestVariables(traderId!, {
+        collectable_id: collectableId,
+        measure_id: measureId,
         collection_date: VALID_TRADER_REQUEST_COLLECTION_DATE,
       });
 
@@ -101,8 +117,13 @@ test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] 
   test(
     "CreateTraderRequestSalesAgent - Valid Jordan",
     { tag: ["@all-regression", "@sales-app-regression", "@create-b2x-request"] },
-    async ({ salesAppJordanApi }) => {
-      const traderVariables = validJordanTraderVariables();
+    async ({ api, salesAppJordanApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2X,
+        CountryCode.JO,
+      );
+      const traderVariables = validJordanTraderVariables({ collectable_id: collectableId });
       const traderResponse = await salesAppJordanApi.sales.createTraderSuperApp(traderVariables);
 
       expect(
@@ -114,6 +135,8 @@ test.describe("CreateTraderRequestSalesAgent", { tag: ["@sales-app-regression"] 
       expect(traderId, "A valid Trader ID should be returned.").toBeTruthy();
 
       const variables = validJordanTraderRequestVariables(traderId!, {
+        collectable_id: collectableId,
+        measure_id: measureId,
         collection_date: VALID_TRADER_REQUEST_COLLECTION_DATE,
       });
 
