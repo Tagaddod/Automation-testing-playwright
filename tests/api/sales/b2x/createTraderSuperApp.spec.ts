@@ -1,3 +1,4 @@
+import { Channel, CountryCode } from "../../../../src/api/enums";
 import {
   normalizePhone,
   SALES_EGYPT_COUNTRY_CODE,
@@ -9,6 +10,7 @@ import {
 } from "../../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
+import { getFirstCollectableWithMeasure } from "../helpers";
 
 test.describe("CreateTraderSuperApp", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ timeout: 180_000 });
@@ -16,8 +18,13 @@ test.describe("CreateTraderSuperApp", { tag: ["@sales-app-regression"] }, () => 
   test(
     "CreateTraderSuperApp - Valid",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppEgyptApi }) => {
-      const variables = validTraderVariables();
+    async ({ api, salesAppEgyptApi }) => {
+      const { collectableId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2X,
+        CountryCode.EG,
+      );
+      const variables = validTraderVariables({ collectable_id: collectableId });
 
       const response = await test.step("Create Trader", async () =>
         salesAppEgyptApi.sales.createTraderSuperApp(variables));
@@ -60,8 +67,13 @@ test.describe("CreateTraderSuperApp", { tag: ["@sales-app-regression"] }, () => 
   test(
     "Create Trader SuperApp with Valid Saudi data",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppSaudiApi }) => {
-      const variables = validSaudiTraderVariables();
+    async ({ api, salesAppSaudiApi }) => {
+      const { collectableId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2X,
+        CountryCode.SA,
+      );
+      const variables = validSaudiTraderVariables({ collectable_id: collectableId });
 
       const response = await test.step("Create Trader Saudi", async () =>
         salesAppSaudiApi.sales.createTraderSuperApp(variables));
@@ -104,8 +116,13 @@ test.describe("CreateTraderSuperApp", { tag: ["@sales-app-regression"] }, () => 
   test(
     "Create Trader SuperApp with valid data withValid Jordan data",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppJordanApi }) => {
-      const variables = validJordanTraderVariables();
+    async ({ api, salesAppJordanApi }) => {
+      const { collectableId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2X,
+        CountryCode.JO,
+      );
+      const variables = validJordanTraderVariables({ collectable_id: collectableId });
 
       const response = await test.step("Create Trader Jordan", async () =>
         salesAppJordanApi.sales.createTraderSuperApp(variables));

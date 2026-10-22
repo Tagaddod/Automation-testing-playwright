@@ -1,3 +1,4 @@
+import { Channel, CountryCode } from "../../../../src/api/enums";
 import {
   SIGNED_CONTRACT_STATUS,
   validBranchVariables,
@@ -10,6 +11,7 @@ import {
 } from "../../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../../src/api/saveApiResponse";
 import { expect, test } from "../../../../src/fixtures/apiFixture";
+import { getFirstCollectableWithMeasure } from "../helpers";
 
 test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => {
   test.describe.configure({ mode: "serial", timeout: 180_000 });
@@ -17,8 +19,13 @@ test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => 
   test(
     "Sign Contract SuperApp with Valid data",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppEgyptApi }) => {
-      const branchVariables = validBranchVariables();
+    async ({ api, salesAppEgyptApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.EG,
+      );
+      const branchVariables = validBranchVariables({ collectable_id: collectableId });
       const branchResponse = await salesAppEgyptApi.sales.createBranch(branchVariables);
 
       expect(
@@ -59,7 +66,10 @@ test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => 
         "The signed contract should include a signature_path.",
       ).toBeTruthy();
 
-      const businessRequestVariables = validBusinessRequestVariables(branchId!);
+      const businessRequestVariables = validBusinessRequestVariables(branchId!, {
+        collectable_id: collectableId,
+        measure_id: measureId,
+      });
       expect(
         businessRequestVariables.branch_id,
         "Business request must use the same created Branch ID.",
@@ -87,8 +97,15 @@ test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => 
   test(
     "Sign Contract SuperApp - Valid Saudi",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppSaudiApi }) => {
-      const branchResponse = await salesAppSaudiApi.sales.createBranch(validSaudiBranchVariables());
+    async ({ api, salesAppSaudiApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.SA,
+      );
+      const branchResponse = await salesAppSaudiApi.sales.createBranch(
+        validSaudiBranchVariables({ collectable_id: collectableId }),
+      );
       expect(
         branchResponse.errors,
         "Saudi branch creation should succeed without GraphQL errors.",
@@ -119,7 +136,10 @@ test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => 
       );
 
       const businessResponse = await salesAppSaudiApi.sales.createBusinessRequestSuperApp(
-        validSaudiBusinessRequestVariables(branchId!),
+        validSaudiBusinessRequestVariables(branchId!, {
+          collectable_id: collectableId,
+          measure_id: measureId,
+        }),
       );
       expect(
         businessResponse.errors,
@@ -139,9 +159,14 @@ test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => 
   test(
     "Sign Contract SuperApp - Valid Jordan",
     { tag: ["@all-regression", "@sales-app-regression"] },
-    async ({ salesAppJordanApi }) => {
+    async ({ api, salesAppJordanApi }) => {
+      const { collectableId, measureId } = await getFirstCollectableWithMeasure(
+        api,
+        Channel.B2B,
+        CountryCode.JO,
+      );
       const branchResponse = await salesAppJordanApi.sales.createBranch(
-        validJordanBranchVariables(),
+        validJordanBranchVariables({ collectable_id: collectableId }),
       );
       expect(
         branchResponse.errors,
@@ -173,7 +198,10 @@ test.describe("SignContractSuperApp", { tag: ["@sales-app-regression"] }, () => 
       );
 
       const businessResponse = await salesAppJordanApi.sales.createBusinessRequestSuperApp(
-        validJordanBusinessRequestVariables(branchId!),
+        validJordanBusinessRequestVariables(branchId!, {
+          collectable_id: collectableId,
+          measure_id: measureId,
+        }),
       );
       expect(
         businessResponse.errors,

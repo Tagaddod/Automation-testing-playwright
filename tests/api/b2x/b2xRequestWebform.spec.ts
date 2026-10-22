@@ -1,4 +1,3 @@
-import type { ApiManager } from "../../../src/api/ApiManager";
 import {
   buildJordanTraderData,
   buildSaudiTraderData,
@@ -8,28 +7,7 @@ import {
 import { Channel, CountryCode } from "../../../src/api/enums";
 import { saveApiResponse } from "../../../src/api/saveApiResponse";
 import { expect, test } from "../../../src/fixtures/apiFixture";
-
-async function getFirstCollectable(
-  api: ApiManager,
-  countryCode: CountryCode = CountryCode.EG,
-): Promise<{ collectableId: string; measureId: string }> {
-  const response = await api.b2x.getCollectables([Channel.B2X], countryCode);
-  expect(
-    response.errors,
-    `getCollectables (${countryCode}) returned errors: ${JSON.stringify(response.errors)}`,
-  ).toBeUndefined();
-
-  const first = response.data?.getCollectables?.[0];
-  const collectableId = first?.id;
-  const measureId = first?.measures?.[0]?.id;
-  expect(
-    collectableId,
-    `No ${countryCode} collectables returned from getCollectables`,
-  ).toBeTruthy();
-  expect(measureId, `First ${countryCode} collectable has no measures`).toBeTruthy();
-
-  return { collectableId: collectableId!, measureId: measureId! };
-}
+import { getFirstCollectable } from "../b2b/helpers";
 
 test.describe("B2X GraphQL API", { tag: ["@webform-API-regression"] }, () => {
   test(
@@ -60,7 +38,7 @@ test.describe("B2X GraphQL API", { tag: ["@webform-API-regression"] }, () => {
     "create trader with Saudi phone and coordinates",
     { tag: ["@all-regression", "@webform-API-regression"] },
     async ({ api }) => {
-      const { collectableId } = await getFirstCollectable(api, CountryCode.SA);
+      const { collectableId } = await getFirstCollectable(api, CountryCode.SA, Channel.B2X);
       const data = buildSaudiTraderData({ collectables: [collectableId] });
       const response = await api.b2x.createTrader(data);
 
@@ -83,7 +61,7 @@ test.describe("B2X GraphQL API", { tag: ["@webform-API-regression"] }, () => {
     "create trader with Jordan phone and coordinates",
     { tag: ["@all-regression", "@webform-API-regression"] },
     async ({ api }) => {
-      const { collectableId } = await getFirstCollectable(api, CountryCode.JO);
+      const { collectableId } = await getFirstCollectable(api, CountryCode.JO, Channel.B2X);
       const data = buildJordanTraderData({ collectables: [collectableId] });
       const response = await api.b2x.createTrader(data);
 
@@ -150,16 +128,11 @@ test.describe("B2X GraphQL API", { tag: ["@webform-API-regression"] }, () => {
       const traderId = traderResponse.data?.createTrader?.id;
       expect(traderId, "No trader id returned from createTrader").toBeTruthy();
 
-      const collectablesResponse = await api.b2x.getCollectables();
-      expect(
-        collectablesResponse.errors,
-        `getCollectables returned errors: ${JSON.stringify(collectablesResponse.errors)}`,
-      ).toBeUndefined();
-      const firstCollectable = collectablesResponse.data?.getCollectables?.[0];
-      const collectableId = firstCollectable?.id;
-      const measureId = firstCollectable?.measures?.[0]?.id;
-      expect(collectableId, "No collectables returned from getCollectables").toBeTruthy();
-      expect(measureId, "First collectable has no measures").toBeTruthy();
+      const { collectableId, measureId } = await getFirstCollectable(
+        api,
+        CountryCode.EG,
+        Channel.B2X,
+      );
 
       const createdIds: string[] = [];
       const today = "2026-08-20 00:00:00";
@@ -201,7 +174,11 @@ test.describe("B2X GraphQL API", { tag: ["@webform-API-regression"] }, () => {
     "create trader request webform with Saudi trader",
     { tag: ["@all-regression", "@webform-API-regression", "@create-b2x-request"] },
     async ({ api }) => {
-      const { collectableId, measureId } = await getFirstCollectable(api, CountryCode.SA);
+      const { collectableId, measureId } = await getFirstCollectable(
+        api,
+        CountryCode.SA,
+        Channel.B2X,
+      );
       const traderData = buildSaudiTraderData({ collectables: [collectableId] });
       const traderResponse = await api.b2x.createTrader(traderData);
       expect(
@@ -233,7 +210,11 @@ test.describe("B2X GraphQL API", { tag: ["@webform-API-regression"] }, () => {
     "create trader request webform with Jordan trader",
     { tag: ["@all-regression", "@webform-API-regression", "@create-b2x-request"] },
     async ({ api }) => {
-      const { collectableId, measureId } = await getFirstCollectable(api, CountryCode.JO);
+      const { collectableId, measureId } = await getFirstCollectable(
+        api,
+        CountryCode.JO,
+        Channel.B2X,
+      );
       const traderData = buildJordanTraderData({ collectables: [collectableId] });
       const traderResponse = await api.b2x.createTrader(traderData);
       expect(
