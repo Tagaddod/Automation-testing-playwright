@@ -15,6 +15,9 @@ export function getApiResponsePath(name: string): string {
 
 export const BRANCH_ID_PATH = getApiResponsePath("branchId");
 export const TRADER_ID_PATH = getApiResponsePath("traderId");
+export const REQUEST_ID_PATH = getApiResponsePath("requestId");
+export const BUSINESS_REQUEST_ID_PATH = getApiResponsePath("businessRequestId");
+export const TRIP_ID_PATH = getApiResponsePath("tripId");
 
 /** Save an API response JSON under playwright/api-responses/<name>.json */
 export function saveApiResponse(name: string, payload: unknown): string {
@@ -101,4 +104,74 @@ export function requireSavedTraderWithPhone(): { traderId: string; phone: string
     throw new Error("A saved trader phone is required.");
   }
   return { traderId: saved.traderId, phone: saved.phone };
+}
+
+export type SavedRequestIdPayload = {
+  requestId?: string;
+};
+
+export type SavedBusinessRequestIdPayload = {
+  businessRequestId?: string;
+  businessRequestIds?: string[];
+};
+
+/** Read requestId.json saved by createTraderRequestSalesAgent. */
+export function readSavedRequestPayload(): SavedRequestIdPayload {
+  if (!existsSync(REQUEST_ID_PATH)) {
+    throw new Error(
+      "requestId.json should exist from the valid createTraderRequestSalesAgent test.",
+    );
+  }
+  return JSON.parse(readFileSync(REQUEST_ID_PATH, "utf-8")) as SavedRequestIdPayload;
+}
+
+/** Require a non-empty Trader Request ID from requestId.json. */
+export function requireSavedRequestId(): string {
+  const saved = readSavedRequestPayload();
+  if (!saved.requestId) {
+    throw new Error("A saved Trader Request ID is required.");
+  }
+  return saved.requestId;
+}
+
+/** Read businessRequestId.json saved by createBusinessRequestSuperApp. */
+export function readSavedBusinessRequestPayload(): SavedBusinessRequestIdPayload {
+  if (!existsSync(BUSINESS_REQUEST_ID_PATH)) {
+    throw new Error(
+      "businessRequestId.json should exist from the valid createBusinessRequestSuperApp test.",
+    );
+  }
+  return JSON.parse(
+    readFileSync(BUSINESS_REQUEST_ID_PATH, "utf-8"),
+  ) as SavedBusinessRequestIdPayload;
+}
+
+/** Require a non-empty Business Request ID from businessRequestId.json. */
+export function requireSavedBusinessRequestId(): string {
+  const saved = readSavedBusinessRequestPayload();
+  if (!saved.businessRequestId) {
+    throw new Error("A saved Business Request ID is required.");
+  }
+  return saved.businessRequestId;
+}
+
+export type SavedTripIdPayload = {
+  tripId?: string;
+};
+
+/** Read tripId.json saved by Create Trip. */
+export function readSavedTripPayload(): SavedTripIdPayload {
+  if (!existsSync(TRIP_ID_PATH)) {
+    throw new Error("Saved Trip ID is required. Run the trip creation flow first.");
+  }
+  return JSON.parse(readFileSync(TRIP_ID_PATH, "utf-8")) as SavedTripIdPayload;
+}
+
+/** Require a non-empty Trip ID from tripId.json. */
+export function requireSavedTripId(): string {
+  const saved = readSavedTripPayload();
+  if (!saved.tripId) {
+    throw new Error("Saved Trip ID is required. Run the trip creation flow first.");
+  }
+  return saved.tripId;
 }
