@@ -7,7 +7,6 @@ export class createBusinessClientPage {
   readonly stepLabel: Locator;
   readonly pageHeading: Locator;
   readonly clientSearchInput: Locator;
-  readonly addNewClientButton: Locator;
   readonly englishNameInput: Locator;
   readonly businessTypeSelector: Locator;
   readonly nextButton: Locator;
@@ -20,7 +19,6 @@ export class createBusinessClientPage {
     this.stepLabel = page.getByText("خطوه 1 / 2");
     this.pageHeading = page.getByRole("heading", { name: "اختر العميل" });
     this.clientSearchInput = page.locator("#nameAR");
-    this.addNewClientButton = page.locator('span:has-text("إضافة عميل جديد")');
     this.englishNameInput = page.locator("#nameEN");
     this.businessTypeSelector = page.locator(
       ".ant-form-item:has(#brandTypeId) .ant-select-selector",
@@ -53,9 +51,34 @@ export class createBusinessClientPage {
     await expect(this.businessTypeSelector).toBeVisible();
   }
 
+  private clientSearchDropdown(): Locator {
+    return this.page.locator("div.ant-select-dropdown:not(.ant-select-dropdown-hidden)").last();
+  }
+
   async addNewClient(branchName: string) {
-    await this.clientSearchInput.fill(branchName);
-    await this.addNewClientButton.click();
+    const dropdown = this.clientSearchDropdown();
+    const addOption = dropdown.getByText("إضافة عميل جديد", { exact: true });
+    const spinner = dropdown.locator(".ant-spin-spinning, .ant-select-item-option-loading");
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.clientSearchInput.click();
+      await this.clientSearchInput.fill("");
+      await this.clientSearchInput.pressSequentially(branchName, { delay: 30 });
+      await expect(dropdown).toBeVisible({ timeout: 15_000 });
+      await expect(spinner)
+        .toHaveCount(0, { timeout: 20_000 })
+        .catch(() => undefined);
+
+      if (await addOption.isVisible().catch(() => false)) {
+        await addOption.click();
+        await expect(this.englishNameInput).toBeVisible({ timeout: 15_000 });
+        await this.englishNameInput.click();
+        return;
+      }
+    }
+
+    await expect(addOption).toBeVisible({ timeout: 15_000 });
+    await addOption.click();
     await expect(this.englishNameInput).toBeVisible({ timeout: 15_000 });
     await this.englishNameInput.click();
   }
@@ -112,24 +135,42 @@ export class createBusinessClientPage {
   }
 
   async selectExistingClient(businessName: string) {
-    await this.clientSearchInput.click();
-    await this.clientSearchInput.fill("");
-    await this.clientSearchInput.pressSequentially(businessName, { delay: 40 });
-    await expect(this.clientSearchInput).toHaveValue(businessName, { timeout: 10_000 });
-
-    const option = this.page
+    const dropdown = this.page
       .locator("div.ant-select-dropdown:not(.ant-select-dropdown-hidden)")
-      .last()
-      .locator(".ant-select-item-option")
-      .filter({ hasText: businessName })
-      .first();
-    await expect(option).toBeVisible({ timeout: 20_000 });
-    await option.click({ force: true });
-    await expect(this.clientSearchInput).toHaveValue(businessName, { timeout: 10_000 });
+      .last();
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.clientSearchInput.click();
+      await this.clientSearchInput.fill("");
+      await this.clientSearchInput.pressSequentially(businessName, { delay: 40 });
+
+      const option = dropdown
+        .locator(".ant-select-item-option")
+        .filter({ hasText: businessName })
+        .first();
+      await expect(option).toBeVisible({ timeout: 20_000 });
+      await option.dispatchEvent("mousedown");
+      await option.click({ force: true });
+
+      const closed = await expect(dropdown)
+        .toBeHidden({ timeout: 5_000 })
+        .then(() => true)
+        .catch(() => false);
+      if (!closed) continue;
+
+      await expect(this.clientSearchInput).toHaveValue(businessName, { timeout: 5_000 });
+      await expect(this.clientNameErrorMessage).toBeHidden({ timeout: 5_000 });
+      return;
+    }
+
     await expect(this.clientNameErrorMessage).toBeHidden({ timeout: 10_000 });
+    await expect(this.clientSearchInput).toHaveValue(businessName);
   }
 
   async clickNext() {
+    const phone = this.page.locator("#primaryPhoneNumber");
+    if (await phone.isVisible().catch(() => false)) return;
+
     const submitNext = this.page.locator('[tag-test-id="business-client-form-submit-button"]');
     await expect(submitNext).toBeEnabled({ timeout: 15_000 });
     await submitNext.click();
@@ -142,7 +183,11 @@ export class createBusinessClientPage {
     await this.selectBusinessType();
     await expect(this.clientNameErrorMessage).toBeHidden({ timeout: 5_000 });
     await this.clickNext();
-    await expect(this.page.locator("#primaryPhoneNumber")).toBeVisible({ timeout: 30_000 });
+    const phone = this.page.locator("#primaryPhoneNumber");
+    if (!(await phone.isVisible({ timeout: 15_000 }).catch(() => false))) {
+      await this.clickNext();
+    }
+    await expect(phone).toBeVisible({ timeout: 30_000 });
   }
 
   async assertEnglishNameRequired() {
@@ -155,6 +200,15 @@ export class createBusinessClientPage {
     await this.assertPageVisible();
     await this.selectExistingClient(clientName);
     await this.clickNext();
-    await expect(this.page.locator("#primaryPhoneNumber")).toBeVisible({ timeout: 30_000 });
+    const phone = this.page.locator("#primaryPhoneNumber");
+    const reachedBranchForm = await expect(phone)
+      .toBeVisible({ timeout: 15_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!reachedBranchForm && (await this.clientNameErrorMessage.isVisible().catch(() => false))) {
+      await this.selectExistingClient(clientName);
+      await this.clickNext();
+    }
+    await expect(phone).toBeVisible({ timeout: 30_000 });
   }
 }

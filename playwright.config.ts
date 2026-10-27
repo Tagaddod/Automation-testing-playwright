@@ -33,6 +33,7 @@ export default defineConfig({
       dependencies: ["setup"],
       testMatch: /\/tests\/b2b\/.*\.spec\.ts$/,
       fullyParallel: false,
+      workers: 1,
       timeout: 180_000,
       use: {
         storageState: "playwright/.auth/user.json",

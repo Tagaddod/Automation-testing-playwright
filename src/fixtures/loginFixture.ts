@@ -10,9 +10,9 @@ type MyFixtures = {
 export const test = base.extend<MyFixtures>({
   // ✅ token fixture
   token: async ({}, use) => {
-    // B2B/B2X UI is the Sales Agent app. Staging rejects ADMIN_EMAIL (433),
-    // so setup uses the working Sales Egypt phone login.
-    const { token } = await apiLogin("sales-app-egypt");
+    // createBranchB2bForm is Gap-guarded and rejects the Sales Egypt phone user (427).
+    // Admin email login opens the B2B/B2X webform and can create branches.
+    const { token } = await apiLogin("admin");
     await use(token);
   },
 });

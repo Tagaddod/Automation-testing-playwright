@@ -210,6 +210,12 @@ export class branchFormPage {
 
   async setWasteTypeChecked(label: string, checked: boolean) {
     const wrapper = this.wasteTypeCheckbox(label);
+    const emptyForCountry = this.page.getByText("لا يوجد نوع مخلفات متاح لهذه الدولة");
+    if (await emptyForCountry.isVisible().catch(() => false)) {
+      await this.fillCountryCode();
+      await expect(emptyForCountry).toBeHidden({ timeout: 20_000 });
+    }
+    await expect(wrapper).toBeVisible({ timeout: 20_000 });
     await wrapper.scrollIntoViewIfNeeded();
     const checkbox = wrapper.locator('input[type="checkbox"]');
     const isChecked = await checkbox.isChecked();
@@ -267,14 +273,21 @@ export class branchFormPage {
 
   async submit(options: { waitForSuccess?: boolean } = {}) {
     const { waitForSuccess = false } = options;
+    const successHeading = this.page.getByRole("heading", {
+      name: testdata.b2b.confirmation.successHeading,
+    });
+    await this.page.keyboard.press("Escape").catch(() => undefined);
     await this.addBranchButton.scrollIntoViewIfNeeded();
     await this.addBranchButton.click();
-    if (waitForSuccess) {
-      await expect(
-        this.page.getByRole("heading", { name: testdata.b2b.confirmation.successHeading }),
-      ).toBeVisible({
-        timeout: 60_000,
-      });
+    if (!waitForSuccess) return;
+
+    const appeared = await successHeading
+      .waitFor({ state: "visible", timeout: 20_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!appeared && (await this.addBranchButton.isVisible())) {
+      await this.addBranchButton.click();
     }
+    await expect(successHeading).toBeVisible({ timeout: 60_000 });
   }
 }

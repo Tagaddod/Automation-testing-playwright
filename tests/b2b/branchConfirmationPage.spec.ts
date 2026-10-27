@@ -42,7 +42,11 @@ test.describe("B2B branch confirmation page", () => {
       await completeB2BCreateNewBranchFlow(po, data);
       await po.getB2BBranchConfirmationPage().clickRegisterBusinessRequest();
       await selectBranchForExistingClientRequest(po, data.branchName);
-      await po.getB2BRequestMaterialsPage().assertPageVisible();
+      const materials = po.getB2BRequestMaterialsPage();
+      if (await materials.createRequestButton.isVisible({ timeout: 5_000 }).catch(() => false)) {
+        await materials.clickCreateRequestButton();
+      }
+      await materials.assertPageVisible();
     },
   );
 });
