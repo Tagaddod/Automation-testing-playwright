@@ -16,6 +16,7 @@ const AUTH_STATE_PATH = "playwright/.auth/user.json";
 setup("authenticate B2B and save storage state", async ({ page, token }) => {
   mkdirSync(dirname(AUTH_STATE_PATH), { recursive: true });
   saveAuthToken(token);
+  saveAuthToken(token, "sales-app-egypt");
 
   await gotoAuthTokenPage(page, `${URLs.b2b.auth}${token}`);
   await page.context().storageState({ path: AUTH_STATE_PATH });

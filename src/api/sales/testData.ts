@@ -209,7 +209,7 @@ export function validSaudiBranchVariables(
     price: 10,
     latitude: SALES_SAUDI_BRANCH_LATITUDE,
     longitude: SALES_SAUDI_BRANCH_LONGITUDE,
-    phone: randomSaudiBranchPhoneNumber(),
+    phone: randomSaudiLocalPhoneNumber(),
     country_code: SALES_SAUDI_GRAPHQL_COUNTRY_CODE,
     ...overrides,
   });
@@ -259,14 +259,9 @@ export function randomSaudiPhoneNumber(): string {
   return "+966" + prefix + subscriberNumber;
 }
 
-/** Random Saudi local mobile for createTrader: e.g. 501234567 (50 + 7 digits, no +966). */
+/** Random Saudi local mobile: e.g. 501234567 (+966 stripped, not 050…). */
 export function randomSaudiLocalPhoneNumber(): string {
-  const prefix =
-    SALES_SAUDI_PHONE_PREFIXES[Math.floor(Math.random() * SALES_SAUDI_PHONE_PREFIXES.length)];
-  const subscriberNumber = Math.floor(Math.random() * 1e7)
-    .toString()
-    .padStart(7, "0");
-  return prefix + subscriberNumber;
+  return randomSaudiPhoneNumber().replace(/^\+966/, "");
 }
 
 /** Random Saudi mobile for createBranch: 05X + 7 digits (e.g. 0551234567), no +966. */
@@ -292,6 +287,43 @@ export function randomJordanBranchPhoneNumber(): string {
     .toString()
     .padStart(7, "0");
   return prefix + subscriberNumber;
+}
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function localNow(d = new Date()) {
+  return {
+    yyyy: d.getFullYear(),
+    mm: pad2(d.getMonth() + 1),
+    dd: pad2(d.getDate()),
+    hh: pad2(d.getHours()),
+    mi: pad2(d.getMinutes()),
+    ss: pad2(d.getSeconds()),
+  };
+}
+
+/** Today as `YYYY-MM-DD 00:00:00` (local). */
+export function todayCollectionDate(): string {
+  return futureCollectionDate(0);
+}
+
+/** Current local date and time as `YYYY-MM-DD HH:mm:ss`. */
+export function nowCollectionDateTime(): string {
+  const { yyyy, mm, dd, hh, mi, ss } = localNow();
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+/** Current local time as `HH:mm` for business-request collection_time. */
+export function nowCollectionTime(): string {
+  const { hh, mi } = localNow();
+  return `${hh}:${mi}`;
+}
+
+/** Today at the current run time (not midnight). */
+export function todayEveningCollectionDate(): string {
+  return nowCollectionDateTime();
 }
 
 /** Tomorrow as `YYYY-MM-DD 00:00:00` (local). */
@@ -644,7 +676,7 @@ export const INVALID_BRANCH_COORDINATES = {
 } as const;
 
 /** Fixed collection date used by valid createTraderRequestSalesAgent scenarios. */
-export const VALID_TRADER_REQUEST_COLLECTION_DATE = "2026-11-20 00:00:00";
+export const VALID_TRADER_REQUEST_COLLECTION_DATE = nowCollectionDateTime();
 
 /** Expected backend validation message substrings for Sales API negative tests. */
 export const EXPECTED_ERRORS = {
