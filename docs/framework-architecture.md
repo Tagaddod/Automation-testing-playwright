@@ -22,7 +22,9 @@ Tagaddod/
 │   │   ├── B2X/
 │   │   ├── greenpan/
 │   │   └── shared/
-│   ├── api/                  # GraphQL client + domain services
+│   ├── api/                  # GraphQL client, RestClient, domain services
+│   │   ├── collector/        # Collector GAP GraphQL
+│   │   └── trips/            # REST create-trips (TripService)
 │   ├── config/               # env, environments, urls
 │   ├── fixtures/             # loginFixture, apiFixture
 │   └── utils/                # authApi, testdata, helpers
@@ -31,8 +33,8 @@ Tagaddod/
 │   ├── b2b/                  # specs + b2bFlows.ts
 │   ├── b2x/                  # specs + b2xFlows.ts
 │   ├── greenpan/             # specs + greenpanFlows.ts
-│   ├── b2c/                  # minimal stub
-│   └── api/                  # GraphQL specs
+│   ├── b2c/                  # household UI stub
+│   └── api/                  # GraphQL + REST specs (sales/, warehouse/, collector/, …)
 └── playwright/.auth/         # generated user.json / token.json (gitignored)
 ```
 
@@ -40,14 +42,26 @@ Tagaddod/
 
 Configured in `playwright.config.ts`:
 
-| Project    | Matches                       | Auth                                       | Notes                                         |
-| ---------- | ----------------------------- | ------------------------------------------ | --------------------------------------------- |
-| `setup`    | `*.setup.ts`                  | Creates auth                               | Timeout 120s                                  |
-| `b2b`      | `tests/b2b/**/*.spec.ts`      | `storageState: playwright/.auth/user.json` | Depends on `setup`; serial; 180s              |
-| `b2x`      | `tests/b2x/**/*.spec.ts`      | Same storageState                          | Depends on `setup`; serial; 180s              |
-| `greenpan` | `tests/greenpan/**/*.spec.ts` | **No** storageState                        | Public phone flow; `retries: 2`; serial; 180s |
-| `b2c`      | `tests/b2c/**/*.spec.ts`      | None                                       | Stub / early coverage                         |
-| `api`      | `tests/api/**/*.spec.ts`      | JWT via `getAuthToken()`                   | Uses `apiFixture`                             |
+| Project                      | Matches                                      | Auth                                       | Notes                                         |
+| ---------------------------- | -------------------------------------------- | ------------------------------------------ | --------------------------------------------- |
+| `setup`                      | `*.setup.ts`                                 | Admin EMAIL                                | Saves `user.json` + tokens; 120s              |
+| `b2b`                        | `tests/b2b/**/*.spec.ts`                     | `storageState: playwright/.auth/user.json` | Depends on `setup`; serial; 180s              |
+| `b2x`                        | `tests/b2x/**/*.spec.ts`                     | Same storageState                          | Depends on `setup`; serial; 180s              |
+| `greenpan`                   | `tests/greenpan/**/*.spec.ts`                | **No** storageState                        | Public phone flow; `retries: 2`; serial; 180s |
+| `b2c`                        | `tests/b2c/**/*.spec.ts`                     | None                                       | Minimal UI coverage                           |
+| `api-b2x`                    | `api/sales/b2x/createTraderSuperApp.spec.ts` | Sales EG JWT                               | No project dependencies                       |
+| `api-b2x-request`            | `createTraderRequestSalesAgent.spec.ts`      | Sales JWT                                  |                                               |
+| `api-sales-branch`           | `api/sales/b2b/createBranch.spec.ts`         | Sales JWT                                  |                                               |
+| `api-sales-sign-contract`    | `signContractSuperApp.spec.ts`               | Sales JWT                                  |                                               |
+| `api-sales-business-request` | `createBusinessRequestSuperApp.spec.ts`      | Sales JWT                                  |                                               |
+| `api-warehouse`              | `api/warehouse/**/*.spec.ts`                 | Admin JWT                                  | Use `--workers=1`                             |
+| `api-other`                  | B2B/B2X/B2C webform specs under `api/`       | Admin / app JWT                            | Excludes sales, warehouse, collector, trips   |
+| `collector-trip`             | `api/trips/createTrips.spec.ts`              | Sales + REST key                           | Needs `SIBLING_SERVER_API_KEY`                |
+| `collector`                  | `api/collector/collectRequest.spec.ts`       | Sales + collector + REST                   | Full collect + end trip; 180s                 |
+| `trips`                      | `trips/**/*.spec.ts`                         | Depends on request specs                   | Chained create-trips                          |
+| `api`                        | Meta (no direct tests)                       | —                                          | Runs all API sub-projects above in order      |
+
+**Scale (approx.):** **112** UI tests (`b2b` + `b2x` + `b2c` + `greenpan`), **74** API test entries under `tests/api/` (**186** total listed across projects). See [README.md](../README.md).
 
 Env bootstrap in config:
 
@@ -112,9 +126,11 @@ await expect(page).not.toHaveURL(/\/auth/);
 
 - Specs import `src/fixtures/apiFixture`
 - Default `token` / `api` use admin EMAIL via `getAuthToken("admin")` (reuse `token.json` if present)
-- Sales App / Collector App API roles use phone + password + country code:
-  - `salesAppEgyptApi`, `salesAppSaudiApi`, `collectorAppApi`
-  - or `apiLogin("sales-app-egypt" | "sales-app-saudi" | "collector-app")`
+- Sales App / Collector App API roles use phone + password (collector uses `loginGap` without `country_code` in the mutation):
+  - `salesAppEgyptApi`, `salesAppSaudiApi`, `salesAppJordanApi`, `salesAppViennaApi`, `collectorAppApi`
+  - `tripsApi` → REST `create-trips` via `TripService` + `SIBLING_SERVER_API_KEY` (not a GraphQL JWT)
+  - or `apiLogin("sales-app-egypt" | "sales-app-saudi" | "sales-app-jordan" | "sales-app-vienna" | "collector-app")`
+- Create-trips / collector flows: set `TRIPS_COLLECTOR_ID` to the **`collectors.id`** from `myCollector` (default **916**), not the JWT user id.
 - B2B/B2X **UI** setup stays on admin EMAIL only (not phone roles)
 
 ## Configuration map

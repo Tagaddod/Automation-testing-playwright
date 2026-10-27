@@ -22,16 +22,17 @@ tests/api/{domain}/
   helpers.ts              # optional shared setup
 ```
 
-| Piece                | Path                                                                            |
-| -------------------- | ------------------------------------------------------------------------------- |
-| Fixture              | `src/fixtures/apiFixture.ts`                                                    |
-| Facade               | `src/api/ApiManager.ts` → `api.b2b` / `api.b2x` / `api.sales` / `api.warehouse` |
-| Shared enums         | `src/api/enums.ts`                                                              |
-| Response dump helper | `src/api/saveApiResponse.ts`                                                    |
-| Domains              | `b2b`, `b2x`, `sales`, `warehouse` (all lowercase)                              |
-| Specs                | `tests/api/{domain}/*.spec.ts`                                                  |
-| Sales domain split   | `tests/api/sales/b2b/`, `tests/api/sales/b2x/` (Sales App flows)                |
-| Playwright project   | `--project=api` (or a domain project like `api-other`)                          |
+| Piece                | Path                                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Fixture              | `src/fixtures/apiFixture.ts`                                                                                    |
+| Facade               | `src/api/ApiManager.ts` → `api.b2b` / `api.b2x` / `api.sales` / `api.warehouse` / `api.collector`               |
+| REST trips           | `src/api/trips/TripService.ts` + `src/api/RestClient.ts` (`tripsApi` fixture)                                   |
+| Shared enums         | `src/api/enums.ts`                                                                                              |
+| Response dump helper | `src/api/saveApiResponse.ts`                                                                                    |
+| Domains              | `b2b`, `b2x`, `b2c`, `sales`, `warehouse`, `collector`, `trips`                                                 |
+| Specs                | `tests/api/{domain}/*.spec.ts`                                                                                  |
+| Sales domain split   | `tests/api/sales/b2b/`, `tests/api/sales/b2x/` (Sales App flows)                                                |
+| Playwright projects  | `api-other`, `api-warehouse`, `api-b2x*`, `api-sales-*`, `collector`, `collector-trip`, or meta `--project=api` |
 
 ## 2. Auth for API tests
 
@@ -39,21 +40,35 @@ tests/api/{domain}/
 
 ```ts
 token / api                 → admin EMAIL (token.json or fresh apiLogin("admin"))
-salesAppEgyptToken / Api    → Sales App Egypt phone login
-salesAppSaudiToken / Api    → Sales App Saudi phone login
-collectorAppToken / Api     → Collector App phone login
+customerAppApi              → B2C Customer App phone login
+salesAppEgyptApi            → Sales App Egypt (worker-scoped token)
+salesAppSaudiApi            → Sales App Saudi
+salesAppJordanApi           → Sales App Jordan
+salesAppViennaApi           → Sales App Vienna / AT
+collectorAppApi             → Collector App phone login (loginGap)
+tripsApi                    → REST create-trips (sibling-server-api-key header)
 ```
 
 The `api` project does **not** declare `dependencies: ["setup"]`. Still, running UI setup first (or having a valid `playwright/.auth/token.json`) avoids an extra admin login.
 
 ### Credentials (env)
 
-| Profile           | Env vars                                                                      | Login type                            |
-| ----------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
-| `admin` (default) | `ADMIN_EMAIL`, `ADMIN_PASSWORD`                                               | EMAIL — also used by B2B/B2X UI setup |
-| `sales-app-egypt` | `SALES_APP_EG_PHONE`, `SALES_APP_EG_PASSWORD`, `SALES_APP_EG_COUNTRY_CODE`    | PHONE                                 |
-| `sales-app-saudi` | `SALES_APP_SA_PHONE`, `SALES_APP_SA_PASSWORD`, `SALES_APP_SA_COUNTRY_CODE`    | PHONE                                 |
-| `collector-app`   | `COLLECTOR_APP_PHONE`, `COLLECTOR_APP_PASSWORD`, `COLLECTOR_APP_COUNTRY_CODE` | PHONE                                 |
+| Profile            | Env vars                                                                   | Login type                            |
+| ------------------ | -------------------------------------------------------------------------- | ------------------------------------- |
+| `admin` (default)  | `ADMIN_EMAIL`, `ADMIN_PASSWORD`                                            | EMAIL — also used by B2B/B2X UI setup |
+| `sales-app-egypt`  | `SALES_APP_EG_PHONE`, `SALES_APP_EG_PASSWORD`, `SALES_APP_EG_COUNTRY_CODE` | PHONE                                 |
+| `sales-app-saudi`  | `SALES_APP_SA_PHONE`, `SALES_APP_SA_PASSWORD`, `SALES_APP_SA_COUNTRY_CODE` | PHONE                                 |
+| `sales-app-jordan` | `SALES_APP_JORDAN_PHONE`, `SALES_APP_JORDAN_PASSWORD`                      | PHONE + `country_code: JO`            |
+| `sales-app-vienna` | `SALES_APP_VIENNA_PHONE`, `SALES_APP_VIENNA_PASSWORD`                      | PHONE + `country_code: AT`            |
+| `collector-app`    | `COLLECTOR_APP_PHONE`, `COLLECTOR_APP_PASSWORD`                            | PHONE (`loginGap`)                    |
+
+REST create-trips (not a login profile):
+
+| Variable                 | Purpose                                                                                                                                                             |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SIBLING_SERVER_API_KEY` | Required for `tripsApi.createTrips`                                                                                                                                 |
+| `TRIPS_API_URL`          | Optional override; default from `src/config/environments.ts`                                                                                                        |
+| `TRIPS_COLLECTOR_ID`     | `collectors.id` on the trip (default **916**). Must match the collector that will run `getCollectorActiveTrip` — query `myCollector { id }` with the collector JWT. |
 
 ```ts
 import { apiLogin } from "../../../src/utils/authApi";
@@ -72,7 +87,13 @@ test("sales egypt api", async ({ salesAppEgyptApi }) => {
 test("collector api", async ({ collectorAppApi }) => {
   /* ... */
 });
+test("create trips rest", async ({ tripsApi }) => {
+  const response = await tripsApi.createTrips(payload);
+  expect(response.ok).toBeTruthy();
+});
 ```
+
+End-to-end collector GAP example: `tests/api/collector/collectRequest.spec.ts` (`--project=collector`).
 
 UI B2B/B2X setup still uses **admin EMAIL only** (`auth.setup.ts` → `/auth?token=` → `user.json`).
 
@@ -132,7 +153,10 @@ Use `saveApiResponse(name, response)` to write under `test-results/api/responses
 
 ```bash
 ENV=staging npx playwright test --project=api
-ENV=staging npx playwright test --project=api tests/api/b2b --grep "@create business client"
+ENV=staging npx playwright test --project=api-other tests/api/b2b --grep "@webform-API-regression"
+ENV=staging npx playwright test --project=api-warehouse --workers=1
+ENV=staging npx playwright test --project=collector --workers=1
+ENV=staging npx playwright test --project=collector-trip --workers=1
 ```
 
 ## 8. Checklist

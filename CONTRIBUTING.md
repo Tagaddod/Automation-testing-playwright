@@ -30,13 +30,17 @@ Create local env files (gitignored):
 - `.env.staging`
 - `.env.uat`
 
-Minimum keys:
+Minimum keys for UI (B2B/B2X):
 
 ```bash
 ENV=dev
 ADMIN_EMAIL=...
 ADMIN_PASSWORD=...
 ```
+
+For Sales / Collector / create-trips API work, copy [`.env.example`](.env.example) and fill phone credentials plus `SIBLING_SERVER_API_KEY` and `TRIPS_COLLECTOR_ID` when running `--project=collector` or `collector-trip`.
+
+**Suite size:** about **112** UI tests and **74** API test entries (**186** total across Playwright projects) — see [README.md](README.md).
 
 Always pass `ENV` explicitly when running tests (config defaults can differ from `src/config/env.ts`):
 

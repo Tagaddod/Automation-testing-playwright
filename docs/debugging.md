@@ -83,6 +83,21 @@ Inspect:
 - Token validity (`getAuthToken` / admin credentials)
 - Whether builder payload matches current schema (`src/api/b2b/testData.ts`)
 
+### Collector / create-trips failures
+
+| Symptom                                   | Likely cause                                                                                                                      |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Set SIBLING_SERVER_API_KEY`              | Missing key in `.env` / `.env.staging`                                                                                            |
+| `Get Trip ID failed` / no active trip     | `TRIPS_COLLECTOR_ID` does not match logged-in collector — use `myCollector { id }` with collector JWT (not JWT `data.id` user id) |
+| REST 500 / `collector_id` foreign key     | Same as above: invalid `collectors.id` on create-trips payload                                                                    |
+| `updateCollector` / collector id mismatch | `TRIPS_COLLECTOR_ID` must match the collector used in the mutation                                                                |
+
+Re-run a single flow:
+
+```bash
+ENV=staging npx playwright test tests/api/collector/collectRequest.spec.ts --project=collector --workers=1
+```
+
 ## 4. Auth / token debugging
 
 ```bash

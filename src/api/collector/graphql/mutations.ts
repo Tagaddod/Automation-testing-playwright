@@ -41,9 +41,9 @@ export const UPDATE_REQUEST_STATUS = `
 `;
 
 export const UPDATE_COLLECTOR = `
-  mutation UpdateCollector($requestId: ID!) {
+  mutation UpdateCollector($collectorId: ID!, $requestId: ID!) {
     updateCollector(
-      id: 916
+      id: $collectorId
       input: {
         requests: {
           update: [

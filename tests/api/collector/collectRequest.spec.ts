@@ -10,7 +10,7 @@ import {
   COLLECTOR_END_TRIP_LATITUDE,
   COLLECTOR_END_TRIP_LONGITUDE,
   COLLECTOR_REQUEST_FULFILLED_STATUS,
-  UPDATE_COLLECTOR_ID,
+  updateCollectorId,
   validCollectorGapCreateTripsPayload,
 } from "../../../src/api/collector/testData";
 import { GraphQLClient } from "../../../src/api/GraphQLClient";
@@ -20,7 +20,7 @@ import {
   validTraderVariables,
 } from "../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../src/api/saveApiResponse";
-import { DEFAULT_COLLECTOR_ID } from "../../../src/api/trips/testData";
+import { resolveCollectorId } from "../../../src/api/trips/testData";
 import { hasSiblingServerApiKey } from "../../../src/config/env";
 import { expect, test } from "../../../src/fixtures/apiFixture";
 import { getAuthToken } from "../../../src/utils/authApi";
@@ -131,8 +131,8 @@ test.describe(
             ).toBe(numericRequestId);
             expect(
               tripVariables.trips[0]?.collector_id,
-              "Create Trip failed: collector_id must be 916.",
-            ).toBe(DEFAULT_COLLECTOR_ID);
+              "Create Trip failed: collector_id must match TRIPS_COLLECTOR_ID (or default 916).",
+            ).toBe(resolveCollectorId());
 
             const tripResponse = await tripsApi.createTrips(tripVariables);
 
@@ -191,9 +191,10 @@ test.describe(
               ].join("\n"),
             );
 
-            expect(UPDATE_COLLECTOR_ID, "UpdateCollector failed: collector id must be 916.").toBe(
-              916,
-            );
+            expect(
+              updateCollectorId(),
+              "UpdateCollector failed: collector id must match TRIPS_COLLECTOR_ID (or default 916).",
+            ).toBe(resolveCollectorId());
 
             const response = await collectorAppApi.collector.updateCollector(requestId);
             expectNoGraphqlErrors("updateCollector", response.errors);
@@ -204,7 +205,7 @@ test.describe(
             );
 
             saveApiResponse("collectorFulfilledRequests", {
-              collectorId: UPDATE_COLLECTOR_ID,
+              collectorId: updateCollectorId(),
               requestId,
               status: COLLECTOR_REQUEST_FULFILLED_STATUS,
               collector: response.data?.updateCollector,

@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 
+import { resolveCollectorId } from "../trips/testData";
 import type {
   CollectorActiveTrip,
   EndedCollectorTrip,
@@ -12,7 +13,6 @@ import {
   COLLECTOR_REQUEST_FULFILLED_STATUS,
   COLLECTOR_TRIP_STARTED_STATUS,
   graphqlFailureMessage,
-  UPDATE_COLLECTOR_ID,
 } from "./testData";
 
 function firstError(errors?: Array<{ message: string }>): string {
@@ -107,8 +107,8 @@ export function expectRequestFulfilled(result: ProcessedCollectorRequest): void 
 
 export function expectCollectorUpdated(collector: UpdateCollectorResult | null | undefined): void {
   expect(collector, "Expect Request to be fulfilled").toBeTruthy();
-  expect(String(collector?.id), "Expect updateCollector to use collector ID 916").toBe(
-    String(UPDATE_COLLECTOR_ID),
+  expect(String(collector?.id), "Expect updateCollector to use configured collector ID").toBe(
+    String(resolveCollectorId()),
   );
 }
 

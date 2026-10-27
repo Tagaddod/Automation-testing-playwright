@@ -94,7 +94,7 @@ export function validTripVariables(overrides: Partial<CreateTripData> = {}): Cre
     q_km: 15,
     quantity: 10,
     num_points: 1,
-    collector_id: DEFAULT_COLLECTOR_ID,
+    collector_id: resolveCollectorId(),
     ...overrides,
   };
 }
@@ -134,7 +134,6 @@ export function validCreateTripsWithRequestId(requestId: number): CreateTripsPay
   return validCreateTripsPayload({
     requests: [{ id: requestId, order: 1 }],
     num_points: 1,
-    collector_id: DEFAULT_COLLECTOR_ID,
   });
 }
 

@@ -4,10 +4,7 @@ import {
   validTraderVariables,
 } from "../../../src/api/sales/testData";
 import { saveApiResponse } from "../../../src/api/saveApiResponse";
-import {
-  DEFAULT_COLLECTOR_ID,
-  validCreateTripsWithRequestId,
-} from "../../../src/api/trips/testData";
+import { resolveCollectorId, validCreateTripsWithRequestId } from "../../../src/api/trips/testData";
 import { hasSiblingServerApiKey } from "../../../src/config/env";
 import { expect, test } from "../../../src/fixtures/apiFixture";
 
@@ -95,8 +92,8 @@ test.describe("Create Trips", { tag: ["@api", "@trips", "@create-trips", "@valid
         ).toBe(numericRequestId);
         expect(
           tripVariables.trips[0]?.collector_id,
-          "Create Trip failed: collector_id must be 916.",
-        ).toBe(DEFAULT_COLLECTOR_ID);
+          "Create Trip failed: collector_id must match TRIPS_COLLECTOR_ID (or default 916).",
+        ).toBe(resolveCollectorId());
 
         const tripResponse = await tripsApi.createTrips(tripVariables);
 

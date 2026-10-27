@@ -1,4 +1,4 @@
-import { DEFAULT_COLLECTOR_ID, validCreateTripsPayload } from "../trips/testData";
+import { resolveCollectorId, validCreateTripsPayload } from "../trips/testData";
 import type { CreateTripsPayload } from "../trips/TripService";
 import type {
   AvailableCollectable,
@@ -12,8 +12,10 @@ export const COLLECTOR_REQUEST_FULFILLED_STATUS = "FULFILLED";
 export const COLLECTOR_HOME_REQUEST_TYPE = "HOME";
 export const COLLECTOR_OIL_FLOW = "oil";
 
-/** Fixed collector id for updateCollector. Do not generate this dynamically. */
-export const UPDATE_COLLECTOR_ID = 916;
+/** Collector id for updateCollector / create-trips (override with TRIPS_COLLECTOR_ID). */
+export function updateCollectorId(): number {
+  return resolveCollectorId();
+}
 
 export const COLLECTOR_TRACKING_DEVICE_ID = "QKQ1.191224.003";
 
@@ -109,7 +111,7 @@ export function selectedGiftsFromCompensation(
   return [{ campaign_id: campaignId }];
 }
 
-/** Create-trips payload for the collector GAP flow (assigned to collector 916). */
+/** Create-trips payload for the collector GAP flow (collector from TRIPS_COLLECTOR_ID or 916). */
 export function validCollectorGapCreateTripsPayload(
   requestId: number,
   collectionDate?: string,
@@ -117,7 +119,7 @@ export function validCollectorGapCreateTripsPayload(
   return validCreateTripsPayload({
     requests: [{ id: requestId, order: 1 }],
     num_points: 1,
-    collector_id: DEFAULT_COLLECTOR_ID,
+    collector_id: resolveCollectorId(),
     ...(collectionDate ? { collection_date: collectionDate } : {}),
   });
 }

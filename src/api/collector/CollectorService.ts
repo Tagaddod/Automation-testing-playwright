@@ -1,4 +1,5 @@
 import type { GraphQLClient } from "../GraphQLClient";
+import { resolveCollectorId } from "../trips/testData";
 import {
   END_COLLECTOR_TRIP,
   START_TRIP,
@@ -217,11 +218,11 @@ export class CollectorService {
     }>(UPDATE_REQUEST_STATUS, { requestId, status });
   }
 
-  /** Fulfill a saved request on collector 916. Request ID must be dynamic. */
+  /** Fulfill a saved request for the configured collector. Request ID must be dynamic. */
   updateCollector(requestId: string) {
     return this.client.execute<{
       updateCollector: UpdateCollectorResult | null;
-    }>(UPDATE_COLLECTOR, { requestId });
+    }>(UPDATE_COLLECTOR, { requestId, collectorId: resolveCollectorId() });
   }
 
   /** End the collector trip using the saved Trip ID. Coordinates are 30.0444, 31.2357. */

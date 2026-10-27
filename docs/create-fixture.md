@@ -4,10 +4,10 @@ Fixtures in this framework customize Playwright’s `test` object for auth and A
 
 ## Existing fixtures
 
-| Fixture        | Path                           | Provides                   | Used by                     |
-| -------------- | ------------------------------ | -------------------------- | --------------------------- |
-| `loginFixture` | `src/fixtures/loginFixture.ts` | `token: string`            | `tests/setup/auth.setup.ts` |
-| `apiFixture`   | `src/fixtures/apiFixture.ts`   | `token`, `api: ApiManager` | `tests/api/**`              |
+| Fixture        | Path                           | Provides                                   | Used by                     |
+| -------------- | ------------------------------ | ------------------------------------------ | --------------------------- |
+| `loginFixture` | `src/fixtures/loginFixture.ts` | `token: string`                            | `tests/setup/auth.setup.ts` |
+| `apiFixture`   | `src/fixtures/apiFixture.ts`   | Admin + app JWTs, `ApiManager`, `tripsApi` | `tests/api/**`              |
 
 ### loginFixture (current behavior)
 
@@ -34,18 +34,15 @@ B2B/B2X **UI specs do not import loginFixture**. They rely on project `storageSt
 
 ### apiFixture (current behavior)
 
-```ts
-token: async ({}, use) => {
-  await use(await getAuthToken());
-},
+- **`token` / `api`** — admin EMAIL JWT → `ApiManager` (B2B/B2X webform, warehouse, etc.).
+- **`customerAppApi`** — B2C Customer App phone login.
+- **`salesAppEgyptApi`** — worker-scoped Sales Egypt token (single-session JWT).
+- **`salesAppSaudiApi`**, **`salesAppJordanApi`**, **`salesAppViennaApi`** — other Sales regions.
+- **`collectorAppApi`** — Collector App phone login.
+- **`tripsApi`** — `TripService` for REST `create-trips` (uses `SIBLING_SERVER_API_KEY`, not GraphQL).
+- **`attachGraphqlExchange`** — auto-attaches last GraphQL exchange to the HTML report (auto fixture).
 
-api: async ({ token }, use) => {
-  const client = await GraphQLClient.create(token);
-  const api = new ApiManager(client);
-  await use(api);
-  await api.dispose();
-},
-```
+Each `*Api` fixture creates a `GraphQLClient`, wraps `ApiManager`, and calls `api.dispose()` after the test unless noted otherwise.
 
 ## When to add a fixture
 

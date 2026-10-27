@@ -251,6 +251,12 @@ export function saveAuthToken(token: string, profile: AuthProfile = "admin"): vo
  * Stale admin tokens from token.json caused 413 "logged in from another device".
  */
 export async function getAuthToken(profile: AuthProfile = "admin"): Promise<string> {
+  const injected = process.env.ADMIN_JWT?.trim();
+  if (profile === "admin" && injected) {
+    saveAuthToken(injected, profile);
+    return injected;
+  }
+
   const { token } = await apiLogin(profile);
   saveAuthToken(token, profile);
   return token;
